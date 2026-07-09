@@ -3,24 +3,12 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 // Use node-postgres (TCP) rather than the Neon WebSocket serverless driver.
 // TCP connections wait for a suspended Neon compute to wake instead of
-// fast-failing, which eliminates the intermittent connection errors we saw
-// on cold starts. This is also the right fit for the Vercel Node runtime.
-
-/**
- * Only retry errors that mean the query never reached the database (connection
- * establishment failures). This is safe — the query didn't run, so retrying
- * can't double-execute a write. Neon free-tier computes suspend after ~5 min
- * and the first request can fail while the compute wakes.
- */
-function isConnectionError(err: unknown): boolean {
-  const msg = String((err as { message?: string })?.message ?? err);
-  return /DatabaseNotReachable|Can't reach database server|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|Connection terminated unexpectedly|the database system is starting up/i.test(
-    msg,
-  );
-}
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
+// fast-failing, which makes cold-start connection errors rare. This is also
+// the right fit for the Vercel Node runtime.
+//
+// NOTE: do NOT wrap this client with `$extends` — Better Auth's prismaAdapter
+// reads the model map off the client and silently registers zero routes when
+// given an extended (proxied) client.
 const createPrismaClient = () => {
   // Strip `sslmode`/`channel_binding` from the URL and supply TLS via config.
   // pg 8.22 emits a deprecation warning when it parses `sslmode=require`; this
@@ -33,26 +21,7 @@ const createPrismaClient = () => {
     connectionString: url.toString(),
     ssl: { rejectUnauthorized: false },
   });
-
-  return new PrismaClient({ adapter }).$extends({
-    query: {
-      async $allOperations({ args, query }) {
-        const maxAttempts = 4;
-        let lastError: unknown;
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          try {
-            return await query(args);
-          } catch (err) {
-            lastError = err;
-            if (attempt === maxAttempts || !isConnectionError(err)) throw err;
-            // Backoff gives a cold Neon compute time to wake: 0.3s, 0.9s, 1.8s.
-            await sleep(300 * attempt * attempt);
-          }
-        }
-        throw lastError;
-      },
-    },
-  });
+  return new PrismaClient({ adapter });
 };
 
 const globalForPrisma = globalThis as unknown as {
