@@ -3,23 +3,22 @@
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { Flame, Trophy, Menu } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
 import { Progress } from "@/components/ui/progress";
 import { getLevelProgress } from "@/lib/xp";
 import { Button } from "@/components/ui/button";
+import type { ProfileSummary } from "@/lib/data/dashboard";
 
 interface NavbarProps {
   onOpenMobileNav: () => void;
+  profile: ProfileSummary;
 }
 
-export function Navbar({ onOpenMobileNav }: NavbarProps) {
+export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
-  // Hardcoded defaults for MVP profile info until dynamic profile fetch is integrated
-  const userXp = 120; // Example starting XP
-  const { level, progress, nextLevelXp } = getLevelProgress(userXp);
-  const currentStreak = 3; // Example starting streak
+  const userXp = profile.xp;
+  const { level, progress, currentLevelXp, nextLevelXp } = getLevelProgress(userXp);
+  const currentStreak = profile.currentStreak;
 
   // Get Page Title from Pathname
   const getPageTitle = () => {
@@ -59,7 +58,7 @@ export function Navbar({ onOpenMobileNav }: NavbarProps) {
             <Progress value={progress} className="h-1.5 bg-secondary" />
           </div>
           <span className="text-[10px] font-medium text-muted-foreground">
-            {userXp % (level * 100)} / {nextLevelXp} XP
+            {currentLevelXp} / {nextLevelXp} XP
           </span>
         </div>
 

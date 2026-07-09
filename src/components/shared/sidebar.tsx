@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Zap, BookOpen, Target, Brain, User, Settings, LogOut, Flame } from "lucide-react";
+import { Zap, BookOpen, Target, Brain, User, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOut, useSession } from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut } from "@/lib/auth-client";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
+import type { ProfileSummary } from "@/lib/data/dashboard";
 
 const routes = [
   {
@@ -47,16 +48,11 @@ const routes = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ profile }: { profile: ProfileSummary }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  
-  // Hardcoded defaults for MVP profile info until database link is established
-  const userXp = 0;
-  const userLevel = 1;
-  const userStreak = 0;
-  
-  const displayName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Explorer";
+
+  const displayName = profile.displayName;
+  const userLevel = profile.level;
   const userRank = getRank(userLevel);
 
   const handleSignOut = async () => {

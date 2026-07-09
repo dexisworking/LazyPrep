@@ -4,14 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Zap, BookOpen, Target, Brain, User, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOut, useSession } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
 import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
+import type { ProfileSummary } from "@/lib/data/dashboard";
 
 interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
+  profile: ProfileSummary;
 }
 
 const routes = [
@@ -53,12 +55,11 @@ const routes = [
   },
 ];
 
-export function MobileNav({ isOpen, onClose }: MobileNavProps) {
+export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
-  const userLevel = 1;
-  const displayName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Explorer";
+  const userLevel = profile.level;
+  const displayName = profile.displayName;
   const userRank = getRank(userLevel);
 
   const handleSignOut = async () => {
