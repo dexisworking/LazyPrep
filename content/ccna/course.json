@@ -1,7 +1,57 @@
 {
   "slug": "ccna",
   "title": "Cisco CCNA (200-301)",
-  "description": "Cisco Certified Network Associate (CCNA) exam preparation course. Covers networking fundamentals, IP connectivity, IP services, security fundamentals, and automation.",
+  "description": "Cisco Certified Network Associate (CCNA) exam preparation. Covers networking fundamentals, network access, IP connectivity, and more.",
   "imageUrl": "/images/courses/ccna.png",
-  "category": "certification"
+  "category": "certification",
+  "modules": [
+    {
+      "title": "Network Fundamentals",
+      "slug": "network-fundamentals",
+      "chapters": [
+        {
+          "title": "Introduction to Networking",
+          "slug": "introduction-to-networking",
+          "lessons": [
+            { "title": "Introduction to Networks", "slug": "introduction-to-networks", "file": "introduction-to-networks.md", "estimatedMinutes": 8 },
+            { "title": "Network Topologies", "slug": "network-topologies", "file": "network-topologies.md", "estimatedMinutes": 10 }
+          ]
+        },
+        {
+          "title": "OSI and TCP/IP Models",
+          "slug": "osi-and-tcp-ip-models",
+          "lessons": [
+            { "title": "The OSI Model Layer by Layer", "slug": "osi-model", "file": "osi-model.md", "estimatedMinutes": 12 },
+            { "title": "TCP/IP Protocol Suite", "slug": "tcp-ip-suite", "file": "tcp-ip-suite.md", "estimatedMinutes": 8 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Network Access",
+      "slug": "network-access",
+      "chapters": [
+        {
+          "title": "VLANs and Trunking",
+          "slug": "vlans-and-trunking",
+          "lessons": [
+            { "title": "VLAN Fundamentals", "slug": "vlan-fundamentals", "file": "vlan-fundamentals.md", "estimatedMinutes": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "IP Connectivity",
+      "slug": "ip-connectivity",
+      "chapters": [
+        {
+          "title": "Routing Concepts",
+          "slug": "routing-concepts",
+          "lessons": [
+            { "title": "Static Routing", "slug": "static-routing", "file": "static-routing.md", "estimatedMinutes": 12 }
+          ]
+        }
+      ]
+    }
+  ]
 }

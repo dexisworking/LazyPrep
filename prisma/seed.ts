@@ -4,205 +4,199 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import * as fs from "fs";
 import * as path from "path";
 
-// Prisma 7 requires a driver adapter (no datasource url in schema).
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+// Prisma 7 requires a driver adapter. Match the runtime client: strip
+// sslmode/channel_binding from the URL and supply TLS via config.
+function makePrisma() {
+  const url = new URL(process.env.DATABASE_URL!);
+  url.searchParams.delete("sslmode");
+  url.searchParams.delete("channel_binding");
+  const adapter = new PrismaPg({ connectionString: url.toString(), ssl: { rejectUnauthorized: false } });
+  return new PrismaClient({ adapter });
+}
 
-async function main() {
-  console.log("🚀 Starting database seeding...");
+const prisma = makePrisma();
+const CONTENT_DIR = path.join(process.cwd(), "content");
 
-  const contentDir = path.join(process.cwd(), "content", "ccna");
+// ─── Content-pack types ───
+type PackLesson = { title: string; slug?: string; file?: string; content?: string; estimatedMinutes?: number };
+type PackChapter = { title: string; slug?: string; lessons: PackLesson[] };
+type PackModule = { title: string; slug?: string; chapters: PackChapter[] };
+type Pack = {
+  slug: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  modules: PackModule[];
+};
+type PackQuestion = {
+  topic: string;
+  difficulty: string;
+  text: string;
+  options: string[];
+  correctIdx: number;
+  explanation: string;
+  tags?: string[];
+};
+type PackFlashcard = { front: string; back: string; topic: string; tags?: string[] };
 
-  // ─── 1. Seed Course ───
-  console.log("📚 Seeding course metadata...");
-  const courseData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "course.json"), "utf-8")
-  );
+function slugify(input: string, fallback: string): string {
+  const s = input
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return s || fallback;
+}
+
+function readJson<T>(file: string): T | null {
+  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf-8")) as T) : null;
+}
+
+/** Discover every content pack (a folder in content/ with a course.json). */
+function listPacks(): string[] {
+  if (!fs.existsSync(CONTENT_DIR)) return [];
+  return fs
+    .readdirSync(CONTENT_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(CONTENT_DIR, d.name, "course.json")))
+    .map((d) => d.name);
+}
+
+/**
+ * Import one content pack as a CURATED course (ownerId = null, published).
+ * Idempotent: structure is upserted by slug (preserving user progress); the
+ * question and flashcard sets are replaced.
+ */
+async function importPack(packSlug: string) {
+  const dir = path.join(CONTENT_DIR, packSlug);
+  const pack = readJson<Pack>(path.join(dir, "course.json"));
+  if (!pack) throw new Error(`content/${packSlug}/course.json not found`);
 
   const course = await prisma.course.upsert({
-    where: { slug: courseData.slug },
+    where: { slug: pack.slug },
     update: {
-      title: courseData.title,
-      description: courseData.description,
-      imageUrl: courseData.imageUrl,
-      category: courseData.category,
-    },
-    create: {
-      slug: courseData.slug,
-      title: courseData.title,
-      description: courseData.description,
-      imageUrl: courseData.imageUrl,
-      category: courseData.category,
+      title: pack.title,
+      description: pack.description ?? null,
+      imageUrl: pack.imageUrl ?? null,
+      category: pack.category ?? "certification",
       published: true,
     },
+    create: {
+      slug: pack.slug,
+      title: pack.title,
+      description: pack.description ?? null,
+      imageUrl: pack.imageUrl ?? null,
+      category: pack.category ?? "certification",
+      published: true,
+      aiGenerated: false,
+      adaptive: false,
+    },
   });
-  console.log(`✅ Course upserted: ${course.title}`);
 
-  // ─── 2. Seed Modules ───
-  console.log("📦 Seeding modules...");
-  const modulesData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "modules.json"), "utf-8")
-  );
+  const stats = { modules: 0, chapters: 0, lessons: 0, questions: 0, flashcards: 0 };
 
-  const dbModules: Record<string, string> = {}; // map slug -> id
-
-  for (const m of modulesData) {
+  for (const [mi, m] of (pack.modules ?? []).entries()) {
+    const mSlug = m.slug ?? slugify(m.title, `module-${mi + 1}`);
     const dbModule = await prisma.module.upsert({
-      where: {
-        courseId_slug: { courseId: course.id, slug: m.slug },
-      },
-      update: {
-        title: m.title,
-        order: m.order,
-      },
-      create: {
-        courseId: course.id,
-        title: m.title,
-        slug: m.slug,
-        order: m.order,
-      },
+      where: { courseId_slug: { courseId: course.id, slug: mSlug } },
+      update: { title: m.title, order: mi + 1 },
+      create: { courseId: course.id, title: m.title, slug: mSlug, order: mi + 1 },
     });
-    dbModules[m.slug] = dbModule.id;
-  }
-  console.log(`✅ ${modulesData.length} Modules seeded`);
+    stats.modules++;
 
-  // ─── 3. Seed Chapters ───
-  console.log("📂 Seeding chapters...");
-  const chaptersData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "chapters.json"), "utf-8")
-  );
+    for (const [ci, ch] of (m.chapters ?? []).entries()) {
+      const cSlug = ch.slug ?? slugify(ch.title, `chapter-${ci + 1}`);
+      const dbChapter = await prisma.chapter.upsert({
+        where: { moduleId_slug: { moduleId: dbModule.id, slug: cSlug } },
+        update: { title: ch.title, order: ci + 1 },
+        create: { moduleId: dbModule.id, title: ch.title, slug: cSlug, order: ci + 1 },
+      });
+      stats.chapters++;
 
-  const dbChapters: Record<string, string> = {}; // map slug -> id
-
-  for (const c of chaptersData) {
-    const moduleId = dbModules[c.moduleSlug];
-    if (!moduleId) {
-      console.warn(`⚠️ Module slug not found for chapter: ${c.title}`);
-      continue;
+      for (const [li, l] of (ch.lessons ?? []).entries()) {
+        const lSlug = l.slug ?? (l.file ? l.file.replace(/\.md$/i, "") : slugify(l.title, `lesson-${li + 1}`));
+        let content = l.content ?? "";
+        if (l.file) {
+          const mdPath = path.join(dir, "lessons", l.file);
+          content = fs.existsSync(mdPath)
+            ? fs.readFileSync(mdPath, "utf-8")
+            : `# ${l.title}\n\nContent coming soon.`;
+        }
+        await prisma.lesson.upsert({
+          where: { chapterId_slug: { chapterId: dbChapter.id, slug: lSlug } },
+          update: { title: l.title, content, order: li + 1, estimatedMinutes: l.estimatedMinutes ?? 10 },
+          create: {
+            chapterId: dbChapter.id,
+            title: l.title,
+            slug: lSlug,
+            content,
+            order: li + 1,
+            estimatedMinutes: l.estimatedMinutes ?? 10,
+          },
+        });
+        stats.lessons++;
+      }
     }
-
-    const dbChapter = await prisma.chapter.upsert({
-      where: {
-        moduleId_slug: { moduleId, slug: c.slug },
-      },
-      update: {
-        title: c.title,
-        order: c.order,
-      },
-      create: {
-        moduleId,
-        title: c.title,
-        slug: c.slug,
-        order: c.order,
-      },
-    });
-    dbChapters[c.slug] = dbChapter.id;
   }
-  console.log(`✅ ${chaptersData.length} Chapters seeded`);
 
-  // ─── 4. Seed Lessons ───
-  console.log("📄 Seeding lessons...");
-  const lessonsData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "lessons.json"), "utf-8")
-  );
-
-  for (const l of lessonsData) {
-    const chapterId = dbChapters[l.chapterSlug];
-    if (!chapterId) {
-      console.warn(`⚠️ Chapter slug not found for lesson: ${l.title}`);
-      continue;
+  // Questions and flashcards have no stable key — replace the whole set.
+  const questions = readJson<PackQuestion[]>(path.join(dir, "questions.json"));
+  if (questions) {
+    await prisma.question.deleteMany({ where: { courseId: course.id } });
+    for (const q of questions) {
+      await prisma.question.create({
+        data: {
+          courseId: course.id,
+          topic: q.topic,
+          difficulty: q.difficulty,
+          text: q.text,
+          options: q.options,
+          correctIdx: q.correctIdx,
+          explanation: q.explanation,
+          tags: q.tags ?? [],
+        },
+      });
     }
+    stats.questions = questions.length;
+  }
 
-    // Read markdown file content
-    const mdPath = path.join(contentDir, "lessons", l.file);
-    let mdContent = "";
-    if (fs.existsSync(mdPath)) {
-      mdContent = fs.readFileSync(mdPath, "utf-8");
-    } else {
-      console.warn(`⚠️ Lesson content markdown file not found: ${l.file}`);
-      mdContent = `# ${l.title}\n\nContent coming soon.`;
+  const flashcards = readJson<PackFlashcard[]>(path.join(dir, "flashcards.json"));
+  if (flashcards) {
+    await prisma.flashcard.deleteMany({ where: { courseId: course.id } });
+    for (const f of flashcards) {
+      await prisma.flashcard.create({
+        data: { courseId: course.id, front: f.front, back: f.back, topic: f.topic, tags: f.tags ?? [] },
+      });
     }
-
-    await prisma.lesson.upsert({
-      where: {
-        chapterId_slug: { chapterId, slug: l.slug },
-      },
-      update: {
-        title: l.title,
-        content: mdContent,
-        order: l.order,
-        estimatedMinutes: l.estimatedMinutes,
-      },
-      create: {
-        chapterId,
-        title: l.title,
-        slug: l.slug,
-        content: mdContent,
-        order: l.order,
-        estimatedMinutes: l.estimatedMinutes,
-      },
-    });
+    stats.flashcards = flashcards.length;
   }
-  console.log(`✅ ${lessonsData.length} Lessons seeded`);
 
-  // ─── 5. Seed Practice Questions ───
-  console.log("❓ Seeding practice questions...");
-  const questionsData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "questions.json"), "utf-8")
-  );
+  return { title: pack.title, stats };
+}
 
-  // For questions, let's delete existing questions for this course slug to avoid duplicates, or upsert.
-  // Since questions don't have a unique slug/key, we can clean and reload, or do simple creations.
-  // For safety in dev seeding, we delete old ones first.
-  await prisma.question.deleteMany({
-    where: { courseId: course.id },
-  });
-
-  for (const q of questionsData) {
-    await prisma.question.create({
-      data: {
-        courseId: course.id,
-        topic: q.topic,
-        difficulty: q.difficulty,
-        text: q.text,
-        options: q.options,
-        correctIdx: q.correctIdx,
-        explanation: q.explanation,
-        tags: q.tags,
-      },
-    });
+async function main() {
+  // Optionally import a single pack: `tsx prisma/seed.ts <slug>`
+  const only = process.argv[2];
+  const packs = only ? [only] : listPacks();
+  if (packs.length === 0) {
+    console.log("No content packs found in content/.");
+    return;
   }
-  console.log(`✅ ${questionsData.length} MCQ Questions seeded`);
 
-  // ─── 6. Seed Flashcards ───
-  console.log("🎴 Seeding flashcards...");
-  const flashcardsData = JSON.parse(
-    fs.readFileSync(path.join(contentDir, "flashcards.json"), "utf-8")
-  );
-
-  await prisma.flashcard.deleteMany({
-    where: { courseId: course.id },
-  });
-
-  for (const f of flashcardsData) {
-    await prisma.flashcard.create({
-      data: {
-        courseId: course.id,
-        front: f.front,
-        back: f.back,
-        topic: f.topic,
-        tags: f.tags,
-      },
-    });
+  console.log(`📦 Importing ${packs.length} content pack(s): ${packs.join(", ")}`);
+  for (const slug of packs) {
+    const { title, stats } = await importPack(slug);
+    console.log(
+      `✅ ${title} — ${stats.modules} modules, ${stats.chapters} chapters, ${stats.lessons} lessons, ${stats.questions} MCQs, ${stats.flashcards} flashcards`,
+    );
   }
-  console.log(`✅ ${flashcardsData.length} Flashcards seeded`);
-
-  console.log("✨ Database seeding completed successfully!");
+  console.log("✨ Content import complete.");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e);
+    console.error("❌ Import failed:", e);
     process.exit(1);
   })
   .finally(async () => {
