@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, ArrowRight, CheckCircle2 } from "lucide-react";
+import { BookOpen, ArrowRight, CheckCircle2, Sparkles, Plus } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getCoursesOverview } from "@/lib/data/courses";
 
@@ -11,11 +11,20 @@ export default async function CoursesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Courses</h1>
-        <p className="text-sm text-muted-foreground">
-          Pick a certification and start working through it lesson by lesson.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Courses</h1>
+          <p className="text-sm text-muted-foreground">
+            Work through a course lesson by lesson — or generate your own with AI.
+          </p>
+        </div>
+        <Link
+          href="/courses/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+        >
+          <Plus className="h-4 w-4" />
+          Create with AI
+        </Link>
       </div>
 
       {courses.length === 0 ? (
@@ -41,9 +50,17 @@ export default async function CoursesPage() {
                   <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
                     <BookOpen className="h-5 w-5 text-primary" />
                   </div>
-                  <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                    {course.category}
-                  </span>
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    {course.aiGenerated && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                        <Sparkles className="h-3 w-3" />
+                        AI
+                      </span>
+                    )}
+                    <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {course.category}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="space-y-1">

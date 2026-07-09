@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
-import { getLessonView } from "@/lib/data/courses";
+import { getLessonView, canAccessCourse } from "@/lib/data/courses";
 import { recordLessonView } from "@/lib/actions/progress";
 import { LessonContent } from "@/components/lesson/lesson-content";
+import { LessonGenerator } from "@/components/lesson/lesson-generator";
 import { MarkCompleteButton } from "@/components/lesson/mark-complete-button";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ export default async function LessonPage({
   const { courseSlug, lessonSlug } = await params;
   const profile = await getCurrentProfile();
   const view = await getLessonView(courseSlug, lessonSlug, profile?.id ?? null);
-  if (!view) notFound();
+  if (!view || !canAccessCourse(view.course, profile?.id ?? null)) notFound();
 
   const { course, lesson, completed, moduleTitle, chapterTitle, position, total, prev, next } = view;
 
@@ -26,6 +27,7 @@ export default async function LessonPage({
 
   const coursePath = `/courses/${course.slug}`;
   const lessonHref = (slug: string) => `${coursePath}/lessons/${slug}`;
+  const needsGeneration = lesson.content.trim().length === 0;
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -54,18 +56,24 @@ export default async function LessonPage({
         </div>
       </div>
 
-      {/* Content */}
-      <LessonContent content={lesson.content} />
+      {/* Content — generated on demand for AI courses */}
+      {needsGeneration ? (
+        <LessonGenerator lessonId={lesson.id} />
+      ) : (
+        <>
+          <LessonContent content={lesson.content} />
 
-      {/* Complete action */}
-      <div className="border-t border-border/40 pt-6">
-        <MarkCompleteButton
-          lessonId={lesson.id}
-          coursePath={coursePath}
-          initialCompleted={completed}
-          nextHref={next ? lessonHref(next.slug) : null}
-        />
-      </div>
+          {/* Complete action */}
+          <div className="border-t border-border/40 pt-6">
+            <MarkCompleteButton
+              lessonId={lesson.id}
+              coursePath={coursePath}
+              initialCompleted={completed}
+              nextHref={next ? lessonHref(next.slug) : null}
+            />
+          </div>
+        </>
+      )}
 
       {/* Prev / Next navigation */}
       <div className="flex items-center justify-between gap-4 border-t border-border/40 pt-6">

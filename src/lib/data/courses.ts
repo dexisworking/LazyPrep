@@ -1,9 +1,29 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+
+/**
+ * Visibility filter: a user sees curated/global courses (ownerId = null) plus
+ * their own generated courses — never another user's private course.
+ */
+export function courseVisibility(profileId: string | null): Prisma.CourseWhereInput {
+  return {
+    published: true,
+    OR: [{ ownerId: null }, ...(profileId ? [{ ownerId: profileId }] : [])],
+  };
+}
+
+/** True if the given profile may view this course. */
+export function canAccessCourse(
+  course: { ownerId: string | null },
+  profileId: string | null,
+): boolean {
+  return course.ownerId === null || course.ownerId === profileId;
+}
 
 /** Courses list with per-course progress for the given profile (or null = signed out). */
 export async function getCoursesOverview(profileId: string | null) {
   const courses = await prisma.course.findMany({
-    where: { published: true },
+    where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
 

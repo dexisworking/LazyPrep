@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getCourseTree } from "@/lib/data/courses";
+import { getCourseTree, courseVisibility } from "@/lib/data/courses";
 
 /** Minimal profile shape passed to the nav chrome (sidebar/navbar/mobile nav). */
 export type ProfileSummary = {
@@ -30,7 +30,7 @@ export async function getDashboardData(profile: Profile) {
   const course =
     enrollment?.course ??
     (await prisma.course.findFirst({
-      where: { published: true },
+      where: courseVisibility(profile.id),
       orderBy: { createdAt: "asc" },
     }));
 

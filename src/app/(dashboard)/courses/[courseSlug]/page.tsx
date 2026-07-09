@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Circle, Clock, ChevronLeft } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
-import { getCourseTree } from "@/lib/data/courses";
+import { getCourseTree, canAccessCourse } from "@/lib/data/courses";
 import { prisma } from "@/lib/prisma";
 import { StartCourseButton } from "@/components/courses/start-course-button";
 
@@ -16,7 +16,7 @@ export default async function CourseDetailPage({
   const { courseSlug } = await params;
   const profile = await getCurrentProfile();
   const tree = await getCourseTree(courseSlug, profile?.id ?? null);
-  if (!tree) notFound();
+  if (!tree || !canAccessCourse(tree.course, profile?.id ?? null)) notFound();
 
   const { course, modules, totalLessons, completedLessons, resumeLesson } = tree;
   const pct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;

@@ -99,6 +99,29 @@ model Profile {
   questionAttempts QuestionAttempt[]
   studySessions    StudySession[]
   bookmarks        Bookmark[]
+  ownedCourses     Course[]
+  aiKey            AiKey?
+}
+
+// ═══════════════════════════════════════════
+// AI CREDENTIALS (BYO key — encrypted at rest)
+// The plaintext key is NEVER stored or returned to the client.
+// ═══════════════════════════════════════════
+
+model AiKey {
+  id         String   @id @default(cuid())
+  profileId  String   @unique
+  provider   String   @default("openrouter")
+  baseUrl    String   @default("https://openrouter.ai/api/v1")
+  model      String   @default("openai/gpt-4o-mini")
+  ciphertext String // AES-256-GCM ciphertext (base64)
+  iv         String // base64
+  authTag    String // base64
+  last4      String // last 4 chars for display, e.g. "a1b4"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 // ═══════════════════════════════════════════
@@ -115,13 +138,19 @@ model Course {
   imageUrl    String?
   category    String   @default("certification") // certification | college | competitive | custom
   published   Boolean  @default(false)
+  ownerId     String? // null = curated/global (e.g. seeded CCNA); set = user-generated
+  aiGenerated Boolean  @default(false)
+  aiContext   Json? // the questionnaire answers, used as context when generating lessons
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  owner       Profile?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   modules     Module[]
   enrollments Enrollment[]
   questions   Question[]
   flashcards  Flashcard[]
+
+  @@index([ownerId])
 }
 
 model Enrollment {

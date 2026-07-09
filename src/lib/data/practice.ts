@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { courseVisibility } from "@/lib/data/courses";
 
 export type QuizQuestion = {
   id: string;
@@ -22,7 +23,7 @@ export type WrongAnswer = {
 /** Published courses with the profile's practice stats for each. */
 export async function getPracticeOverview(profileId: string | null) {
   const courses = await prisma.course.findMany({
-    where: { published: true },
+    where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
 

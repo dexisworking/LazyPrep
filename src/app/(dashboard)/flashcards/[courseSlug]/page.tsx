@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getFlashcardDeck } from "@/lib/data/flashcards";
+import { canAccessCourse } from "@/lib/data/courses";
+import { getCurrentProfile } from "@/lib/session";
 import { FlashcardDeck } from "@/components/flashcards/flashcard-deck";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +17,9 @@ export default async function FlashcardDeckPage({
   const { courseSlug } = await params;
   const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
   if (!course) notFound();
+
+  const profile = await getCurrentProfile();
+  if (!canAccessCourse(course, profile?.id ?? null)) notFound();
 
   const cards = await getFlashcardDeck(courseSlug);
 

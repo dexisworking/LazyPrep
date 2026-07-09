@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { getQuizQuestions } from "@/lib/data/practice";
+import { canAccessCourse } from "@/lib/data/courses";
 import { PracticeSession } from "@/components/practice/practice-session";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,8 @@ export default async function QuizPage({
   if (!course) notFound();
 
   const profile = await getCurrentProfile();
+  if (!canAccessCourse(course, profile?.id ?? null)) notFound();
+
   const questions = await getQuizQuestions(courseSlug, profile?.id ?? null, 10);
 
   return (

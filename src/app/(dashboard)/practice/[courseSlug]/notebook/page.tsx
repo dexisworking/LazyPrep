@@ -4,6 +4,7 @@ import { ChevronLeft, CheckCircle2, XCircle, BookOpenCheck } from "lucide-react"
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { getWrongAnswers } from "@/lib/data/practice";
+import { canAccessCourse } from "@/lib/data/courses";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,8 @@ export default async function NotebookPage({
   if (!course) notFound();
 
   const profile = await getCurrentProfile();
+  if (!canAccessCourse(course, profile?.id ?? null)) notFound();
+
   const wrong = await getWrongAnswers(courseSlug, profile?.id ?? null);
 
   return (

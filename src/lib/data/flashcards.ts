@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { courseVisibility } from "@/lib/data/courses";
 
 export type FlashcardData = {
   id: string;
@@ -8,10 +9,10 @@ export type FlashcardData = {
   tags: string[];
 };
 
-/** Published courses with their flashcard counts. */
-export async function getFlashcardsOverview(_profileId: string | null) {
+/** Published courses (curated + owned) with their flashcard counts. */
+export async function getFlashcardsOverview(profileId: string | null) {
   const courses = await prisma.course.findMany({
-    where: { published: true },
+    where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
 
