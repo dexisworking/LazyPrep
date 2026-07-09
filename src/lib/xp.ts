@@ -59,16 +59,16 @@ export function getLevelProgress(xp: number): {
 }
 
 /**
- * Rank titles based on level
+ * Rank titles based on level — subject-agnostic mastery progression.
  */
 export function getRank(level: number): string {
-  if (level >= 50) return "Network Architect";
-  if (level >= 40) return "Senior Engineer";
-  if (level >= 30) return "Routing Engineer";
-  if (level >= 20) return "Switch Specialist";
-  if (level >= 10) return "Network Apprentice";
-  if (level >= 5) return "Protocol Explorer";
-  return "Beginner";
+  if (level >= 50) return "Grandmaster";
+  if (level >= 40) return "Master";
+  if (level >= 30) return "Expert";
+  if (level >= 20) return "Adept";
+  if (level >= 10) return "Scholar";
+  if (level >= 5) return "Apprentice";
+  return "Novice";
 }
 
 /**
