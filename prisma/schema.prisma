@@ -3,25 +3,87 @@
 // CCNA is the first content pack, not the core identity
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // Prisma 7: connection URLs live in prisma.config.ts (CLI) and the
+  // driver adapter in src/lib/prisma.ts (runtime).
+  provider = "postgresql"
 }
 
 // ═══════════════════════════════════════════
 // AUTH (Better Auth managed tables)
-// Better Auth auto-creates: user, session, account, verification
-// We extend with a custom Profile for gamification
+// These four models are required by Better Auth's Prisma adapter.
+// We extend with a custom Profile for gamification.
 // ═══════════════════════════════════════════
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  profile  Profile?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
 
 model Profile {
   id            String    @id @default(cuid())
   userId        String    @unique // references Better Auth user.id
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   displayName   String?
   avatarUrl     String?
   xp            Int       @default(0)

@@ -28,12 +28,18 @@ export const auth = betterAuth({
     },
   },
 
-  // User fields
-  user: {
-    additionalFields: {
-      name: {
-        type: "string",
-        required: false,
+  // Create a gamification Profile for every new user (email + social).
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          await prisma.profile.create({
+            data: {
+              userId: user.id,
+              displayName: user.name,
+            },
+          });
+        },
       },
     },
   },

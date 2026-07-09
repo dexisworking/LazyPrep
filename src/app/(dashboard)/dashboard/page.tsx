@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "@/lib/auth-client";
-import { Zap, Play, CheckCircle2, Flame, Trophy } from "lucide-react";
+import { Zap, Play, CheckCircle2, Flame, Trophy, Target } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
