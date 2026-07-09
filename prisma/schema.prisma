@@ -101,6 +101,7 @@ model Profile {
   bookmarks        Bookmark[]
   ownedCourses     Course[]
   aiKey            AiKey?
+  flashcardReviews FlashcardReview[]
 }
 
 // ═══════════════════════════════════════════
@@ -278,9 +279,32 @@ model Flashcard {
   topic    String
   tags     String[]
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course  Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  reviews FlashcardReview[]
 
   @@index([courseId, topic])
+}
+
+// ═══════════════════════════════════════════
+// SPACED REPETITION (SM-2 per-user card state)
+// ═══════════════════════════════════════════
+
+model FlashcardReview {
+  id             String   @id @default(cuid())
+  profileId      String
+  flashcardId    String
+  easeFactor     Float    @default(2.5)
+  interval       Int      @default(0) // days until next review
+  repetitions    Int      @default(0)
+  lapses         Int      @default(0)
+  dueDate        DateTime @default(now())
+  lastReviewedAt DateTime @default(now())
+
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, flashcardId])
+  @@index([profileId, dueDate])
 }
 
 // ═══════════════════════════════════════════

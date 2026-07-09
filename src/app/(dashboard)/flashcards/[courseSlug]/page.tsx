@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getFlashcardDeck } from "@/lib/data/flashcards";
+import { getStudyCards } from "@/lib/data/flashcards";
 import { canAccessCourse } from "@/lib/data/courses";
 import { getCurrentProfile } from "@/lib/session";
 import { FlashcardDeck } from "@/components/flashcards/flashcard-deck";
@@ -21,7 +21,7 @@ export default async function FlashcardDeckPage({
   const profile = await getCurrentProfile();
   if (!canAccessCourse(course, profile?.id ?? null)) notFound();
 
-  const cards = await getFlashcardDeck(courseSlug);
+  const cards = await getStudyCards(courseSlug, profile?.id ?? null, 20);
 
   return (
     <div className="space-y-6">

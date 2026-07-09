@@ -14,7 +14,7 @@ export default async function FlashcardsPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Flashcards</h1>
         <p className="text-sm text-muted-foreground">
-          Quick-fire recall practice. Flip through decks and earn XP for every card you review.
+          Spaced repetition. Rate each card and it resurfaces exactly when you&apos;re about to forget it.
         </p>
       </div>
 
@@ -47,6 +47,23 @@ export default async function FlashcardsPage() {
                     <Layers className="h-3.5 w-3.5" />
                     {course.totalCards} card{course.totalCards === 1 ? "" : "s"}
                   </p>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    {course.due > 0 && (
+                      <span className="rounded-full border border-np-orange/30 bg-np-orange/10 px-2 py-0.5 text-[11px] font-medium text-np-orange">
+                        {course.due} due
+                      </span>
+                    )}
+                    {course.newCount > 0 && (
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                        {course.newCount} new
+                      </span>
+                    )}
+                    {course.due === 0 && course.newCount === 0 && course.totalCards > 0 && (
+                      <span className="rounded-full border border-np-success/30 bg-np-success/10 px-2 py-0.5 text-[11px] font-medium text-np-success">
+                        All caught up
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               {course.totalCards > 0 && (
