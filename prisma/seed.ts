@@ -1,8 +1,15 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 import * as fs from "fs";
 import * as path from "path";
 
-const prisma = new PrismaClient();
+// Prisma 7 requires a driver adapter (no datasource url in schema).
+neonConfig.webSocketConstructor = ws;
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🚀 Starting database seeding...");
@@ -32,7 +39,7 @@ async function main() {
       published: true,
     },
   });
-  console.log(`✅ Courseupserted: ${course.title}`);
+  console.log(`✅ Course upserted: ${course.title}`);
 
   // ─── 2. Seed Modules ───
   console.log("📦 Seeding modules...");
