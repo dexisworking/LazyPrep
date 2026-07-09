@@ -26,3 +26,23 @@ export type CourseBlueprint = {
     }[];
   }[];
 };
+
+export type PhaseLevel = "foundation" | "intermediate" | "advanced";
+
+/** The lesson structure for a single phase of an adaptive course. */
+export type PhaseBlueprint = {
+  chapters: {
+    title: string;
+    lessons: { title: string; estimatedMinutes: number }[];
+  }[];
+};
+
+/** A generated MCQ (checkpoint mocktest). */
+export type GeneratedQuestion = {
+  topic: string;
+  difficulty: string;
+  text: string;
+  options: string[];
+  correctIdx: number;
+  explanation: string;
+};

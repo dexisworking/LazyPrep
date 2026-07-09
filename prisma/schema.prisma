@@ -141,6 +141,7 @@ model Course {
   published   Boolean  @default(false)
   ownerId     String? // null = curated/global (e.g. seeded CCNA); set = user-generated
   aiGenerated Boolean  @default(false)
+  adaptive    Boolean  @default(false) // phased mastery course (Foundation→Intermediate→Advanced)
   aiContext   Json? // the questionnaire answers, used as context when generating lessons
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -174,11 +175,53 @@ model Module {
   slug     String
   order    Int
 
-  course   Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  chapters Chapter[]
+  // Adaptive-course phase fields (null/false for flat courses):
+  phaseLevel       String? // "foundation" | "intermediate" | "advanced"
+  locked           Boolean @default(false) // locked until the previous checkpoint is passed
+  contentGenerated Boolean @default(false) // whether this phase's lessons exist yet
+
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapters   Chapter[]
+  checkpoint Checkpoint?
 
   @@unique([courseId, slug])
   @@unique([courseId, order])
+}
+
+// ═══════════════════════════════════════════
+// CHECKPOINTS (per-phase mastery mocktest — adaptive courses)
+// Adaptive courses are single-owner, so pass state lives on the checkpoint.
+// ═══════════════════════════════════════════
+
+model Checkpoint {
+  id            String   @id @default(cuid())
+  moduleId      String   @unique
+  passThreshold Int      @default(70) // % needed to pass
+  passed        Boolean  @default(false)
+  bestScore     Int      @default(0) // best % achieved
+  attempts      Int      @default(0)
+  generated     Boolean  @default(false) // questions generated yet?
+  weakTopics    String[] @default([]) // topics missed — fed into next phase generation
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  module    Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions CheckpointQuestion[]
+}
+
+model CheckpointQuestion {
+  id           String @id @default(cuid())
+  checkpointId String
+  topic        String
+  difficulty   String
+  text         String
+  options      Json
+  correctIdx   Int
+  explanation  String
+
+  checkpoint Checkpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+
+  @@index([checkpointId])
 }
 
 model Chapter {

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Circle, Clock, ChevronLeft } from "lucide-react";
+import { CheckCircle2, Circle, Clock, ChevronLeft, Sparkles } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getCourseTree, canAccessCourse } from "@/lib/data/courses";
+import { getAdaptiveCourse } from "@/lib/data/adaptive";
 import { prisma } from "@/lib/prisma";
 import { StartCourseButton } from "@/components/courses/start-course-button";
+import { AdaptiveCourse } from "@/components/adaptive/adaptive-course";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,11 @@ export default async function CourseDetailPage({
     ? `/courses/${course.slug}/lessons/${resumeLesson.slug}`
     : null;
 
+  const adaptive = course.adaptive
+    ? await getAdaptiveCourse(courseSlug, profile?.id ?? null)
+    : null;
+  const phasesMastered = adaptive?.phases.filter((p) => p.checkpoint?.passed).length ?? 0;
+
   return (
     <div className="space-y-8">
       <Link
@@ -46,28 +53,52 @@ export default async function CourseDetailPage({
       <div className="rounded-2xl border border-border/40 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
-            <span className="inline-block rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              {course.category}
-            </span>
+            <div className="flex items-center gap-2">
+              {course.adaptive && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                  <Sparkles className="h-3 w-3" />
+                  Mastery path
+                </span>
+              )}
+              <span className="inline-block rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {course.category}
+              </span>
+            </div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">{course.title}</h1>
             {course.description && (
               <p className="max-w-xl text-muted-foreground">{course.description}</p>
             )}
             <div className="flex items-center gap-4 pt-1 text-sm text-muted-foreground">
-              <span>
-                <span className="font-semibold text-foreground">{completedLessons}</span> / {totalLessons} lessons
-              </span>
-              <span className="font-semibold text-primary">{pct}% complete</span>
+              {course.adaptive ? (
+                <span className="font-semibold text-primary">
+                  {phasesMastered} of 3 phases mastered
+                </span>
+              ) : (
+                <>
+                  <span>
+                    <span className="font-semibold text-foreground">{completedLessons}</span> / {totalLessons} lessons
+                  </span>
+                  <span className="font-semibold text-primary">{pct}% complete</span>
+                </>
+              )}
             </div>
           </div>
-          <StartCourseButton courseId={course.id} lessonHref={resumeHref} enrolled={enrolled} />
+          {resumeHref && (
+            <StartCourseButton courseId={course.id} lessonHref={resumeHref} enrolled={enrolled} />
+          )}
         </div>
         <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${course.adaptive ? Math.round((phasesMastered / 3) * 100) : pct}%` }}
+          />
         </div>
       </div>
 
-      {/* Module → Chapter → Lesson tree */}
+      {/* Adaptive phases OR flat module tree */}
+      {course.adaptive && adaptive ? (
+        <AdaptiveCourse courseSlug={course.slug} phases={adaptive.phases} />
+      ) : (
       <div className="space-y-8">
         {modules.map((mod) => (
           <section key={mod.id} className="space-y-4">
@@ -116,6 +147,7 @@ export default async function CourseDetailPage({
           </section>
         ))}
       </div>
+      )}
     </div>
   );
 }
