@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     "Your complete preparation operating system for certifications, competitive exams, and professional training. Study smarter with gamified learning, smart revision, and real-time analytics.",
   keywords: [
     "exam preparation",
-    "CCNA",
-    "certification",
-    "study platform",
-    "quiz",
+    "AI course generator",
+    "certification prep",
+    "competitive exams",
+    "spaced repetition",
     "flashcards",
-    "networking",
+    "study platform",
   ],
 };
 
