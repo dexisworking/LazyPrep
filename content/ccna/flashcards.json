@@ -1,0 +1,32 @@
+[
+  {
+    "front": "What port does SSH run on?",
+    "back": "Port 22 (TCP)",
+    "topic": "Ports",
+    "tags": ["ssh", "protocols"]
+  },
+  {
+    "front": "What is the PDU of the Transport Layer?",
+    "back": "Segment",
+    "topic": "OSI Model",
+    "tags": ["osi", "transport-layer"]
+  },
+  {
+    "front": "What is the bit length of an Ethernet MAC address?",
+    "back": "48 bits (expressed as 12 hexadecimal digits)",
+    "topic": "Layer 2",
+    "tags": ["mac-address", "ethernet"]
+  },
+  {
+    "front": "Which protocol uses ports 67 (server) and 68 (client)?",
+    "back": "DHCP (Dynamic Host Configuration Protocol)",
+    "topic": "Ports",
+    "tags": ["dhcp", "protocols"]
+  },
+  {
+    "front": "What does a Router do when it receives a packet with TTL = 1?",
+    "back": "It drops the packet and sends an ICMP Type 11 (Time Exceeded) message back to the source.",
+    "topic": "Routing",
+    "tags": ["routing", "icmp", "ip-header"]
+  }
+]

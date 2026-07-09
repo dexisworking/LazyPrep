@@ -1,0 +1,72 @@
+[
+  {
+    "topic": "OSI Model",
+    "difficulty": "easy",
+    "text": "Which layer of the OSI model is responsible for logical addressing (IP addresses) and path determination?",
+    "options": [
+      "Layer 2: Data Link Layer",
+      "Layer 3: Network Layer",
+      "Layer 4: Transport Layer",
+      "Layer 7: Application Layer"
+    ],
+    "correctIdx": 1,
+    "explanation": "Layer 3 (Network Layer) is responsible for routing packets based on logical IP addresses and finding the best path through a network.",
+    "tags": ["osi", "routing", "ip-addressing"]
+  },
+  {
+    "topic": "Subnetting",
+    "difficulty": "medium",
+    "text": "How many usable host IP addresses are available in a classless subnet with a /26 prefix length?",
+    "options": [
+      "64",
+      "62",
+      "30",
+      "126"
+    ],
+    "correctIdx": 1,
+    "explanation": "A /26 prefix has 32 - 26 = 6 host bits. 2^6 = 64 total addresses. Subtract 2 (one for network address, one for directed broadcast), leaving 62 usable host addresses.",
+    "tags": ["subnetting", "ipv4"]
+  },
+  {
+    "topic": "VLANs",
+    "difficulty": "easy",
+    "text": "Which IEEE standard defines VLAN encapsulation and frame tagging on trunk ports?",
+    "options": [
+      "802.1D",
+      "802.1w",
+      "802.1Q",
+      "802.3ad"
+    ],
+    "correctIdx": 2,
+    "explanation": "IEEE 802.1Q is the industry standard for tagging frames on VLAN trunk links. 802.1D is STP, 802.1w is RSTP, and 802.3ad is LACP.",
+    "tags": ["vlans", "trunking"]
+  },
+  {
+    "topic": "Routing",
+    "difficulty": "medium",
+    "text": "In a Cisco routing table, what is the default Administrative Distance (AD) of a manually configured static route?",
+    "options": [
+      "0",
+      "1",
+      "90",
+      "110"
+    ],
+    "correctIdx": 1,
+    "explanation": "A static route has a default Administrative Distance of 1. A directly connected interface has an AD of 0, EIGRP has 90, and OSPF has 110.",
+    "tags": ["routing", "static-route", "administrative-distance"]
+  },
+  {
+    "topic": "Transport Layer",
+    "difficulty": "medium",
+    "text": "Which TCP flag is used during the three-way handshake to establish a connection?",
+    "options": [
+      "SYN",
+      "ACK",
+      "FIN",
+      "RST"
+    ],
+    "correctIdx": 0,
+    "explanation": "The SYN (Synchronize) flag is sent in the first step of the TCP three-way handshake. The sequence is SYN, SYN-ACK, and ACK.",
+    "tags": ["transport-layer", "tcp"]
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "chapterSlug": "introduction-to-networking",
+    "title": "Introduction to Networks",
+    "slug": "introduction-to-networks",
+    "file": "introduction-to-networks.md",
+    "order": 1,
+    "estimatedMinutes": 8
+  },
+  {
+    "chapterSlug": "introduction-to-networking",
+    "title": "Network Topologies",
+    "slug": "network-topologies",
+    "file": "network-topologies.md",
+    "order": 2,
+    "estimatedMinutes": 10
+  },
+  {
+    "chapterSlug": "osi-and-tcp-ip-models",
+    "title": "The OSI Model Layer by Layer",
+    "slug": "osi-model",
+    "file": "osi-model.md",
+    "order": 1,
+    "estimatedMinutes": 12
+  },
+  {
+    "chapterSlug": "osi-and-tcp-ip-models",
+    "title": "TCP/IP Protocol Suite",
+    "slug": "tcp-ip-suite",
+    "file": "tcp-ip-suite.md",
+    "order": 2,
+    "estimatedMinutes": 8
+  },
+  {
+    "chapterSlug": "vlans-and-trunking",
+    "title": "VLAN Fundamentals",
+    "slug": "vlan-fundamentals",
+    "file": "vlan-fundamentals.md",
+    "order": 1,
+    "estimatedMinutes": 10
+  },
+  {
+    "chapterSlug": "routing-concepts",
+    "title": "Static Routing",
+    "slug": "static-routing",
+    "file": "static-routing.md",
+    "order": 1,
+    "estimatedMinutes": 12
+  }
+]

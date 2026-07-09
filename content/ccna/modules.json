@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Network Fundamentals",
+    "slug": "network-fundamentals",
+    "order": 1
+  },
+  {
+    "title": "Network Access",
+    "slug": "network-access",
+    "order": 2
+  },
+  {
+    "title": "IP Connectivity",
+    "slug": "ip-connectivity",
+    "order": 3
+  }
+]

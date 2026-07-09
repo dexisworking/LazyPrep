@@ -1,0 +1,231 @@
+// ─── NetPrep Prisma Schema ───
+// Generic preparation engine — supports unlimited certifications
+// CCNA is the first content pack, not the core identity
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ═══════════════════════════════════════════
+// AUTH (Better Auth managed tables)
+// Better Auth auto-creates: user, session, account, verification
+// We extend with a custom Profile for gamification
+// ═══════════════════════════════════════════
+
+model Profile {
+  id            String    @id @default(cuid())
+  userId        String    @unique // references Better Auth user.id
+  displayName   String?
+  avatarUrl     String?
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastStudyDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  enrollments      Enrollment[]
+  progress         Progress[]
+  questionAttempts QuestionAttempt[]
+  studySessions    StudySession[]
+  bookmarks        Bookmark[]
+}
+
+// ═══════════════════════════════════════════
+// COURSE HIERARCHY
+// Course → Module → Chapter → Lesson
+// The engine never knows what "CCNA" is
+// ═══════════════════════════════════════════
+
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "ccna", "security-plus", "aws-saa"
+  title       String
+  description String?
+  imageUrl    String?
+  category    String   @default("certification") // certification | college | competitive | custom
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  modules     Module[]
+  enrollments Enrollment[]
+  questions   Question[]
+  flashcards  Flashcard[]
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  profileId  String
+  courseId    String
+  enrolledAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, courseId])
+  @@index([profileId])
+}
+
+model Module {
+  id       String @id @default(cuid())
+  courseId  String
+  title    String
+  slug     String
+  order    Int
+
+  course   Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapters Chapter[]
+
+  @@unique([courseId, slug])
+  @@unique([courseId, order])
+}
+
+model Chapter {
+  id       String @id @default(cuid())
+  moduleId String
+  title    String
+  slug     String
+  order    Int
+
+  module  Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([moduleId, slug])
+  @@unique([moduleId, order])
+}
+
+model Lesson {
+  id               String @id @default(cuid())
+  chapterId        String
+  title            String
+  slug             String
+  content          String // Markdown stored in database
+  order            Int
+  estimatedMinutes Int    @default(10)
+
+  chapter  Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  progress Progress[]
+
+  @@unique([chapterId, slug])
+  @@unique([chapterId, order])
+}
+
+// ═══════════════════════════════════════════
+// PROGRESS TRACKING
+// ═══════════════════════════════════════════
+
+model Progress {
+  id             String    @id @default(cuid())
+  profileId      String
+  lessonId       String
+  completed      Boolean   @default(false)
+  completedAt    DateTime?
+  lastAccessedAt DateTime  @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, lessonId])
+  @@index([profileId])
+}
+
+// ═══════════════════════════════════════════
+// QUESTIONS (MCQ)
+// ═══════════════════════════════════════════
+
+model Question {
+  id          String   @id @default(cuid())
+  courseId     String
+  topic       String
+  difficulty  String   // "easy" | "medium" | "hard"
+  text        String
+  options     Json     // string[]
+  correctIdx  Int
+  explanation String
+  tags        String[] // e.g., ["subnetting", "vlsm", "ipv4"]
+
+  course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attempts QuestionAttempt[]
+
+  @@index([courseId, topic])
+  @@index([courseId, difficulty])
+}
+
+model QuestionAttempt {
+  id          String   @id @default(cuid())
+  profileId   String
+  questionId  String
+  selectedIdx Int
+  correct     Boolean
+  createdAt   DateTime @default(now())
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, correct])
+  @@index([profileId, questionId])
+}
+
+// ═══════════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════════
+
+model Flashcard {
+  id       String   @id @default(cuid())
+  courseId  String
+  front    String
+  back     String
+  topic    String
+  tags     String[]
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, topic])
+}
+
+// ═══════════════════════════════════════════
+// STUDY SESSIONS (Heatmap + Analytics)
+// ═══════════════════════════════════════════
+
+model StudySession {
+  id                String   @id @default(cuid())
+  profileId         String
+  date              DateTime @db.Date
+  studyMinutes      Int      @default(0)
+  questionsAnswered Int      @default(0)
+  correctAnswers    Int      @default(0)
+  lessonsCompleted  Int      @default(0)
+  flashcardsReviewed Int     @default(0)
+  xpEarned          Int      @default(0)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, date])
+  @@index([profileId])
+}
+
+// ═══════════════════════════════════════════
+// BOOKMARKS
+// ═══════════════════════════════════════════
+
+model Bookmark {
+  id         String   @id @default(cuid())
+  profileId  String
+  targetType String   // "question" | "flashcard" | "lesson"
+  targetId   String
+  createdAt  DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, targetType, targetId])
+  @@index([profileId, targetType])
+}

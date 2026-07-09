@@ -1,0 +1,230 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * NetPrep Design System
+ * Theme: Black / Blue / Orange with Red accents
+ * Dark-mode-first, premium aesthetic
+ */
+
+@theme inline {
+  /* ─── Colors ─── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ─── NetPrep Custom Colors ─── */
+  --color-np-blue: var(--np-blue);
+  --color-np-orange: var(--np-orange);
+  --color-np-red: var(--np-red);
+  --color-np-success: var(--np-success);
+  --color-np-xp: var(--np-xp);
+  --color-np-streak: var(--np-streak);
+
+  /* ─── Border Radius ─── */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * ─── Default Theme (Root / Light) ───
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.98 0.005 260);
+  --foreground: oklch(0.12 0.02 260);
+
+  --card: oklch(1.00 0.00 0);
+  --card-foreground: oklch(0.12 0.02 260);
+  --popover: oklch(1.00 0.00 0);
+  --popover-foreground: oklch(0.12 0.02 260);
+
+  /* Primary: Deep Blue */
+  --primary: oklch(0.55 0.22 250);
+  --primary-foreground: oklch(0.98 0.005 250);
+
+  /* Secondary: Light Blue-Grey */
+  --secondary: oklch(0.94 0.01 260);
+  --secondary-foreground: oklch(0.25 0.02 260);
+
+  /* Muted */
+  --muted: oklch(0.94 0.01 260);
+  --muted-foreground: oklch(0.45 0.015 260);
+
+  /* Accent: Orange */
+  --accent: oklch(0.65 0.20 55);
+  --accent-foreground: oklch(0.15 0.02 55);
+
+  /* Destructive: Red Accents */
+  --destructive: oklch(0.55 0.24 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+
+  --border: oklch(0.88 0.01 260);
+  --input: oklch(0.88 0.01 260);
+  --ring: oklch(0.55 0.22 250);
+
+  /* Charts */
+  --chart-1: oklch(0.55 0.22 250);
+  --chart-2: oklch(0.65 0.20 55);
+  --chart-3: oklch(0.55 0.24 25);
+  --chart-4: oklch(0.60 0.20 155);
+  --chart-5: oklch(0.58 0.18 300);
+
+  /* Sidebar */
+  --sidebar: oklch(0.96 0.005 260);
+  --sidebar-foreground: oklch(0.25 0.02 260);
+  --sidebar-primary: oklch(0.55 0.22 250);
+  --sidebar-primary-foreground: oklch(0.98 0.005 250);
+  --sidebar-accent: oklch(0.94 0.01 260);
+  --sidebar-accent-foreground: oklch(0.25 0.02 260);
+  --sidebar-border: oklch(0.88 0.01 260);
+  --sidebar-ring: oklch(0.55 0.22 250);
+
+  /* Custom NetPrep Tokens */
+  --np-blue: oklch(0.55 0.22 250);
+  --np-orange: oklch(0.65 0.20 55);
+  --np-red: oklch(0.55 0.24 25);
+  --np-success: oklch(0.60 0.20 155);
+  --np-xp: oklch(0.65 0.20 55);
+  --np-streak: oklch(0.62 0.22 40);
+}
+
+/*
+ * ─── Dark Theme ───
+ * Premium dark mode with pure black base, electric blue, electric orange, red accents
+ */
+.dark {
+  /* True dark background (AMOLED friendly) */
+  --background: oklch(0.08 0.005 260);
+  --foreground: oklch(0.98 0.005 260);
+
+  --card: oklch(0.12 0.008 260);
+  --card-foreground: oklch(0.98 0.005 260);
+  --popover: oklch(0.12 0.008 260);
+  --popover-foreground: oklch(0.98 0.005 260);
+
+  /* Primary: Electric Blue */
+  --primary: oklch(0.65 0.19 250);
+  --primary-foreground: oklch(0.98 0.005 250);
+
+  /* Secondary: Dark Grey-Blue */
+  --secondary: oklch(0.18 0.01 260);
+  --secondary-foreground: oklch(0.88 0.01 260);
+
+  /* Muted */
+  --muted: oklch(0.16 0.008 260);
+  --muted-foreground: oklch(0.60 0.015 260);
+
+  /* Accent: Vibrant Orange */
+  --accent: oklch(0.72 0.17 55);
+  --accent-foreground: oklch(0.08 0.005 55);
+
+  /* Destructive: Electric Red */
+  --destructive: oklch(0.60 0.22 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+
+  --border: oklch(0.20 0.012 260);
+  --input: oklch(0.20 0.012 260);
+  --ring: oklch(0.65 0.19 250);
+
+  /* Charts */
+  --chart-1: oklch(0.65 0.19 250);
+  --chart-2: oklch(0.72 0.17 55);
+  --chart-3: oklch(0.60 0.22 25);
+  --chart-4: oklch(0.70 0.18 155);
+  --chart-5: oklch(0.68 0.16 300);
+
+  /* Sidebar */
+  --sidebar: oklch(0.10 0.006 260);
+  --sidebar-foreground: oklch(0.88 0.01 260);
+  --sidebar-primary: oklch(0.65 0.19 250);
+  --sidebar-primary-foreground: oklch(0.98 0.005 250);
+  --sidebar-accent: oklch(0.18 0.01 260);
+  --sidebar-accent-foreground: oklch(0.88 0.01 260);
+  --sidebar-border: oklch(0.16 0.008 260);
+  --sidebar-ring: oklch(0.65 0.19 250);
+
+  /* Custom NetPrep Tokens */
+  --np-blue: oklch(0.65 0.19 250);
+  --np-orange: oklch(0.72 0.17 55);
+  --np-red: oklch(0.60 0.22 25);
+  --np-success: oklch(0.70 0.18 155);
+  --np-xp: oklch(0.72 0.17 55);
+  --np-streak: oklch(0.70 0.19 40);
+}
+
+/* ─── Base Styles ─── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Scrollbar (AMOLED-friendly) ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.30 0.01 260);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.40 0.01 260);
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: oklch(0.65 0.19 250 / 0.3);
+  color: inherit;
+}

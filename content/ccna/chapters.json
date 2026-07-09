@@ -1,0 +1,26 @@
+[
+  {
+    "moduleSlug": "network-fundamentals",
+    "title": "Introduction to Networking",
+    "slug": "introduction-to-networking",
+    "order": 1
+  },
+  {
+    "moduleSlug": "network-fundamentals",
+    "title": "OSI and TCP/IP Models",
+    "slug": "osi-and-tcp-ip-models",
+    "order": 2
+  },
+  {
+    "moduleSlug": "network-access",
+    "title": "VLANs and Trunking",
+    "slug": "vlans-and-trunking",
+    "order": 1
+  },
+  {
+    "moduleSlug": "ip-connectivity",
+    "title": "Routing Concepts",
+    "slug": "routing-concepts",
+    "order": 1
+  }
+]
