@@ -6,6 +6,7 @@ import { getCourseTree, canAccessCourse } from "@/lib/data/courses";
 import { getAdaptiveCourse } from "@/lib/data/adaptive";
 import { prisma } from "@/lib/prisma";
 import { StartCourseButton } from "@/components/courses/start-course-button";
+import { DeleteCourseButton } from "@/components/courses/delete-course-button";
 import { AdaptiveCourse } from "@/components/adaptive/adaptive-course";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export default async function CourseDetailPage({
     : null;
   const phasesMastered = adaptive?.phases.filter((p) => p.checkpoint?.passed).length ?? 0;
   const mastered = course.adaptive && phasesMastered === 3;
+  const isOwner = Boolean(profile && course.ownerId === profile.id);
   const parent = course.parentId
     ? await prisma.course.findUnique({
         where: { id: course.parentId },
@@ -184,6 +186,13 @@ export default async function CourseDetailPage({
           </section>
         ))}
       </div>
+      )}
+
+      {/* Danger zone — only for courses you created */}
+      {isOwner && (
+        <div className="border-t border-border/40 pt-6">
+          <DeleteCourseButton courseId={course.id} />
+        </div>
       )}
     </div>
   );
