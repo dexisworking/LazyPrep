@@ -1,14 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// Enable WebSocket connections for the Neon serverless driver.
-neonConfig.webSocketConstructor = ws;
-
+// Use node-postgres (TCP) rather than the Neon WebSocket serverless driver.
+// TCP connections wait for a suspended Neon compute to wake instead of
+// fast-failing, which eliminates the intermittent connection errors we saw
+// on cold starts. This is also the right fit for the Vercel Node runtime.
 const createPrismaClient = () => {
-  // The Neon adapter (v7) takes pool config and manages the pool internally.
-  const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
   return new PrismaClient({ adapter });
 };
 

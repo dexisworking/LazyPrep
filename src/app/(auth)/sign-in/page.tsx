@@ -38,7 +38,12 @@ function SignInForm() {
       });
 
       if (result.error) {
-        setError(result.error.message ?? "Invalid email or password");
+        const status = result.error.status;
+        if (status === 401 || status === 403) {
+          setError("Invalid email or password");
+        } else {
+          setError("We couldn't reach the server. Please try again in a moment.");
+        }
       } else {
         router.push(callbackUrl);
         router.refresh();
