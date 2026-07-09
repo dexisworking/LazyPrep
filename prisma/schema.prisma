@@ -142,17 +142,21 @@ model Course {
   ownerId     String? // null = curated/global (e.g. seeded CCNA); set = user-generated
   aiGenerated Boolean  @default(false)
   adaptive    Boolean  @default(false) // phased mastery course (Foundation→Intermediate→Advanced)
+  parentId    String? // set when this course was spawned as a deep-dive of another
   aiContext   Json? // the questionnaire answers, used as context when generating lessons
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   owner       Profile?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  parent      Course?      @relation("CourseDeepDives", fields: [parentId], references: [id], onDelete: SetNull)
+  deepDives   Course[]     @relation("CourseDeepDives")
   modules     Module[]
   enrollments Enrollment[]
   questions   Question[]
   flashcards  Flashcard[]
 
   @@index([ownerId])
+  @@index([parentId])
 }
 
 model Enrollment {

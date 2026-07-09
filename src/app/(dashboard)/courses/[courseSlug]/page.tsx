@@ -38,6 +38,13 @@ export default async function CourseDetailPage({
     ? await getAdaptiveCourse(courseSlug, profile?.id ?? null)
     : null;
   const phasesMastered = adaptive?.phases.filter((p) => p.checkpoint?.passed).length ?? 0;
+  const mastered = course.adaptive && phasesMastered === 3;
+  const parent = course.parentId
+    ? await prisma.course.findUnique({
+        where: { id: course.parentId },
+        select: { slug: true, title: true },
+      })
+    : null;
 
   return (
     <div className="space-y-8">
@@ -64,6 +71,15 @@ export default async function CourseDetailPage({
                 {course.category}
               </span>
             </div>
+            {parent && (
+              <Link
+                href={`/courses/${parent.slug}`}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Sparkles className="h-3 w-3 text-primary" />
+                Deep dive of {parent.title}
+              </Link>
+            )}
             <h1 className="text-3xl font-bold tracking-tight text-foreground">{course.title}</h1>
             {course.description && (
               <p className="max-w-xl text-muted-foreground">{course.description}</p>
@@ -94,6 +110,27 @@ export default async function CourseDetailPage({
           />
         </div>
       </div>
+
+      {/* Deep-dive CTA when the whole course is mastered */}
+      {mastered && (
+        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground">Course mastered! 🎉</h3>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+            Want to go deeper? Pick a key concept from this course and NetPrep will build a whole
+            new from-basics-to-advanced course dedicated to mastering it.
+          </p>
+          <Link
+            href={`/courses/${course.slug}/deep-dive`}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+          >
+            <Sparkles className="h-4 w-4" />
+            Explore deep-dive topics
+          </Link>
+        </div>
+      )}
 
       {/* Adaptive phases OR flat module tree */}
       {course.adaptive && adaptive ? (

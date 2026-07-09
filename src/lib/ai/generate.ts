@@ -222,3 +222,33 @@ Output a JSON array of EXACTLY ${count} objects:
   if (valid.length === 0) throw new AiError("The model returned no valid checkpoint questions.");
   return valid;
 }
+
+/** Suggest concepts from a completed course that each deserve a deep-dive course. */
+export async function generateDeepDiveTopics(
+  config: AiConfig,
+  ctx: { subject: string; lessonTitles: string[] },
+): Promise<string[]> {
+  const system =
+    "You suggest focused deep-dive topics. Output ONLY a JSON array of short topic strings — no prose, no code fences.";
+
+  const user = `A learner just completed a full mastery course on "${ctx.subject}", covering:
+- ${ctx.lessonTitles.slice(0, 60).join("\n- ")}
+
+Suggest 6 important CONCEPTS from this subject that each deserve their own dedicated, from-basics-to-advanced course to truly master in depth. Choose concepts that are central to the subject and rich enough to fill a whole course on their own.
+Output a JSON array of EXACTLY 6 concise topic strings, e.g. ["Topic A", "Topic B", ...]. Output ONLY the array.`;
+
+  const topics = await chatJson<string[]>(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.7, maxTokens: 500 },
+  );
+
+  const valid = Array.isArray(topics)
+    ? topics.filter((t) => typeof t === "string" && t.trim().length > 0).map((t) => t.trim().slice(0, 120))
+    : [];
+  if (valid.length === 0) throw new AiError("The model returned no topics.");
+  return valid.slice(0, 8);
+}

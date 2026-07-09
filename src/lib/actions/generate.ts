@@ -8,6 +8,7 @@ import { getAiConfig } from "@/lib/ai/keys";
 import {
   generatePhaseBlueprint,
   generateLessonMarkdown,
+  generateDeepDiveTopics,
 } from "@/lib/ai/generate";
 import { AiError } from "@/lib/ai/client";
 import type { Questionnaire, PhaseBlueprint, PhaseLevel } from "@/lib/ai/types";
@@ -86,19 +87,15 @@ async function writePhaseContent(moduleId: string, blueprint: PhaseBlueprint) {
 
 // ─── actions ───
 
-/**
- * Create an ADAPTIVE mastery course: 3 phases (Foundation/Intermediate/Advanced).
- * Foundation is generated now; the later phases stay locked until their
- * checkpoint is passed, then are generated adaptively.
- */
-export async function generateCourse(q: Questionnaire) {
-  const profile = await getCurrentProfile();
-  if (!profile) return { ok: false as const, error: "Not authenticated." };
+type CreateResult = { ok: true; slug: string } | { ok: false; error: string };
 
-  const config = await getAiConfig(profile.id);
-  if (!config) return { ok: false as const, error: "no-key" };
-  if (!q.subject?.trim()) return { ok: false as const, error: "Subject is required." };
-
+/** Shared adaptive-course creation (used by generateCourse and spawnDeepDive). */
+async function createAdaptiveCourse(
+  profileId: string,
+  config: Parameters<typeof generatePhaseBlueprint>[0],
+  q: Questionnaire,
+  parentId?: string,
+): Promise<CreateResult> {
   // Generate the Foundation phase structure first.
   let foundation: PhaseBlueprint;
   try {
@@ -107,7 +104,7 @@ export async function generateCourse(q: Questionnaire) {
       weakTopics: [],
     });
   } catch (e) {
-    return { ok: false as const, error: aiError(e) };
+    return { ok: false, error: aiError(e) };
   }
 
   const title = q.subject.trim().slice(0, 150);
@@ -124,7 +121,8 @@ export async function generateCourse(q: Questionnaire) {
         published: true,
         aiGenerated: true,
         adaptive: true,
-        ownerId: profile.id,
+        ownerId: profileId,
+        parentId: parentId ?? null,
         aiContext: q as unknown as Prisma.InputJsonValue,
         modules: {
           create: PHASE_ORDER.map((level, i) => ({
@@ -141,7 +139,7 @@ export async function generateCourse(q: Questionnaire) {
       include: { modules: true },
     });
   } catch {
-    return { ok: false as const, error: "Failed to save the course." };
+    return { ok: false, error: "Failed to save the course." };
   }
 
   const foundationModule = course.modules.find((m) => m.phaseLevel === "foundation");
@@ -154,12 +152,97 @@ export async function generateCourse(q: Questionnaire) {
   }
 
   await prisma.enrollment
-    .create({ data: { profileId: profile.id, courseId: course.id } })
+    .create({ data: { profileId, courseId: course.id } })
     .catch(() => {});
 
   revalidatePath("/courses");
   revalidatePath("/dashboard");
-  return { ok: true as const, slug };
+  return { ok: true, slug };
+}
+
+/**
+ * Create an ADAPTIVE mastery course: 3 phases (Foundation/Intermediate/Advanced).
+ * Foundation is generated now; the later phases stay locked until their
+ * checkpoint is passed, then are generated adaptively.
+ */
+export async function generateCourse(q: Questionnaire) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const config = await getAiConfig(profile.id);
+  if (!config) return { ok: false as const, error: "no-key" };
+  if (!q.subject?.trim()) return { ok: false as const, error: "Subject is required." };
+
+  return createAdaptiveCourse(profile.id, config, q);
+}
+
+/** Suggest deep-dive topics from a fully-completed course. */
+export async function suggestDeepDiveTopics(courseId: string) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const config = await getAiConfig(profile.id);
+  if (!config) return { ok: false as const, error: "no-key" };
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    include: { modules: { include: { chapters: { include: { lessons: { select: { title: true } } } } } } },
+  });
+  if (!course || course.ownerId !== profile.id) return { ok: false as const, error: "Not allowed." };
+
+  const lessonTitles = course.modules.flatMap((m) =>
+    m.chapters.flatMap((c) => c.lessons.map((l) => l.title)),
+  );
+  const subject =
+    (course.aiContext as unknown as Questionnaire | null)?.subject ?? course.title;
+
+  try {
+    const topics = await generateDeepDiveTopics(config, { subject, lessonTitles });
+    return { ok: true as const, topics };
+  } catch (e) {
+    return { ok: false as const, error: aiError(e) };
+  }
+}
+
+/**
+ * Spawn a new deep-dive course focused on one concept from a mastered course.
+ * Runs the same adaptive cycle, linked to the parent.
+ */
+export async function spawnDeepDive(parentCourseId: string, topic: string) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const config = await getAiConfig(profile.id);
+  if (!config) return { ok: false as const, error: "no-key" };
+
+  const t = topic.trim();
+  if (!t) return { ok: false as const, error: "Pick a topic." };
+
+  const parent = await prisma.course.findUnique({
+    where: { id: parentCourseId },
+    include: { modules: { include: { checkpoint: true } } },
+  });
+  if (!parent || parent.ownerId !== profile.id) return { ok: false as const, error: "Not allowed." };
+
+  const mastered =
+    parent.adaptive &&
+    parent.modules.length > 0 &&
+    parent.modules.every((m) => m.checkpoint?.passed);
+  if (!mastered) return { ok: false as const, error: "Finish the course first." };
+
+  const parentQ = parent.aiContext as unknown as Questionnaire | null;
+  const q: Questionnaire = {
+    subject: t,
+    category: parentQ?.category ?? parent.category ?? "custom",
+    level: "beginner",
+    goal: `Master ${t} in depth`,
+    moduleCount: 3,
+    depth: "in-depth",
+    focusTopics: t,
+    style: parentQ?.style ?? "",
+  };
+
+  return createAdaptiveCourse(profile.id, config, q, parent.id);
 }
 
 /** Titles of all lessons in phases before `beforeOrder` (what the learner covered). */
