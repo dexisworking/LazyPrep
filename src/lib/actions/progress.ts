@@ -3,13 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
-import { XP_REWARDS, getLevelFromXp, getStreakMultiplier } from "@/lib/xp";
-import { calculateStreak } from "@/lib/streak";
-
-function startOfToday() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-}
+import { XP_REWARDS, getStreakMultiplier } from "@/lib/xp";
+import { buildActivityUpdates } from "@/lib/study-activity";
 
 /**
  * Mark a lesson complete: records progress, awards XP (with streak multiplier),
@@ -29,14 +24,8 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
 
   const multiplier = getStreakMultiplier(profile.currentStreak);
   const xpAwarded = Math.round(XP_REWARDS.LESSON_COMPLETE * multiplier);
-  const newXp = profile.xp + xpAwarded;
-  const { newStreak, newLongestStreak } = calculateStreak(
-    profile.lastStudyDate,
-    profile.currentStreak,
-    profile.longestStreak,
-  );
   const now = new Date();
-  const today = startOfToday();
+  const updates = buildActivityUpdates(profile, { xp: xpAwarded, lessonsCompleted: 1 });
 
   await prisma.$transaction([
     prisma.progress.upsert({
@@ -44,29 +33,8 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
       update: { completed: true, completedAt: now, lastAccessedAt: now },
       create: { profileId: profile.id, lessonId, completed: true, completedAt: now },
     }),
-    prisma.profile.update({
-      where: { id: profile.id },
-      data: {
-        xp: newXp,
-        level: getLevelFromXp(newXp),
-        currentStreak: newStreak,
-        longestStreak: newLongestStreak,
-        lastStudyDate: now,
-      },
-    }),
-    prisma.studySession.upsert({
-      where: { profileId_date: { profileId: profile.id, date: today } },
-      update: {
-        lessonsCompleted: { increment: 1 },
-        xpEarned: { increment: xpAwarded },
-      },
-      create: {
-        profileId: profile.id,
-        date: today,
-        lessonsCompleted: 1,
-        xpEarned: xpAwarded,
-      },
-    }),
+    prisma.profile.update(updates.profileUpdate),
+    prisma.studySession.upsert(updates.sessionUpsert),
   ]);
 
   revalidatePath("/dashboard");
@@ -75,8 +43,8 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
   return {
     alreadyComplete: false,
     xpAwarded,
-    newStreak,
-    level: getLevelFromXp(newXp),
+    newStreak: updates.newStreak,
+    level: updates.newLevel,
   };
 }
 

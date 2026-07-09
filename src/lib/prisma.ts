@@ -6,7 +6,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 // fast-failing, which eliminates the intermittent connection errors we saw
 // on cold starts. This is also the right fit for the Vercel Node runtime.
 const createPrismaClient = () => {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  // Strip `sslmode`/`channel_binding` from the URL and supply TLS via config.
+  // pg 8.22 emits a deprecation warning when it parses `sslmode=require`; this
+  // keeps the identical "encrypt, don't verify CA" behavior without the noise.
+  const url = new URL(process.env.DATABASE_URL!);
+  url.searchParams.delete("sslmode");
+  url.searchParams.delete("channel_binding");
+
+  const adapter = new PrismaPg({
+    connectionString: url.toString(),
+    ssl: { rejectUnauthorized: false },
+  });
   return new PrismaClient({ adapter });
 };
 
