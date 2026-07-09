@@ -1,6 +1,11 @@
-import { googleEnabled } from "@/lib/auth";
+import { googleEnabled, emailVerificationEnabled } from "@/lib/auth";
 import { SignUpForm } from "./sign-up-form";
 
 export default function SignUpPage() {
-  return <SignUpForm googleEnabled={googleEnabled} />;
+  return (
+    <SignUpForm
+      googleEnabled={googleEnabled}
+      emailVerificationEnabled={emailVerificationEnabled}
+    />
+  );
 }

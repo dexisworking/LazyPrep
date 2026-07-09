@@ -7,6 +7,7 @@ import { signIn } from "@/lib/auth-client";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { GoogleButton } from "@/components/auth/google-button";
+import { VerifyNotice } from "@/components/auth/verify-notice";
 
 export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
@@ -18,6 +19,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +30,10 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
       const result = await signIn.email({ email, password });
       if (result.error) {
         const status = result.error.status;
-        if (status === 401 || status === 403) {
+        if (status === 403) {
+          // Email not verified yet.
+          setVerifyEmail(email);
+        } else if (status === 401) {
           setError("Invalid email or password");
         } else {
           setError("We couldn't reach the server. Please try again in a moment.");
@@ -43,6 +48,10 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
       setIsLoading(false);
     }
   };
+
+  if (verifyEmail) {
+    return <VerifyNotice email={verifyEmail} />;
+  }
 
   return (
     <div className="space-y-6">

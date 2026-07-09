@@ -7,8 +7,15 @@ import { signUp } from "@/lib/auth-client";
 import { Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { GoogleButton } from "@/components/auth/google-button";
+import { VerifyNotice } from "@/components/auth/verify-notice";
 
-export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function SignUpForm({
+  googleEnabled,
+  emailVerificationEnabled,
+}: {
+  googleEnabled: boolean;
+  emailVerificationEnabled: boolean;
+}) {
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -18,6 +25,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +45,8 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
       const result = await signUp.email({ email, password, name });
       if (result.error) {
         setError(result.error.message ?? "Sign up failed. Please try again.");
+      } else if (emailVerificationEnabled) {
+        setVerifyEmail(email);
       } else {
         router.push("/dashboard");
         router.refresh();
@@ -47,6 +57,10 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
       setIsLoading(false);
     }
   };
+
+  if (verifyEmail) {
+    return <VerifyNotice email={verifyEmail} />;
+  }
 
   return (
     <div className="space-y-6">

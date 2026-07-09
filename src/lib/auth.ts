@@ -1,11 +1,15 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
+import { sendVerificationEmail, emailEnabled } from "@/lib/email";
 
 /** Google OAuth is enabled only when both credentials are configured. */
 export const googleEnabled = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
 );
+
+/** Email verification is enforced only when Resend (email) is configured. */
+export const emailVerificationEnabled = emailEnabled;
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -14,7 +18,16 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Enable once Resend is configured
+    // Require verification only when we can actually send the email.
+    requireEmailVerification: emailVerificationEnabled,
+  },
+
+  emailVerification: {
+    sendOnSignUp: emailVerificationEnabled,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendVerificationEmail(user.email, user.name, url);
+    },
   },
 
   socialProviders: googleEnabled
