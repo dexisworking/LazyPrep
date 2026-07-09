@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 // Routes that require authentication
 const protectedRoutes = ["/dashboard", "/courses", "/practice", "/flashcards", "/profile", "/settings"];
@@ -9,8 +10,13 @@ const authRoutes = ["/sign-in", "/sign-up"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check for session cookie (Better Auth uses this pattern)
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  // In production Better Auth prefixes the cookie with `__Secure-`, so a bare
+  // `better-auth.session_token` lookup misses it and treats everyone as logged
+  // out. Use the helper, and fall back to both explicit names to be safe.
+  const sessionCookie =
+    getSessionCookie(request) ??
+    request.cookies.get("__Secure-better-auth.session_token")?.value ??
+    request.cookies.get("better-auth.session_token")?.value;
   const isAuthenticated = !!sessionCookie;
 
   // Redirect unauthenticated users away from protected routes
