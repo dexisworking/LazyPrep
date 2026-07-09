@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="np-icon-bolt" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2b8fff" />
+      <stop offset="0.5" stop-color="#5aa2ff" />
+      <stop offset="1" stop-color="#ff7a1a" />
+    </linearGradient>
+    <linearGradient id="np-icon-ring" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2b8fff" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#ff7a1a" stop-opacity="0.55" />
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="#0a0a0f" stroke="url(#np-icon-ring)" stroke-width="1.5" />
+  <g transform="translate(15.5 12) scale(1.375)">
+    <path
+      d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+      fill="none"
+      stroke="url(#np-icon-bolt)"
+      stroke-width="1.8"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>

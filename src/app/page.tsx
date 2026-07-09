@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Zap, BookOpen, Brain, Target, BarChart3, Flame, ArrowRight } from "lucide-react";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 
 export default function HomePage() {
   return (
@@ -8,12 +9,8 @@ export default function HomePage() {
       <nav className="fixed top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-              <Zap className="h-4 w-4 text-primary" />
-            </div>
-            <span className="text-lg font-bold tracking-tight">
-              Net<span className="text-primary">Prep</span>
-            </span>
+            <LogoMark className="h-7 w-7" />
+            <Wordmark className="text-lg" />
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -187,8 +184,8 @@ export default function HomePage() {
       <footer className="border-t border-border/50 py-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">NetPrep</span>
+            <LogoMark className="h-5 w-5" />
+            <Wordmark className="text-sm" />
           </div>
           <p className="text-xs text-muted-foreground">
             The Preparation Operating System

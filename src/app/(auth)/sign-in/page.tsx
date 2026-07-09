@@ -4,7 +4,8 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
-import { Loader2, Zap, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 
 export default function SignInPage() {
   return (
@@ -75,12 +76,8 @@ function SignInForm() {
       {/* Logo & Heading */}
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <Zap className="h-5 w-5 text-primary" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight">
-            Net<span className="text-primary">Prep</span>
-          </span>
+          <LogoMark className="h-9 w-9" />
+          <Wordmark className="text-2xl" />
         </div>
         <h1 className="text-xl font-semibold">Welcome back</h1>
         <p className="text-sm text-muted-foreground">

@@ -8,6 +8,7 @@ import { signOut } from "@/lib/auth-client";
 import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 interface MobileNavProps {
@@ -74,10 +75,8 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
         {/* Header */}
         <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            <span className="text-lg font-bold tracking-tight">
-              Net<span className="text-primary">Prep</span>
-            </span>
+            <LogoMark className="h-6 w-6" />
+            <Wordmark className="text-lg" />
           </div>
           <button
             onClick={onClose}

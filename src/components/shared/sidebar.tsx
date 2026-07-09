@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 const routes = [
@@ -63,12 +64,8 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
     <div className="flex h-full flex-col border-r border-border bg-sidebar text-sidebar-foreground">
       {/* App Logo */}
       <div className="flex h-16 items-center gap-2 px-6 border-b border-border/50">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-          <Zap className="h-4 w-4 text-primary" />
-        </div>
-        <span className="text-lg font-bold tracking-tight">
-          Net<span className="text-primary">Prep</span>
-        </span>
+        <LogoMark className="h-7 w-7" />
+        <Wordmark className="text-lg" />
       </div>
 
       {/* Main Navigation */}
