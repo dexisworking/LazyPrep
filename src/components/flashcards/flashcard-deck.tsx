@@ -82,7 +82,10 @@ export function FlashcardDeck({
     );
   }
 
-  if (finished) {
+  // `revalidatePath` in the review action can refresh this page's props
+  // mid-session (the due list shrinks as cards are graded). If the index runs
+  // past the refreshed array, the session is effectively done.
+  if (finished || index >= cards.length) {
     return (
       <motion.div
         initial={reduced ? false : { opacity: 0, scale: 0.96 }}

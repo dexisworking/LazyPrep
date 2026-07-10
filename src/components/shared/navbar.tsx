@@ -64,9 +64,9 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
             {currentLevelXp} / {nextLevelXp} XP
           </span>
         </div>
-        <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 md:hidden">
-          <Trophy className="h-3.5 w-3.5 text-np-orange" />
-          <span className="text-xs font-bold text-foreground">Lvl {level}</span>
+        <div className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 md:hidden">
+          <Trophy className="h-3.5 w-3.5 flex-shrink-0 text-np-orange" />
+          <span className="text-xs font-bold text-foreground">Lvl&nbsp;{level}</span>
         </div>
 
         {/* Streak Counter */}
