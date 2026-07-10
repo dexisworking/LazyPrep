@@ -1,18 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Geist } from "next/font/google";
+import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+
+const APP_NAME = "NetPrep";
+const APP_TITLE = "NetPrep — The Preparation Operating System";
+const APP_DESCRIPTION =
+  "Your complete preparation operating system for certifications, competitive exams, and professional training. Study smarter with gamified learning, smart revision, and real-time analytics.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://netprep.iamdex.codes"),
   title: {
-    default: "NetPrep — The Preparation Operating System",
+    default: APP_TITLE,
     template: "%s | NetPrep",
   },
-  description:
-    "Your complete preparation operating system for certifications, competitive exams, and professional training. Study smarter with gamified learning, smart revision, and real-time analytics.",
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
   keywords: [
     "exam preparation",
     "AI course generator",
@@ -22,6 +28,27 @@ export const metadata: Metadata = {
     "flashcards",
     "study platform",
   ],
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
+    url: "https://netprep.iamdex.codes",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
+    creator: "@SekharDibyanshu",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: APP_NAME,
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -31,7 +58,7 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

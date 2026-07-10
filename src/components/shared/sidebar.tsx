@@ -2,52 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Zap, BookOpen, Target, Brain, User, Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { navRoutes, isRouteActive } from "@/lib/nav";
 import type { ProfileSummary } from "@/lib/data/dashboard";
-
-const routes = [
-  {
-    label: "Dashboard",
-    icon: Zap,
-    href: "/dashboard",
-    color: "text-primary",
-  },
-  {
-    label: "Courses",
-    icon: BookOpen,
-    href: "/courses",
-    color: "text-accent",
-  },
-  {
-    label: "Practice",
-    icon: Target,
-    href: "/practice",
-    color: "text-np-red",
-  },
-  {
-    label: "Flashcards",
-    icon: Brain,
-    href: "/flashcards",
-    color: "text-np-success",
-  },
-  {
-    label: "Profile",
-    icon: User,
-    href: "/profile",
-    color: "text-primary",
-  },
-  {
-    label: "Settings",
-    icon: Settings,
-    href: "/settings",
-    color: "text-muted-foreground",
-  },
-];
 
 export function Sidebar({ profile }: { profile: ProfileSummary }) {
   const pathname = usePathname();
@@ -70,8 +32,8 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
 
       {/* Main Navigation */}
       <div className="flex-1 space-y-1 px-4 py-6">
-        {routes.map((route) => {
-          const isActive = pathname === route.href || pathname?.startsWith(`${route.href}/`);
+        {navRoutes.map((route) => {
+          const isActive = isRouteActive(pathname, route.href);
           return (
             <Link
               key={route.href}
