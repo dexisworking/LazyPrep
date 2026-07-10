@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Target, ArrowRight, BookOpenCheck, CheckCircle2 } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getPracticeOverview } from "@/lib/data/practice";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,9 @@ export default async function PracticePage() {
           No practice questions available yet.
         </div>
       ) : (
-        <div className="grid gap-4">
+        <Stagger className="grid gap-4">
           {courses.map((course) => (
-            <div
+            <StaggerItem
               key={course.id}
               className="rounded-xl border border-border/50 bg-card p-5"
             >
@@ -74,9 +75,9 @@ export default async function PracticePage() {
                   <span className="text-muted-foreground">{course.attempts} total attempts</span>
                 </div>
               )}
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       )}
     </div>
   );

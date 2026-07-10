@@ -4,6 +4,7 @@ import { Zap, Play, Flame, Trophy, Target, BookOpen, TrendingUp, CheckCircle2 } 
 import { getCurrentProfile } from "@/lib/session";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { getLevelProgress, getRank } from "@/lib/xp";
+import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +23,10 @@ export default async function DashboardPage() {
     cp?.resumeLessonSlug ? `/courses/${cp.slug}/lessons/${cp.resumeLessonSlug}` : null;
 
   const stats = [
-    { label: "Day Streak", value: profile.currentStreak, icon: Flame, color: "text-np-streak" },
-    { label: "Total XP", value: profile.xp, icon: Zap, color: "text-np-xp" },
-    { label: "Course Progress", value: `${coursePct}%`, icon: BookOpen, color: "text-primary" },
-    { label: "MCQ Accuracy", value: `${data.accuracy}%`, icon: Target, color: "text-np-red" },
+    { label: "Day Streak", value: profile.currentStreak, suffix: "", icon: Flame, color: "text-np-streak" },
+    { label: "Total XP", value: profile.xp, suffix: "", icon: Zap, color: "text-np-xp" },
+    { label: "Course Progress", value: coursePct, suffix: "%", icon: BookOpen, color: "text-primary" },
+    { label: "MCQ Accuracy", value: data.accuracy, suffix: "%", icon: Target, color: "text-np-red" },
   ];
 
   return (
@@ -58,17 +59,19 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-border/50 bg-card p-4">
+          <StaggerItem key={s.label} className="rounded-xl border border-border/50 bg-card p-4">
             <div className="flex items-center gap-2 text-muted-foreground">
               <s.icon className={`h-4 w-4 ${s.color}`} />
               <span className="text-xs font-medium">{s.label}</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-foreground">{s.value}</p>
-          </div>
+            <p className="mt-2 text-2xl font-bold text-foreground">
+              <AnimatedNumber value={s.value} suffix={s.suffix} />
+            </p>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       {/* Continue learning */}
       {cp && (

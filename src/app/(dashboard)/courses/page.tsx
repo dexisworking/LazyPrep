@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getCoursesOverview } from "@/lib/data/courses";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ function CourseCard({ course }: { course: CourseOverview }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="group relative flex flex-col gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+      className="group relative flex w-full flex-col gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
@@ -131,11 +132,13 @@ export default async function CoursesPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <Stagger className="grid gap-4 sm:grid-cols-2">
             {mine.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <StaggerItem key={course.id} className="flex">
+                <CourseCard course={course} />
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </section>
 
@@ -151,20 +154,22 @@ export default async function CoursesPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {curated.map((course) => (
-            <CourseCard key={course.id} course={course} />
+            <StaggerItem key={course.id} className="flex">
+              <CourseCard course={course} />
+            </StaggerItem>
           ))}
 
           {/* Coming soon placeholder */}
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/50 bg-card/30 p-6 text-center">
+          <StaggerItem className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/50 bg-card/30 p-6 text-center">
             <Clock className="h-6 w-6 text-muted-foreground/60" />
             <p className="text-sm font-medium text-muted-foreground">More courses coming soon</p>
             <p className="text-xs text-muted-foreground/70">
               Can&apos;t wait? Generate any subject above.
             </p>
-          </div>
-        </div>
+          </StaggerItem>
+        </Stagger>
       </section>
     </div>
   );

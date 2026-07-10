@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Brain, ArrowRight, Layers } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getFlashcardsOverview } from "@/lib/data/flashcards";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +24,13 @@ export default async function FlashcardsPage() {
           No flashcard decks available yet.
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <Stagger className="grid gap-4 sm:grid-cols-2">
           {courses.map((course) => (
+            <StaggerItem key={course.id} className="flex">
             <Link
-              key={course.id}
               href={course.totalCards > 0 ? `/flashcards/${course.slug}` : "#"}
               className={
-                "group flex items-center justify-between gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all " +
+                "group flex w-full items-center justify-between gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all active:scale-[0.99] " +
                 (course.totalCards > 0
                   ? "hover:border-np-success/40 hover:shadow-lg hover:shadow-np-success/5"
                   : "pointer-events-none opacity-60")
@@ -70,8 +71,9 @@ export default async function FlashcardsPage() {
                 <ArrowRight className="h-5 w-5 flex-shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-np-success" />
               )}
             </Link>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       )}
     </div>
   );
