@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Brain, Target, BarChart3, Flame, ArrowRight, Sparkles } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { SiteFooter } from "@/components/shared/site-footer";
+import { InstallHint } from "@/components/shared/install-hint";
 import { SlideUp, Stagger, StaggerItem } from "@/components/motion/motion";
 
 export default function HomePage() {
@@ -78,6 +79,11 @@ export default function HomePage() {
             >
               I have an account
             </Link>
+          </div>
+
+          {/* Install hint (Chromium/Android only — appears when installable) */}
+          <div className="flex justify-center">
+            <InstallHint />
           </div>
 
           {/* Subjects strip */}
