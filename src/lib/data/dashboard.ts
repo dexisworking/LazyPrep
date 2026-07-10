@@ -1,6 +1,7 @@
 import type { Profile } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCourseTree, courseVisibility } from "@/lib/data/courses";
+import { dayDate, DEFAULT_TZ } from "@/lib/day";
 
 /** Minimal profile shape passed to the nav chrome (sidebar/navbar/mobile nav). */
 export type ProfileSummary = {
@@ -59,8 +60,7 @@ export async function getDashboardData(profile: Profile) {
     }
   }
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = dayDate(new Date(), profile.timezone || DEFAULT_TZ);
   const todaySession = await prisma.studySession.findUnique({
     where: { profileId_date: { profileId: profile.id, date: today } },
   });

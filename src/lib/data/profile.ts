@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { dayDate, DEFAULT_TZ } from "@/lib/day";
 
 /** Aggregate lifetime stats for a profile. */
 export async function getProfileStats(profileId: string) {
@@ -34,9 +35,12 @@ export type HeatmapDay = {
 };
 
 /** Daily study sessions within the given lookback window, for the heatmap. */
-export async function getHeatmapData(profileId: string, days = 182): Promise<HeatmapDay[]> {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days);
+export async function getHeatmapData(
+  profileId: string,
+  tz: string = DEFAULT_TZ,
+  days = 182,
+): Promise<HeatmapDay[]> {
+  const start = dayDate(new Date(Date.now() - days * 86_400_000), tz);
   return prisma.studySession.findMany({
     where: { profileId, date: { gte: start } },
     orderBy: { date: "asc" },

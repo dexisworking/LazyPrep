@@ -16,7 +16,7 @@ export default async function ProfilePage() {
 
   const [stats, heatmap] = await Promise.all([
     getProfileStats(profile.id),
-    getHeatmapData(profile.id),
+    getHeatmapData(profile.id, profile.timezone),
   ]);
 
   const { level, currentLevelXp, nextLevelXp, progress } = getLevelProgress(profile.xp);
@@ -101,7 +101,7 @@ export default async function ProfilePage() {
           <CalendarDays className="h-4 w-4 text-primary" />
           Study Activity
         </h2>
-        <StudyHeatmap days={heatmap} />
+        <StudyHeatmap days={heatmap} tz={profile.timezone} />
       </div>
     </div>
   );

@@ -86,6 +86,7 @@ model Profile {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   displayName   String?
   avatarUrl     String?
+  timezone      String    @default("UTC") // IANA tz, e.g. "Asia/Kolkata"; day boundaries computed here
   xp            Int       @default(0)
   level         Int       @default(1)
   currentStreak Int       @default(0)

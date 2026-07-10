@@ -6,7 +6,12 @@
  * - Read a lesson
  * - Answer a question
  * - Review a flashcard
+ *
+ * "Day" boundaries are evaluated in the user's own timezone (`tz`) so late-night
+ * study lands on the correct calendar day. See {@link ./day}.
  */
+
+import { dayKey, daysBetweenKeys, DEFAULT_TZ } from "@/lib/day";
 
 /**
  * Check if a streak should be incremented, reset, or unchanged
@@ -15,14 +20,12 @@ export function calculateStreak(
   lastStudyDate: Date | null,
   currentStreak: number,
   longestStreak: number,
+  tz: string = DEFAULT_TZ,
 ): {
   newStreak: number;
   newLongestStreak: number;
   streakBroken: boolean;
 } {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
   if (!lastStudyDate) {
     // First ever study session
     return {
@@ -32,16 +35,11 @@ export function calculateStreak(
     };
   }
 
-  const lastDate = new Date(
-    lastStudyDate.getFullYear(),
-    lastStudyDate.getMonth(),
-    lastStudyDate.getDate(),
-  );
+  const todayKey = dayKey(new Date(), tz);
+  const lastKey = dayKey(lastStudyDate, tz);
+  const diffDays = daysBetweenKeys(lastKey, todayKey);
 
-  const diffMs = today.getTime() - lastDate.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
+  if (diffDays <= 0) {
     // Already studied today — no change
     return {
       newStreak: currentStreak,

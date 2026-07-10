@@ -1,10 +1,21 @@
 import type { HeatmapDay } from "@/lib/data/profile";
+import { dayKey, DEFAULT_TZ } from "@/lib/day";
 
 const WEEKS = 26; // ~6 months, fits mobile
+const DAY_MS = 86_400_000;
 
-function dateKey(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+/** ISO day key ("YYYY-MM-DD") for a stored session date (UTC-midnight of a local day). */
+function sessionKey(date: Date): string {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+/** A UTC-midnight Date for an ISO day key — used only for calendar arithmetic. */
+function keyToUtc(key: string): Date {
+  return new Date(`${key}T00:00:00.000Z`);
+}
+
+function utcToKey(d: Date): string {
+  return d.toISOString().slice(0, 10);
 }
 
 function level(xp: number): 0 | 1 | 2 | 3 | 4 {
@@ -23,22 +34,24 @@ const LEVEL_CLASS: Record<number, string> = {
   4: "bg-primary",
 };
 
-export function StudyHeatmap({ days }: { days: HeatmapDay[] }) {
-  const byDate = new Map(days.map((d) => [dateKey(new Date(d.date)), d]));
+export function StudyHeatmap({ days, tz = DEFAULT_TZ }: { days: HeatmapDay[]; tz?: string }) {
+  const byDate = new Map(days.map((d) => [sessionKey(d.date), d]));
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayDow = today.getDay(); // 0=Sun
+  // "Today" is the user's local calendar day; all grid math is done in UTC-day
+  // space anchored to that key so it's independent of the server's timezone.
+  const todayKey = dayKey(new Date(), tz);
+  const todayUtc = keyToUtc(todayKey);
+  const todayDow = todayUtc.getUTCDay(); // 0=Sun
+
   // End the grid on this week's Saturday so the last column is the current week.
-  const end = new Date(today);
-  end.setDate(today.getDate() + (6 - todayDow));
+  const end = new Date(todayUtc);
+  end.setUTCDate(end.getUTCDate() + (6 - todayDow));
   const totalDays = WEEKS * 7;
   const start = new Date(end);
-  start.setDate(end.getDate() - totalDays + 1);
+  start.setUTCDate(end.getUTCDate() - totalDays + 1);
 
   // Build columns (weeks) × 7 rows (Sun..Sat).
   const columns: {
-    date: Date;
     key: string;
     lvl: number;
     future: boolean;
@@ -49,21 +62,21 @@ export function StudyHeatmap({ days }: { days: HeatmapDay[] }) {
     for (let r = 0; r < 7; r++) {
       const idx = c * 7 + r;
       const date = new Date(start);
-      date.setDate(start.getDate() + idx);
-      const key = dateKey(date);
+      date.setUTCDate(start.getUTCDate() + idx);
+      const key = utcToKey(date);
       const session = byDate.get(key);
       col.push({
-        date,
         key,
         lvl: session ? level(session.xpEarned) : 0,
-        future: date > today,
+        future: key > todayKey,
         session,
       });
     }
     columns.push(col);
   }
 
-  const monthLabel = (d: Date) => d.toLocaleString("en-US", { month: "short" });
+  const monthLabel = (key: string) =>
+    keyToUtc(key).toLocaleString("en-US", { month: "short", timeZone: "UTC" });
 
   return (
     <div className="space-y-2">
@@ -93,7 +106,7 @@ export function StudyHeatmap({ days }: { days: HeatmapDay[] }) {
 
       {/* Legend */}
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{monthLabel(start)} – {monthLabel(today)}</span>
+        <span>{monthLabel(utcToKey(start))} – {monthLabel(todayKey)}</span>
         <div className="flex items-center gap-1">
           <span>Less</span>
           {[0, 1, 2, 3, 4].map((l) => (
