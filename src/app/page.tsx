@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { BookOpen, Brain, Target, BarChart3, Flame, ArrowRight, Sparkles } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { SiteFooter } from "@/components/shared/site-footer";
+import { SlideUp, Stagger, StaggerItem } from "@/components/motion/motion";
 
 export default function HomePage() {
   return (
@@ -37,7 +39,7 @@ export default function HomePage() {
           <div className="absolute bottom-0 right-0 h-[300px] w-[400px] rounded-full bg-accent/5 blur-[100px]" />
         </div>
 
-        <div className="relative z-10 max-w-3xl text-center space-y-8">
+        <SlideUp className="relative z-10 max-w-3xl text-center space-y-8">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm text-primary">
             <Flame className="h-3.5 w-3.5" />
@@ -96,12 +98,12 @@ export default function HomePage() {
               </span>
             ))}
           </div>
-        </div>
+        </SlideUp>
       </section>
 
       {/* Features Grid */}
       <section className="mx-auto max-w-6xl px-4 py-24">
-        <div className="mb-16 text-center">
+        <SlideUp inView className="mb-16 text-center">
           <h2 className="text-3xl font-bold tracking-tight">
             Everything you need to{" "}
             <span className="text-primary">ace the exam</span>
@@ -109,9 +111,9 @@ export default function HomePage() {
           <p className="mt-3 text-muted-foreground">
             No more scattered notes, random YouTube playlists, or wondering what to study next.
           </p>
-        </div>
+        </SlideUp>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Stagger inView className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
               icon: Sparkles,
@@ -162,7 +164,7 @@ export default function HomePage() {
               bg: "bg-np-streak/10",
             },
           ].map((feature) => (
-            <div
+            <StaggerItem
               key={feature.title}
               className="group rounded-xl border border-border/50 bg-card/50 p-6 transition-all hover:border-primary/30 hover:bg-card"
             >
@@ -175,14 +177,14 @@ export default function HomePage() {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
       {/* CTA Section */}
       <section className="border-t border-border/50 bg-card/30">
-        <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+        <SlideUp inView className="mx-auto max-w-3xl px-4 py-24 text-center">
           <h2 className="text-3xl font-bold tracking-tight">
             Ready to ace your{" "}
             <span className="text-primary">next exam</span>?
@@ -192,26 +194,16 @@ export default function HomePage() {
           </p>
           <Link
             href="/sign-up"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
           >
             Create Free Account
             <ArrowRight className="h-4 w-4" />
           </Link>
-        </div>
+        </SlideUp>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <LogoMark className="h-5 w-5" />
-            <Wordmark className="text-sm" />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            The Preparation Operating System
-          </p>
-        </div>
-      </footer>
+      {/* Footer — DexForge-style cinematic footer */}
+      <SiteFooter />
     </div>
   );
 }
