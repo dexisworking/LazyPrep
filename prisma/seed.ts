@@ -96,6 +96,27 @@ async function importPack(packSlug: string) {
 
   const stats = { modules: 0, chapters: 0, lessons: 0, questions: 0, flashcards: 0 };
 
+  // Restructure-safe re-import: bump every existing order out of the way so
+  // upserting the new order numbers can't hit the unique [.., order] indexes
+  // mid-import (e.g. when a chapter moves from position 2 to 1).
+  const ORDER_OFFSET = 1000;
+  await prisma.module.updateMany({
+    where: { courseId: course.id, order: { lt: ORDER_OFFSET } },
+    data: { order: { increment: ORDER_OFFSET } },
+  });
+  await prisma.chapter.updateMany({
+    where: { module: { courseId: course.id }, order: { lt: ORDER_OFFSET } },
+    data: { order: { increment: ORDER_OFFSET } },
+  });
+  await prisma.lesson.updateMany({
+    where: { chapter: { module: { courseId: course.id } }, order: { lt: ORDER_OFFSET } },
+    data: { order: { increment: ORDER_OFFSET } },
+  });
+
+  const keptModuleIds: string[] = [];
+  const keptChapterIds: string[] = [];
+  const keptLessonIds: string[] = [];
+
   for (const [mi, m] of (pack.modules ?? []).entries()) {
     const mSlug = m.slug ?? slugify(m.title, `module-${mi + 1}`);
     const dbModule = await prisma.module.upsert({
@@ -103,6 +124,7 @@ async function importPack(packSlug: string) {
       update: { title: m.title, order: mi + 1 },
       create: { courseId: course.id, title: m.title, slug: mSlug, order: mi + 1 },
     });
+    keptModuleIds.push(dbModule.id);
     stats.modules++;
 
     for (const [ci, ch] of (m.chapters ?? []).entries()) {
@@ -112,6 +134,7 @@ async function importPack(packSlug: string) {
         update: { title: ch.title, order: ci + 1 },
         create: { moduleId: dbModule.id, title: ch.title, slug: cSlug, order: ci + 1 },
       });
+      keptChapterIds.push(dbChapter.id);
       stats.chapters++;
 
       for (const [li, l] of (ch.lessons ?? []).entries()) {
@@ -123,7 +146,7 @@ async function importPack(packSlug: string) {
             ? fs.readFileSync(mdPath, "utf-8")
             : `# ${l.title}\n\nContent coming soon.`;
         }
-        await prisma.lesson.upsert({
+        const dbLesson = await prisma.lesson.upsert({
           where: { chapterId_slug: { chapterId: dbChapter.id, slug: lSlug } },
           update: { title: l.title, content, order: li + 1, estimatedMinutes: l.estimatedMinutes ?? 10 },
           create: {
@@ -135,10 +158,26 @@ async function importPack(packSlug: string) {
             estimatedMinutes: l.estimatedMinutes ?? 10,
           },
         });
+        keptLessonIds.push(dbLesson.id);
         stats.lessons++;
       }
     }
   }
+
+  // Prune structure that is no longer in the pack (stale after a restructure).
+  // Progress on removed lessons cascades away — progress on kept slugs survives.
+  await prisma.lesson.deleteMany({
+    where: {
+      chapter: { module: { courseId: course.id } },
+      id: { notIn: keptLessonIds },
+    },
+  });
+  await prisma.chapter.deleteMany({
+    where: { module: { courseId: course.id }, id: { notIn: keptChapterIds } },
+  });
+  await prisma.module.deleteMany({
+    where: { courseId: course.id, id: { notIn: keptModuleIds } },
+  });
 
   // Questions and flashcards have no stable key — replace the whole set.
   const questions = readJson<PackQuestion[]>(path.join(dir, "questions.json"));
@@ -163,7 +202,8 @@ async function importPack(packSlug: string) {
 
   const flashcards = readJson<PackFlashcard[]>(path.join(dir, "flashcards.json"));
   if (flashcards) {
-    await prisma.flashcard.deleteMany({ where: { courseId: course.id } });
+    // Only replace CURATED cards — users' private AI-generated cards survive re-imports.
+    await prisma.flashcard.deleteMany({ where: { courseId: course.id, ownerId: null } });
     for (const f of flashcards) {
       await prisma.flashcard.create({
         data: { courseId: course.id, front: f.front, back: f.back, topic: f.topic, tags: f.tags ?? [] },

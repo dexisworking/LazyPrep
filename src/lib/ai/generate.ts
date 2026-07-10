@@ -5,7 +5,58 @@ import type {
   PhaseLevel,
   PhaseBlueprint,
   GeneratedQuestion,
+  GeneratedFlashcard,
 } from "@/lib/ai/types";
+
+/**
+ * The interactive-block syntax cheat sheet taught to the lesson generator.
+ * These fenced blocks are rendered by LessonContent as Duolingo-style widgets
+ * and infographics (see content/README.md for the authoring reference).
+ */
+const INTERACTIVE_BLOCK_GUIDE = `
+INTERACTIVE BLOCKS — the lesson renderer turns special fenced code blocks into
+interactive widgets and infographics. Include 2–4 of them, spread through the
+lesson, wherever they genuinely reinforce the material. The fence language
+selects the widget; the body must be STRICTLY VALID JSON (double quotes, no
+trailing commas, no comments inside the JSON):
+
+\`\`\`quiz
+{ "question": "…?", "options": ["A", "B", "C", "D"], "answer": 1, "explanation": "why" }
+\`\`\`
+
+\`\`\`flip
+{ "title": "Key terms", "cards": [ { "front": "term", "back": "definition" } ] }
+\`\`\`
+
+\`\`\`sort
+{ "prompt": "Put the steps of … in order", "items": ["first step", "second step", "third step"] }
+\`\`\`
+(sort items MUST be listed in the CORRECT order — the app shuffles them)
+
+\`\`\`match
+{ "prompt": "Match each item to its description", "pairs": [ { "left": "item", "right": "its match" } ] }
+\`\`\`
+
+\`\`\`diagram
+{ "type": "layers", "title": "…", "layers": [ { "label": "…", "detail": "…", "badge": "1" } ] }
+\`\`\`
+(diagram "type" can also be "flow" with "steps": [{ "label", "detail" }] for
+processes, or "compare" with "left"/"right": { "title", "items": [] } for
+side-by-side comparisons)
+
+\`\`\`callout
+{ "type": "exam", "body": "One crucial point to remember." }
+\`\`\`
+(callout "type": "info" | "tip" | "warning" | "exam")
+
+For command-line oriented subjects you may show CLI output in a terminal frame:
+\`\`\`term
+device# show something
+ …output…
+\`\`\`
+
+End every lesson with one quiz block as a final knowledge check. Regular fenced
+code blocks (bash, python, json, …) still work normally for actual code.`;
 
 const PHASE_GUIDE: Record<PhaseLevel, string> = {
   foundation:
@@ -49,7 +100,8 @@ export async function generateLessonMarkdown(
     "You are an expert instructor writing ONE self-contained lesson in GitHub-flavored " +
     "Markdown. Use headings (##, ###), bullet lists, tables, and fenced code blocks where " +
     "they help. Do NOT wrap the whole document in a code fence. Do NOT repeat the lesson " +
-    "title as an H1 (the app renders it separately). Start directly with the lesson body.";
+    "title as an H1 (the app renders it separately). Start directly with the lesson body.\n" +
+    INTERACTIVE_BLOCK_GUIDE;
 
   const user = `Write the lesson body for:
 - Course: ${ctx.courseTitle}
@@ -60,7 +112,8 @@ export async function generateLessonMarkdown(
 - Style preferences: ${ctx.q.style || "clear, practical, example-driven"}
 
 ${depthGuide}
-Focus only on this lesson's topic; assume earlier lessons covered prerequisites.`;
+Focus only on this lesson's topic; assume earlier lessons covered prerequisites.
+Weave in 2–4 interactive blocks (and end with a quiz block) as described in the system prompt.`;
 
   const md = await chatComplete(
     config,
@@ -68,7 +121,7 @@ Focus only on this lesson's topic; assume earlier lessons covered prerequisites.
       { role: "system", content: system },
       { role: "user", content: user },
     ],
-    { temperature: 0.7, maxTokens: 2500 },
+    { temperature: 0.7, maxTokens: 3200 },
   );
 
   // Strip an accidental full-document code fence if present.
@@ -155,19 +208,125 @@ Output a JSON array of EXACTLY ${count} objects:
     { temperature: 0.6, maxTokens: 3500 },
   );
 
-  const valid = Array.isArray(qs)
-    ? qs.filter(
-        (x) =>
-          Array.isArray(x.options) &&
-          x.options.length >= 2 &&
-          typeof x.correctIdx === "number" &&
-          x.correctIdx >= 0 &&
-          x.correctIdx < x.options.length &&
-          typeof x.text === "string",
-      )
-    : [];
+  const valid = validQuestions(qs);
   if (valid.length === 0) throw new AiError("The model returned no valid checkpoint questions.");
   return valid;
+}
+
+/** Keep only structurally sound MCQs from a model response. */
+function validQuestions(qs: unknown): GeneratedQuestion[] {
+  if (!Array.isArray(qs)) return [];
+  return qs.filter(
+    (x: GeneratedQuestion) =>
+      Array.isArray(x.options) &&
+      x.options.length >= 2 &&
+      typeof x.correctIdx === "number" &&
+      x.correctIdx >= 0 &&
+      x.correctIdx < x.options.length &&
+      typeof x.text === "string",
+  );
+}
+
+/** Generate a timed mock test's questions from a course's lesson coverage. */
+export async function generateMockTestQuestions(
+  config: AiConfig,
+  ctx: { courseTitle: string; lessonTitles: string[]; count: number; difficulty: string },
+): Promise<GeneratedQuestion[]> {
+  const count = Math.min(Math.max(ctx.count, 5), 40);
+  const difficultyGuide =
+    ctx.difficulty === "mixed"
+      ? "Mix difficulties roughly 30% easy / 45% medium / 25% hard."
+      : `Every question should be ${ctx.difficulty} difficulty.`;
+
+  const system =
+    "You write realistic certification-style exam questions. Output ONLY a valid JSON array — no prose, no code fences.";
+
+  const user = `Create ${count} multiple-choice exam questions for a timed mock test on "${ctx.courseTitle}".
+The course covers these lessons — spread the questions across this coverage:
+- ${ctx.lessonTitles.slice(0, 80).join("\n- ")}
+
+Output a JSON array of EXACTLY ${count} objects:
+[ { "topic": string, "difficulty": "easy"|"medium"|"hard", "text": string, "options": [string, string, string, string], "correctIdx": 0-3, "explanation": string } ]
+- Exactly 4 options each, exactly one correct. Plausible distractors.
+- "topic" = the specific concept tested (used for the score breakdown).
+- ${difficultyGuide}
+- Test understanding and application (scenarios, "which would you use…"), not just recall.
+- Output ONLY the JSON array.`;
+
+  const qs = await chatJson<GeneratedQuestion[]>(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.6, maxTokens: Math.max(3500, count * 220) },
+  );
+
+  const valid = validQuestions(qs);
+  if (valid.length === 0) throw new AiError("The model returned no valid questions. Try again.");
+  return valid.slice(0, count);
+}
+
+/** Generate additional flashcards for a course, avoiding duplicates. */
+export async function generateFlashcardsAi(
+  config: AiConfig,
+  ctx: {
+    courseTitle: string;
+    lessonTitles: string[];
+    topic?: string;
+    count: number;
+    existingFronts: string[];
+  },
+): Promise<GeneratedFlashcard[]> {
+  const count = Math.min(Math.max(ctx.count, 3), 30);
+  const system =
+    "You write concise, high-yield study flashcards. Output ONLY a valid JSON array — no prose, no code fences.";
+
+  const focus = ctx.topic?.trim()
+    ? `Focus specifically on: ${ctx.topic.trim()}.`
+    : "Cover the highest-yield facts across the whole course.";
+  const avoid = ctx.existingFronts.length
+    ? `These cards already exist — do NOT duplicate or trivially rephrase them:\n- ${ctx.existingFronts.slice(0, 80).join("\n- ")}`
+    : "";
+
+  const user = `Create ${count} flashcards for the course "${ctx.courseTitle}".
+The course covers:
+- ${ctx.lessonTitles.slice(0, 80).join("\n- ")}
+
+${focus}
+${avoid}
+
+Output a JSON array of EXACTLY ${count} objects:
+[ { "front": string, "back": string, "topic": string } ]
+- "front" is a single crisp question or prompt; "back" is a short, precise answer (1–2 sentences max).
+- "topic" is a 1–3 word concept label.
+- Prefer facts that reward memorization: numbers, definitions, differences, orderings.
+- Output ONLY the JSON array.`;
+
+  const cards = await chatJson<GeneratedFlashcard[]>(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.7, maxTokens: Math.max(2000, count * 120) },
+  );
+
+  const valid = Array.isArray(cards)
+    ? cards.filter(
+        (c) =>
+          typeof c.front === "string" &&
+          c.front.trim().length > 0 &&
+          typeof c.back === "string" &&
+          c.back.trim().length > 0,
+      )
+    : [];
+  if (valid.length === 0) throw new AiError("The model returned no valid flashcards. Try again.");
+  return valid.slice(0, count).map((c) => ({
+    front: c.front.trim().slice(0, 500),
+    back: c.back.trim().slice(0, 1000),
+    topic: (typeof c.topic === "string" && c.topic.trim() ? c.topic.trim() : "General").slice(0, 60),
+  }));
 }
 
 /** Suggest concepts from a completed course that each deserve a deep-dive course. */

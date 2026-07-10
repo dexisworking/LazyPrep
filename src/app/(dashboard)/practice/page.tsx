@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Target, ArrowRight, BookOpenCheck, CheckCircle2 } from "lucide-react";
+import { Target, ArrowRight, BookOpenCheck, CheckCircle2, AlarmClock } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getPracticeOverview } from "@/lib/data/practice";
 import { Stagger, StaggerItem } from "@/components/motion/motion";
@@ -15,7 +15,8 @@ export default async function PracticePage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Practice</h1>
         <p className="text-sm text-muted-foreground">
-          Sharpen your knowledge with MCQs. Every answer earns XP; mistakes go to your notebook.
+          Sharpen your knowledge with MCQs and timed AI mock tests. Every answer earns XP;
+          mistakes go to your notebook.
         </p>
       </div>
 
@@ -44,7 +45,7 @@ export default async function PracticePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {course.wrong > 0 && (
                     <Link
                       href={`/practice/${course.slug}/notebook`}
@@ -54,6 +55,13 @@ export default async function PracticePage() {
                       Notebook ({course.wrong})
                     </Link>
                   )}
+                  <Link
+                    href={`/practice/${course.slug}/mocks`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/20"
+                  >
+                    <AlarmClock className="h-4 w-4" />
+                    Mock Tests
+                  </Link>
                   {course.totalQuestions > 0 && (
                     <Link
                       href={`/practice/${course.slug}`}

@@ -24,6 +24,10 @@ export async function reviewCard(flashcardId: string, grade: ReviewGrade) {
   if (flashcard.course.ownerId && flashcard.course.ownerId !== profile.id) {
     throw new Error("Not allowed");
   }
+  // Private (AI-generated) cards can only be reviewed by their owner.
+  if (flashcard.ownerId && flashcard.ownerId !== profile.id) {
+    throw new Error("Not allowed");
+  }
 
   const now = new Date();
   const existing = await prisma.flashcardReview.findUnique({

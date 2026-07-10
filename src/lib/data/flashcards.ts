@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { courseVisibility } from "@/lib/data/courses";
 import type { SrsState } from "@/lib/srs";
@@ -12,9 +13,19 @@ export type StudyCard = {
   state: SrsState | null;
 };
 
+/**
+ * Card visibility: everyone sees curated cards (ownerId = null); users also
+ * see their own AI-generated cards — never another user's.
+ */
+export function flashcardVisibility(profileId: string | null): Prisma.FlashcardWhereInput {
+  return { OR: [{ ownerId: null }, ...(profileId ? [{ ownerId: profileId }] : [])] };
+}
+
 /** Due + new counts for a course/profile. */
 export async function getFlashcardCounts(courseId: string, profileId: string | null) {
-  const total = await prisma.flashcard.count({ where: { courseId } });
+  const total = await prisma.flashcard.count({
+    where: { courseId, ...flashcardVisibility(profileId) },
+  });
   if (!profileId) return { total, due: 0, newCount: total, learned: 0 };
 
   const reviewed = await prisma.flashcardReview.count({
@@ -38,7 +49,7 @@ export async function getFlashcardsOverview(profileId: string | null) {
   // Total cards per course — one grouped query.
   const cardCounts = await prisma.flashcard.groupBy({
     by: ["courseId"],
-    where: { courseId: { in: ids } },
+    where: { courseId: { in: ids }, ...flashcardVisibility(profileId) },
     _count: { _all: true },
   });
   const totalByCourse = new Map(cardCounts.map((g) => [g.courseId, g._count._all]));
@@ -120,7 +131,11 @@ export async function getStudyCards(
       : [];
 
     const newCards = await prisma.flashcard.findMany({
-      where: { courseId: course.id, id: { notIn: reviewedIds } },
+      where: {
+        courseId: course.id,
+        id: { notIn: reviewedIds },
+        ...flashcardVisibility(profileId),
+      },
       orderBy: { topic: "asc" },
       take: remaining,
     });

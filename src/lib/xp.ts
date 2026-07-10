@@ -17,7 +17,8 @@ export const XP_REWARDS = {
   MCQ_INCORRECT: 1,
   FLASHCARD_REVIEW: 2,
   DAILY_LOGIN: 5,
-  PRACTICE_TEST: 20,
+  PRACTICE_TEST: 20, // completing a mock test (first attempt)
+  MOCK_CORRECT: 2, // per correct answer on a mock test (first attempt)
 } as const;
 
 /**

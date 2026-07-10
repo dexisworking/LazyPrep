@@ -104,6 +104,8 @@ model Profile {
   ownedCourses     Course[]
   aiKey            AiKey?
   flashcardReviews FlashcardReview[]
+  ownedFlashcards  Flashcard[]       @relation("ProfileFlashcards")
+  mockTests        MockTest[]
 }
 
 // ═══════════════════════════════════════════
@@ -156,6 +158,7 @@ model Course {
   enrollments Enrollment[]
   questions   Question[]
   flashcards  Flashcard[]
+  mockTests   MockTest[]
 
   @@index([ownerId])
   @@index([parentId])
@@ -321,17 +324,21 @@ model QuestionAttempt {
 // ═══════════════════════════════════════════
 
 model Flashcard {
-  id       String   @id @default(cuid())
-  courseId  String
-  front    String
-  back     String
-  topic    String
-  tags     String[]
+  id          String   @id @default(cuid())
+  courseId    String
+  front       String
+  back        String
+  topic       String
+  tags        String[]
+  ownerId     String? // null = curated (visible to everyone); set = private, AI-generated for one user
+  aiGenerated Boolean  @default(false)
 
   course  Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  owner   Profile?          @relation("ProfileFlashcards", fields: [ownerId], references: [id], onDelete: Cascade)
   reviews FlashcardReview[]
 
   @@index([courseId, topic])
+  @@index([courseId, ownerId])
 }
 
 // ═══════════════════════════════════════════
@@ -354,6 +361,60 @@ model FlashcardReview {
 
   @@unique([profileId, flashcardId])
   @@index([profileId, dueDate])
+}
+
+// ═══════════════════════════════════════════
+// MOCK TESTS (AI-generated timed exams, per-user)
+// Generated with the user's BYO key from a course's lesson coverage.
+// Answers are graded server-side in one submit (exam semantics).
+// ═══════════════════════════════════════════
+
+model MockTest {
+  id              String   @id @default(cuid())
+  profileId       String
+  courseId        String
+  title           String
+  difficulty      String   @default("mixed") // easy | medium | hard | mixed
+  durationMinutes Int      @default(20)
+  createdAt       DateTime @default(now())
+
+  profile   Profile            @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  course    Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  questions MockTestQuestion[]
+  attempts  MockTestAttempt[]
+
+  @@index([profileId, courseId])
+}
+
+model MockTestQuestion {
+  id          String @id @default(cuid())
+  testId      String
+  order       Int
+  topic       String
+  difficulty  String
+  text        String
+  options     Json // string[]
+  correctIdx  Int
+  explanation String
+
+  test MockTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, order])
+}
+
+model MockTestAttempt {
+  id          String    @id @default(cuid())
+  testId      String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  score       Int       @default(0) // percent
+  correct     Int       @default(0)
+  total       Int       @default(0)
+  answers     Json      @default("[]") // (number|null)[] indexed by question order
+
+  test MockTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
 }
 
 // ═══════════════════════════════════════════

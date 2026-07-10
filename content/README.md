@@ -48,6 +48,62 @@ content/
 
 Order is taken from array position (first module = module 1, etc.).
 
+## Interactive lesson blocks
+
+Lesson Markdown supports special fenced code blocks that render as
+Duolingo-style interactive widgets and infographics. The fence language picks
+the widget; the body is **strict JSON** (except `term`). Malformed JSON falls
+back to a plain code block — it never breaks the lesson. Use them generously:
+every predefined pack should teach with these, not walls of text.
+
+````markdown
+```quiz
+{ "question": "…?", "options": ["A", "B", "C", "D"], "answer": 1, "explanation": "why" }
+```
+
+```flip
+{ "title": "Key terms", "cards": [ { "front": "term", "back": "definition" } ] }
+```
+
+```sort
+{ "prompt": "Put the steps in order", "items": ["first", "second", "third"] }
+```
+<!-- sort items MUST be written in the CORRECT order — the app shuffles them -->
+
+```match
+{ "prompt": "Match each item", "pairs": [ { "left": "item", "right": "its match" } ] }
+```
+
+```diagram
+{ "type": "layers", "title": "Stack", "layers": [ { "label": "…", "detail": "…", "badge": "7" } ] }
+```
+<!-- diagram types:
+  "layers"  → vertical stack (OSI-style); layers[]: { label, detail?, badge? }
+  "flow"    → step-by-step process with arrows; steps[]: { label, detail? }; optional "direction": "vertical"
+  "compare" → side-by-side; "left"/"right": { "title": string, "items": string[] } -->
+
+```callout
+{ "type": "exam", "body": "One crucial point to remember." }
+```
+<!-- callout types: "info" | "tip" | "warning" | "exam" -->
+
+```term
+R1# show ip interface brief
+Interface    IP-Address    Status
+```
+<!-- plain text rendered in a terminal window; IOS-style prompts are highlighted -->
+````
+
+Conventions for curated lessons:
+
+- 2–5 interactive blocks per lesson, spread through the text.
+- End every lesson with one `quiz` block as a final knowledge check.
+- Use `diagram` blocks instead of ASCII-art diagrams.
+- Regular fenced code (` ```bash `, ` ```python `, …) still renders normally.
+
+The AI lesson generator is taught the same syntax, so AI-generated courses get
+the same interactive treatment automatically.
+
 ## `questions.json` (optional)
 
 ```jsonc

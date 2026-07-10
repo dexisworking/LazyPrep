@@ -37,7 +37,7 @@ export type PhaseBlueprint = {
   }[];
 };
 
-/** A generated MCQ (checkpoint mocktest). */
+/** A generated MCQ (checkpoint mocktest / mock test). */
 export type GeneratedQuestion = {
   topic: string;
   difficulty: string;
@@ -45,4 +45,11 @@ export type GeneratedQuestion = {
   options: string[];
   correctIdx: number;
   explanation: string;
+};
+
+/** A generated flashcard. */
+export type GeneratedFlashcard = {
+  front: string;
+  back: string;
+  topic: string;
 };

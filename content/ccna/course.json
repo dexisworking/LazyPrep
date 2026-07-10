@@ -1,54 +1,261 @@
 {
   "slug": "ccna",
   "title": "Cisco CCNA (200-301)",
-  "description": "Cisco Certified Network Associate (CCNA) exam preparation. Covers networking fundamentals, network access, IP connectivity, and more.",
+  "description": "The one-stop computer networking mastery course. From \"what is a network?\" to routing, security, wireless and automation — beginner to advanced, fully interactive, aligned to the CCNA 200-301 exam.",
   "imageUrl": "/images/courses/ccna.png",
   "category": "certification",
   "modules": [
     {
-      "title": "Network Fundamentals",
+      "title": "Networking Foundations",
       "slug": "network-fundamentals",
       "chapters": [
         {
-          "title": "Introduction to Networking",
+          "title": "Welcome to Networking",
           "slug": "introduction-to-networking",
           "lessons": [
-            { "title": "Introduction to Networks", "slug": "introduction-to-networks", "file": "introduction-to-networks.md", "estimatedMinutes": 8 },
-            { "title": "Network Topologies", "slug": "network-topologies", "file": "network-topologies.md", "estimatedMinutes": 10 }
+            { "title": "What Is a Network?", "slug": "introduction-to-networks", "file": "introduction-to-networks.md", "estimatedMinutes": 8 },
+            { "title": "Routers, Switches & Friends: Network Devices", "slug": "network-devices", "file": "network-devices.md", "estimatedMinutes": 12 },
+            { "title": "LAN, WAN & Beyond: Types of Networks", "slug": "network-types", "file": "network-types.md", "estimatedMinutes": 9 }
           ]
         },
         {
-          "title": "OSI and TCP/IP Models",
-          "slug": "osi-and-tcp-ip-models",
+          "title": "Network Architecture",
+          "slug": "network-architecture",
           "lessons": [
-            { "title": "The OSI Model Layer by Layer", "slug": "osi-model", "file": "osi-model.md", "estimatedMinutes": 12 },
-            { "title": "TCP/IP Protocol Suite", "slug": "tcp-ip-suite", "file": "tcp-ip-suite.md", "estimatedMinutes": 8 }
+            { "title": "Network Topologies", "slug": "network-topologies", "file": "network-topologies.md", "estimatedMinutes": 10 },
+            { "title": "Campus & Data-Center Architectures", "slug": "network-architectures", "file": "network-architectures.md", "estimatedMinutes": 10 }
+          ]
+        },
+        {
+          "title": "The Physical Layer",
+          "slug": "physical-layer",
+          "lessons": [
+            { "title": "Copper Cabling & Connectors", "slug": "copper-cabling", "file": "copper-cabling.md", "estimatedMinutes": 10 },
+            { "title": "Fiber Optics & Wireless Media", "slug": "fiber-and-wireless-media", "file": "fiber-and-wireless-media.md", "estimatedMinutes": 9 }
           ]
         }
       ]
     },
     {
-      "title": "Network Access",
+      "title": "Models of Networking",
+      "slug": "models-of-networking",
+      "chapters": [
+        {
+          "title": "The OSI Model",
+          "slug": "the-osi-model",
+          "lessons": [
+            { "title": "The OSI Model Layer by Layer", "slug": "osi-model", "file": "osi-model.md", "estimatedMinutes": 12 },
+            { "title": "Encapsulation & PDUs", "slug": "encapsulation", "file": "encapsulation.md", "estimatedMinutes": 9 }
+          ]
+        },
+        {
+          "title": "The TCP/IP Model",
+          "slug": "the-tcp-ip-model",
+          "lessons": [
+            { "title": "The TCP/IP Protocol Suite", "slug": "tcp-ip-suite", "file": "tcp-ip-suite.md", "estimatedMinutes": 9 },
+            { "title": "Three Addresses: MAC, IP & Ports", "slug": "addressing-overview", "file": "addressing-overview.md", "estimatedMinutes": 8 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Ethernet & Switching",
       "slug": "network-access",
       "chapters": [
+        {
+          "title": "Ethernet Fundamentals",
+          "slug": "ethernet-fundamentals",
+          "lessons": [
+            { "title": "Ethernet Frames Dissected", "slug": "ethernet-frames", "file": "ethernet-frames.md", "estimatedMinutes": 10 },
+            { "title": "MAC Addresses & ARP", "slug": "mac-addresses-and-arp", "file": "mac-addresses-and-arp.md", "estimatedMinutes": 10 }
+          ]
+        },
+        {
+          "title": "How Switches Work",
+          "slug": "how-switches-work",
+          "lessons": [
+            { "title": "How Switches Learn & Forward", "slug": "switch-learning", "file": "switch-learning.md", "estimatedMinutes": 10 }
+          ]
+        },
         {
           "title": "VLANs and Trunking",
           "slug": "vlans-and-trunking",
           "lessons": [
-            { "title": "VLAN Fundamentals", "slug": "vlan-fundamentals", "file": "vlan-fundamentals.md", "estimatedMinutes": 10 }
+            { "title": "VLAN Fundamentals", "slug": "vlan-fundamentals", "file": "vlan-fundamentals.md", "estimatedMinutes": 10 },
+            { "title": "Trunking & 802.1Q", "slug": "trunking-8021q", "file": "trunking-8021q.md", "estimatedMinutes": 10 },
+            { "title": "Inter-VLAN Routing", "slug": "inter-vlan-routing", "file": "inter-vlan-routing.md", "estimatedMinutes": 11 }
+          ]
+        },
+        {
+          "title": "Redundancy at Layer 2",
+          "slug": "layer-2-redundancy",
+          "lessons": [
+            { "title": "Spanning Tree Protocol (STP)", "slug": "spanning-tree-protocol", "file": "spanning-tree-protocol.md", "estimatedMinutes": 14 },
+            { "title": "EtherChannel", "slug": "etherchannel", "file": "etherchannel.md", "estimatedMinutes": 9 }
           ]
         }
       ]
     },
     {
-      "title": "IP Connectivity",
+      "title": "IPv4 Addressing & Subnetting",
+      "slug": "ipv4-addressing",
+      "chapters": [
+        {
+          "title": "IPv4 Fundamentals",
+          "slug": "ipv4-fundamentals",
+          "lessons": [
+            { "title": "Binary Math & the IPv4 Address", "slug": "binary-and-ipv4", "file": "binary-and-ipv4.md", "estimatedMinutes": 12 },
+            { "title": "Address Classes, Private Ranges & Special IPs", "slug": "ipv4-classes-and-ranges", "file": "ipv4-classes-and-ranges.md", "estimatedMinutes": 10 }
+          ]
+        },
+        {
+          "title": "Subnetting Mastery",
+          "slug": "subnetting-mastery",
+          "lessons": [
+            { "title": "Subnetting Fundamentals: Masks & CIDR", "slug": "subnetting-fundamentals", "file": "subnetting-fundamentals.md", "estimatedMinutes": 14 },
+            { "title": "Subnetting Fast: The Magic Number Method", "slug": "subnetting-fast", "file": "subnetting-fast.md", "estimatedMinutes": 14 },
+            { "title": "VLSM: Right-Sizing Your Subnets", "slug": "vlsm", "file": "vlsm.md", "estimatedMinutes": 12 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "IPv6",
+      "slug": "ipv6",
+      "chapters": [
+        {
+          "title": "IPv6 Fundamentals",
+          "slug": "ipv6-fundamentals",
+          "lessons": [
+            { "title": "IPv6 Addressing & Notation", "slug": "ipv6-addressing", "file": "ipv6-addressing.md", "estimatedMinutes": 11 },
+            { "title": "IPv6 Address Types & SLAAC", "slug": "ipv6-address-types", "file": "ipv6-address-types.md", "estimatedMinutes": 12 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "IP Connectivity & Routing",
       "slug": "ip-connectivity",
       "chapters": [
         {
           "title": "Routing Concepts",
           "slug": "routing-concepts",
           "lessons": [
+            { "title": "How Routers Make Decisions", "slug": "how-routers-route", "file": "how-routers-route.md", "estimatedMinutes": 11 },
             { "title": "Static Routing", "slug": "static-routing", "file": "static-routing.md", "estimatedMinutes": 12 }
+          ]
+        },
+        {
+          "title": "Dynamic Routing with OSPF",
+          "slug": "dynamic-routing",
+          "lessons": [
+            { "title": "Dynamic Routing Protocols", "slug": "dynamic-routing-protocols", "file": "dynamic-routing-protocols.md", "estimatedMinutes": 10 },
+            { "title": "OSPF Fundamentals", "slug": "ospf-fundamentals", "file": "ospf-fundamentals.md", "estimatedMinutes": 13 },
+            { "title": "Configuring & Verifying OSPF", "slug": "ospf-configuration", "file": "ospf-configuration.md", "estimatedMinutes": 12 }
+          ]
+        },
+        {
+          "title": "First-Hop Redundancy",
+          "slug": "first-hop-redundancy",
+          "lessons": [
+            { "title": "HSRP, VRRP & GLBP", "slug": "fhrp", "file": "fhrp.md", "estimatedMinutes": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Transport & Network Services",
+      "slug": "network-services",
+      "chapters": [
+        {
+          "title": "The Transport Layer",
+          "slug": "transport-layer",
+          "lessons": [
+            { "title": "TCP & UDP", "slug": "tcp-and-udp", "file": "tcp-and-udp.md", "estimatedMinutes": 12 }
+          ]
+        },
+        {
+          "title": "Core Services",
+          "slug": "core-services",
+          "lessons": [
+            { "title": "DNS: The Internet's Phonebook", "slug": "dns", "file": "dns.md", "estimatedMinutes": 9 },
+            { "title": "DHCP & Address Assignment", "slug": "dhcp", "file": "dhcp.md", "estimatedMinutes": 10 },
+            { "title": "NAT & PAT", "slug": "nat", "file": "nat.md", "estimatedMinutes": 12 }
+          ]
+        },
+        {
+          "title": "Operations & Management",
+          "slug": "network-management",
+          "lessons": [
+            { "title": "NTP, SNMP & Syslog", "slug": "ntp-snmp-syslog", "file": "ntp-snmp-syslog.md", "estimatedMinutes": 10 },
+            { "title": "QoS Fundamentals", "slug": "qos", "file": "qos.md", "estimatedMinutes": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Network Security",
+      "slug": "network-security",
+      "chapters": [
+        {
+          "title": "Security Concepts",
+          "slug": "security-concepts",
+          "lessons": [
+            { "title": "Threats, Vulnerabilities & the CIA Triad", "slug": "security-fundamentals", "file": "security-fundamentals.md", "estimatedMinutes": 11 },
+            { "title": "Passwords, AAA & Device Hardening", "slug": "aaa-and-access", "file": "aaa-and-access.md", "estimatedMinutes": 10 }
+          ]
+        },
+        {
+          "title": "Traffic Filtering",
+          "slug": "traffic-filtering",
+          "lessons": [
+            { "title": "Access Control Lists (ACLs)", "slug": "access-control-lists", "file": "access-control-lists.md", "estimatedMinutes": 13 },
+            { "title": "Port Security, DHCP Snooping & DAI", "slug": "switch-security", "file": "switch-security.md", "estimatedMinutes": 12 }
+          ]
+        },
+        {
+          "title": "Secure Connectivity",
+          "slug": "secure-connectivity",
+          "lessons": [
+            { "title": "VPNs, IPsec & TLS", "slug": "vpns-and-ipsec", "file": "vpns-and-ipsec.md", "estimatedMinutes": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Wireless Networking",
+      "slug": "wireless-networking",
+      "chapters": [
+        {
+          "title": "Wireless Fundamentals",
+          "slug": "wireless-fundamentals",
+          "lessons": [
+            { "title": "RF, Channels & 802.11 Standards", "slug": "wireless-basics", "file": "wireless-basics.md", "estimatedMinutes": 11 },
+            { "title": "APs, WLCs & Wireless Architectures", "slug": "wireless-architectures", "file": "wireless-architectures.md", "estimatedMinutes": 10 },
+            { "title": "Wireless Security: WEP to WPA3", "slug": "wireless-security", "file": "wireless-security.md", "estimatedMinutes": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cloud, Virtualization & Automation",
+      "slug": "modern-networking",
+      "chapters": [
+        {
+          "title": "Virtualization, Cloud & WAN",
+          "slug": "virtualization-and-cloud",
+          "lessons": [
+            { "title": "Virtualization & Containers", "slug": "virtualization", "file": "virtualization.md", "estimatedMinutes": 10 },
+            { "title": "Cloud Models & WAN Architectures", "slug": "cloud-and-wan", "file": "cloud-and-wan.md", "estimatedMinutes": 11 }
+          ]
+        },
+        {
+          "title": "Network Automation",
+          "slug": "network-automation",
+          "lessons": [
+            { "title": "SDN & Controller-Based Networking", "slug": "sdn-and-controllers", "file": "sdn-and-controllers.md", "estimatedMinutes": 10 },
+            { "title": "REST APIs, JSON & Data Formats", "slug": "rest-apis-and-data", "file": "rest-apis-and-data.md", "estimatedMinutes": 10 },
+            { "title": "Ansible, Terraform & AI in Networking", "slug": "automation-tools-and-ai", "file": "automation-tools-and-ai.md", "estimatedMinutes": 10 }
           ]
         }
       ]
