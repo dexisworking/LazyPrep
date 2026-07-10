@@ -2,7 +2,6 @@ import "server-only";
 import { chatJson, chatComplete, AiError, type AiConfig } from "@/lib/ai/client";
 import type {
   Questionnaire,
-  CourseBlueprint,
   PhaseLevel,
   PhaseBlueprint,
   GeneratedQuestion,
@@ -23,58 +22,6 @@ const PHASE_DEPTH: Record<PhaseLevel, string> = {
   intermediate: "Assume the basics are known. Be practical with examples, ~700–1000 words.",
   advanced: "Be thorough and detailed with edge cases and multiple examples, ~1000–1500 words.",
 };
-
-/** Generate the course outline (modules → chapters → lessons, titles only). */
-export async function generateCourseBlueprint(
-  config: AiConfig,
-  q: Questionnaire,
-): Promise<CourseBlueprint> {
-  const modules = Math.min(Math.max(Math.round(q.moduleCount), 2), 8);
-
-  const system =
-    "You are an expert curriculum designer. You output ONLY valid JSON — no prose, " +
-    "no markdown code fences, no commentary. The JSON must be parseable as-is.";
-
-  const user = `Design a study course as JSON with EXACTLY this shape:
-{
-  "title": string,
-  "description": string (1-2 sentences),
-  "category": one of "certification" | "college" | "competitive" | "custom",
-  "modules": [
-    {
-      "title": string,
-      "chapters": [
-        { "title": string, "lessons": [ { "title": string, "estimatedMinutes": number } ] }
-      ]
-    }
-  ]
-}
-
-Requirements:
-- Subject: ${q.subject}
-- Learner level: ${q.level}
-- Category: ${q.category}
-- Goal: ${q.goal || "general mastery"}
-- Focus topics to emphasize: ${q.focusTopics || "none in particular — cover the subject comprehensively"}
-- Produce EXACTLY ${modules} modules. Each module has 1–3 chapters. Each chapter has 2–4 lessons.
-- Order modules and lessons in a logical learning progression.
-- Lesson titles must be specific and teachable. estimatedMinutes between 5 and 20.
-- Keep titles concise. Output ONLY the JSON object.`;
-
-  const blueprint = await chatJson<CourseBlueprint>(
-    config,
-    [
-      { role: "system", content: system },
-      { role: "user", content: user },
-    ],
-    { temperature: 0.6, maxTokens: 3000 },
-  );
-
-  if (!blueprint?.title || !Array.isArray(blueprint.modules) || blueprint.modules.length === 0) {
-    throw new AiError("The model returned an incomplete course outline. Try again.");
-  }
-  return blueprint;
-}
 
 export type LessonContext = {
   q: Questionnaire;

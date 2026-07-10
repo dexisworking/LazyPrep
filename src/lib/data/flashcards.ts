@@ -32,13 +32,43 @@ export async function getFlashcardsOverview(profileId: string | null) {
     where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
+  const ids = courses.map((c) => c.id);
+  if (ids.length === 0) return [];
 
-  return Promise.all(
-    courses.map(async (course) => {
-      const counts = await getFlashcardCounts(course.id, profileId);
-      return { ...course, totalCards: counts.total, due: counts.due, newCount: counts.newCount };
-    }),
-  );
+  // Total cards per course — one grouped query.
+  const cardCounts = await prisma.flashcard.groupBy({
+    by: ["courseId"],
+    where: { courseId: { in: ids } },
+    _count: { _all: true },
+  });
+  const totalByCourse = new Map(cardCounts.map((g) => [g.courseId, g._count._all]));
+
+  // Reviewed + due per course for this profile — one query, tallied in JS.
+  const now = new Date();
+  const reviewedByCourse = new Map<string, number>();
+  const dueByCourse = new Map<string, number>();
+  if (profileId) {
+    const reviews = await prisma.flashcardReview.findMany({
+      where: { profileId, flashcard: { courseId: { in: ids } } },
+      select: { dueDate: true, flashcard: { select: { courseId: true } } },
+    });
+    for (const r of reviews) {
+      const cid = r.flashcard.courseId;
+      reviewedByCourse.set(cid, (reviewedByCourse.get(cid) ?? 0) + 1);
+      if (r.dueDate <= now) dueByCourse.set(cid, (dueByCourse.get(cid) ?? 0) + 1);
+    }
+  }
+
+  return courses.map((course) => {
+    const total = totalByCourse.get(course.id) ?? 0;
+    const reviewed = reviewedByCourse.get(course.id) ?? 0;
+    return {
+      ...course,
+      totalCards: total,
+      due: dueByCourse.get(course.id) ?? 0,
+      newCount: total - reviewed,
+    };
+  });
 }
 
 /**

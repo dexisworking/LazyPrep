@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { courseVisibility } from "@/lib/data/courses";
+import { shuffle } from "@/lib/utils";
 
 export type QuizQuestion = {
   id: string;
@@ -26,46 +27,65 @@ export async function getPracticeOverview(profileId: string | null) {
     where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
+  const ids = courses.map((c) => c.id);
 
-  return Promise.all(
-    courses.map(async (course) => {
-      const totalQuestions = await prisma.question.count({
-        where: { courseId: course.id },
-      });
+  // Total questions per course — one grouped query.
+  const questionCounts =
+    ids.length > 0
+      ? await prisma.question.groupBy({
+          by: ["courseId"],
+          where: { courseId: { in: ids } },
+          _count: { _all: true },
+        })
+      : [];
+  const totalByCourse = new Map(questionCounts.map((g) => [g.courseId, g._count._all]));
 
-      let attempts = 0;
-      let correct = 0;
-      let answered = 0;
-      let wrong = 0;
-
-      if (profileId) {
-        attempts = await prisma.questionAttempt.count({
-          where: { profileId, question: { courseId: course.id } },
-        });
-        correct = await prisma.questionAttempt.count({
-          where: { profileId, correct: true, question: { courseId: course.id } },
-        });
-        answered = (
-          await prisma.questionAttempt.findMany({
-            where: { profileId, question: { courseId: course.id } },
-            distinct: ["questionId"],
-            select: { questionId: true },
-          })
-        ).length;
-        wrong = (await getWrongAnswers(course.slug, profileId)).length;
+  // Per-course attempt stats for this profile, aggregated in JS from one query
+  // (avoids 4 round-trips per course).
+  type Stat = {
+    attempts: number;
+    correct: number;
+    answered: Set<string>;
+    latestCorrect: Map<string, boolean>;
+  };
+  const stats = new Map<string, Stat>();
+  if (profileId && ids.length > 0) {
+    const attempts = await prisma.questionAttempt.findMany({
+      where: { profileId, question: { courseId: { in: ids } } },
+      orderBy: { createdAt: "desc" },
+      select: { correct: true, questionId: true, question: { select: { courseId: true } } },
+    });
+    for (const a of attempts) {
+      const cid = a.question.courseId;
+      let s = stats.get(cid);
+      if (!s) {
+        s = { attempts: 0, correct: 0, answered: new Set(), latestCorrect: new Map() };
+        stats.set(cid, s);
       }
+      s.attempts++;
+      if (a.correct) s.correct++;
+      s.answered.add(a.questionId);
+      // desc order → the first row seen per question is its latest attempt.
+      if (!s.latestCorrect.has(a.questionId)) s.latestCorrect.set(a.questionId, a.correct);
+    }
+  }
 
-      return {
-        ...course,
-        totalQuestions,
-        attempts,
-        correct,
-        answered,
-        wrong,
-        accuracy: attempts > 0 ? Math.round((correct / attempts) * 100) : 0,
-      };
-    }),
-  );
+  return courses.map((course) => {
+    const s = stats.get(course.id);
+    const attempts = s?.attempts ?? 0;
+    const correct = s?.correct ?? 0;
+    const answered = s?.answered.size ?? 0;
+    const wrong = s ? [...s.latestCorrect.values()].filter((c) => !c).length : 0;
+    return {
+      ...course,
+      totalQuestions: totalByCourse.get(course.id) ?? 0,
+      attempts,
+      correct,
+      answered,
+      wrong,
+      accuracy: attempts > 0 ? Math.round((correct / attempts) * 100) : 0,
+    };
+  });
 }
 
 /**
@@ -97,7 +117,6 @@ export async function getQuizQuestions(
       )
     : new Set<string>();
 
-  const shuffle = <T>(arr: T[]) => arr.sort(() => Math.random() - 0.5);
   const unseen = shuffle(questions.filter((q) => !answeredIds.has(q.id)));
   const seen = shuffle(questions.filter((q) => answeredIds.has(q.id)));
 

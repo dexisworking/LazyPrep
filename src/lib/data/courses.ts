@@ -26,32 +26,51 @@ export async function getCoursesOverview(profileId: string | null) {
     where: courseVisibility(profileId),
     orderBy: { createdAt: "asc" },
   });
+  const ids = courses.map((c) => c.id);
+  if (ids.length === 0) return [];
 
-  return Promise.all(
-    courses.map(async (course) => {
-      const totalLessons = await prisma.lesson.count({
-        where: { chapter: { module: { courseId: course.id } } },
-      });
-      const completedLessons = profileId
-        ? await prisma.progress.count({
-            where: {
-              profileId,
-              completed: true,
-              lesson: { chapter: { module: { courseId: course.id } } },
-            },
-          })
-        : 0;
-      const enrolled = profileId
-        ? Boolean(
-            await prisma.enrollment.findUnique({
-              where: { profileId_courseId: { profileId, courseId: course.id } },
-            }),
-          )
-        : false;
+  // Lesson totals per course — one query, summed in JS (lessons hang off
+  // course → module → chapter, so a flat groupBy isn't possible).
+  const modules = await prisma.module.findMany({
+    where: { courseId: { in: ids } },
+    select: { courseId: true, chapters: { select: { _count: { select: { lessons: true } } } } },
+  });
+  const totalByCourse = new Map<string, number>();
+  for (const m of modules) {
+    const n = m.chapters.reduce((sum, c) => sum + c._count.lessons, 0);
+    totalByCourse.set(m.courseId, (totalByCourse.get(m.courseId) ?? 0) + n);
+  }
 
-      return { ...course, totalLessons, completedLessons, enrolled };
-    }),
-  );
+  // Completed lessons per course + enrollment set — one query each.
+  const completedByCourse = new Map<string, number>();
+  const enrolledSet = new Set<string>();
+  if (profileId) {
+    const completed = await prisma.progress.findMany({
+      where: {
+        profileId,
+        completed: true,
+        lesson: { chapter: { module: { courseId: { in: ids } } } },
+      },
+      select: { lesson: { select: { chapter: { select: { module: { select: { courseId: true } } } } } } },
+    });
+    for (const p of completed) {
+      const cid = p.lesson.chapter.module.courseId;
+      completedByCourse.set(cid, (completedByCourse.get(cid) ?? 0) + 1);
+    }
+
+    const enrollments = await prisma.enrollment.findMany({
+      where: { profileId, courseId: { in: ids } },
+      select: { courseId: true },
+    });
+    for (const e of enrollments) enrolledSet.add(e.courseId);
+  }
+
+  return courses.map((course) => ({
+    ...course,
+    totalLessons: totalByCourse.get(course.id) ?? 0,
+    completedLessons: completedByCourse.get(course.id) ?? 0,
+    enrolled: enrolledSet.has(course.id),
+  }));
 }
 
 export type OrderedLesson = {

@@ -137,17 +137,17 @@ export async function submitCheckpoint(
     prisma.studySession.upsert(updates.sessionUpsert),
   ]);
 
+  const nextModule = await prisma.module.findFirst({
+    where: { courseId: mod.courseId, order: mod.order + 1 },
+    select: { id: true, locked: true },
+  });
+
   let unlockedNext = false;
-  if (passed) {
-    const next = await prisma.module.findFirst({
-      where: { courseId: mod.courseId, order: mod.order + 1 },
-    });
-    if (next) {
-      if (next.locked) {
-        await prisma.module.update({ where: { id: next.id }, data: { locked: false } });
-      }
-      unlockedNext = true;
+  if (passed && nextModule) {
+    if (nextModule.locked) {
+      await prisma.module.update({ where: { id: nextModule.id }, data: { locked: false } });
     }
+    unlockedNext = true;
   }
 
   revalidatePath(`/courses/${mod.course.slug}`);
@@ -161,6 +161,6 @@ export async function submitCheckpoint(
     total: questions.length,
     results,
     unlockedNext,
-    hasNextPhase: mod.order < 3,
+    hasNextPhase: Boolean(nextModule),
   };
 }
