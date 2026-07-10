@@ -5,6 +5,7 @@ import { getCurrentProfile } from "@/lib/session";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { getLevelProgress, getRank } from "@/lib/xp";
 import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/motion";
+import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {!profile.onboardedAt && <OnboardingTour />}
+
       {/* Welcome hero */}
       <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-6 md:p-8">
         <div className="absolute right-0 top-0 -z-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />

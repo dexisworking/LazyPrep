@@ -4,6 +4,7 @@ import { getSession, getCurrentProfile } from "@/lib/session";
 import { getAiKeyStatus } from "@/lib/ai/keys";
 import { getRank } from "@/lib/xp";
 import { AiKeyForm } from "@/components/settings/ai-key-form";
+import { DeleteAccountSection } from "@/components/settings/delete-account-section";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -105,6 +106,9 @@ export default async function SettingsPage() {
         />
         <AiKeyForm status={status} />
       </section>
+
+      {/* Danger zone */}
+      <DeleteAccountSection email={session.user.email} />
     </div>
   );
 }

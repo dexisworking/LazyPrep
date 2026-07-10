@@ -39,6 +39,7 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
             <Link
               key={route.href}
               href={route.href}
+              data-tour={`nav-${route.href.slice(1)}`}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group",
                 isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold border-l-2 border-primary pl-2.5" : "text-muted-foreground"

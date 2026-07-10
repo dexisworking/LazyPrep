@@ -70,7 +70,10 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
         </div>
 
         {/* Streak Counter */}
-        <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 sm:px-3">
+        <div
+          data-tour="streak"
+          className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 sm:px-3"
+        >
           <Flame className="h-4 w-4 text-np-streak animate-pulse" />
           <span className="text-sm font-bold text-foreground">{currentStreak}</span>
           <span className="hidden text-xs font-medium text-muted-foreground sm:inline">day streak</span>
