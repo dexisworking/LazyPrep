@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
-import { XP_REWARDS, getStreakMultiplier } from "@/lib/xp";
+import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
 
 /**
@@ -22,10 +22,11 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
     return { alreadyComplete: true, xpAwarded: 0 };
   }
 
-  const multiplier = getStreakMultiplier(profile.currentStreak);
-  const xpAwarded = Math.round(XP_REWARDS.LESSON_COMPLETE * multiplier);
   const now = new Date();
-  const updates = buildActivityUpdates(profile, { xp: xpAwarded, lessonsCompleted: 1 });
+  const updates = buildActivityUpdates(profile, {
+    xp: XP_REWARDS.LESSON_COMPLETE,
+    lessonsCompleted: 1,
+  });
 
   await prisma.$transaction([
     prisma.progress.upsert({
@@ -42,7 +43,7 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
 
   return {
     alreadyComplete: false,
-    xpAwarded,
+    xpAwarded: updates.xpAwarded,
     newStreak: updates.newStreak,
     level: updates.newLevel,
   };

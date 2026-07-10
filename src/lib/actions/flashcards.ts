@@ -25,6 +25,7 @@ export async function reviewCard(flashcardId: string, grade: ReviewGrade) {
     throw new Error("Not allowed");
   }
 
+  const now = new Date();
   const existing = await prisma.flashcardReview.findUnique({
     where: { profileId_flashcardId: { profileId: profile.id, flashcardId } },
   });
@@ -39,8 +40,12 @@ export async function reviewCard(flashcardId: string, grade: ReviewGrade) {
     grade,
   );
 
-  const xpAwarded = XP_REWARDS.FLASHCARD_REVIEW;
-  const updates = buildActivityUpdates(profile, { xp: xpAwarded, flashcardsReviewed: 1 });
+  // XP is awarded only when the card is actually due (new cards are always due).
+  // Re-grading an already-reviewed card that isn't due yet still reschedules it
+  // but earns no XP, so it can't be used to farm XP.
+  const isDue = !existing || existing.dueDate <= now;
+  const baseXp = isDue ? XP_REWARDS.FLASHCARD_REVIEW : 0;
+  const updates = buildActivityUpdates(profile, { xp: baseXp, flashcardsReviewed: 1 });
 
   await prisma.$transaction([
     prisma.flashcardReview.upsert({
@@ -51,7 +56,7 @@ export async function reviewCard(flashcardId: string, grade: ReviewGrade) {
         repetitions: next.repetitions,
         lapses: next.lapses,
         dueDate: next.dueDate,
-        lastReviewedAt: new Date(),
+        lastReviewedAt: now,
       },
       create: {
         profileId: profile.id,
@@ -69,5 +74,9 @@ export async function reviewCard(flashcardId: string, grade: ReviewGrade) {
 
   revalidatePath("/dashboard");
   revalidatePath("/flashcards");
-  return { intervalDays: next.interval, dueLabel: formatInterval(next.interval), xpAwarded };
+  return {
+    intervalDays: next.interval,
+    dueLabel: formatInterval(next.interval),
+    xpAwarded: updates.xpAwarded,
+  };
 }

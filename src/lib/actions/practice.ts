@@ -16,13 +16,26 @@ export async function submitAnswer(questionId: string, selectedIdx: number) {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Not authenticated");
 
-  const question = await prisma.question.findUnique({ where: { id: questionId } });
+  const question = await prisma.question.findUnique({
+    where: { id: questionId },
+    include: { course: { select: { ownerId: true } } },
+  });
   if (!question) throw new Error("Question not found");
+  if (question.course.ownerId && question.course.ownerId !== profile.id) {
+    throw new Error("Not allowed");
+  }
 
+  // XP is awarded only for the FIRST attempt at a question — repeats are still
+  // recorded (accuracy, notebook, heatmap) and count as daily activity, but
+  // earn no XP, so re-answering can't be used to farm XP.
+  const priorAttempt = await prisma.questionAttempt.findFirst({
+    where: { profileId: profile.id, questionId },
+    select: { id: true },
+  });
   const correct = selectedIdx === question.correctIdx;
-  const xpAwarded = correct ? XP_REWARDS.MCQ_CORRECT : XP_REWARDS.MCQ_INCORRECT;
+  const baseXp = priorAttempt ? 0 : correct ? XP_REWARDS.MCQ_CORRECT : XP_REWARDS.MCQ_INCORRECT;
   const updates = buildActivityUpdates(profile, {
-    xp: xpAwarded,
+    xp: baseXp,
     questionsAnswered: 1,
     correctAnswers: correct ? 1 : 0,
   });
@@ -42,6 +55,6 @@ export async function submitAnswer(questionId: string, selectedIdx: number) {
     correct,
     correctIdx: question.correctIdx,
     explanation: question.explanation,
-    xpAwarded,
+    xpAwarded: updates.xpAwarded,
   };
 }
