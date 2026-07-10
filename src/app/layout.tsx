@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { SwRegister } from "@/components/shared/sw-register";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +78,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <SwRegister />
       </body>
     </html>
   );

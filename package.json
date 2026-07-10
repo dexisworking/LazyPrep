@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "content:import": "tsx prisma/seed.ts",
+    "icons:generate": "tsx scripts/generate-icons.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "prisma": "^7.8.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
     "typescript": "^5"
