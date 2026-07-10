@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Zap, BookOpen, Target, Brain, User, Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
-import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { navRoutes, isRouteActive } from "@/lib/nav";
+import { DexForgeCredit } from "@/components/shared/dexforge-credit";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 interface MobileNavProps {
@@ -16,45 +18,6 @@ interface MobileNavProps {
   onClose: () => void;
   profile: ProfileSummary;
 }
-
-const routes = [
-  {
-    label: "Dashboard",
-    icon: Zap,
-    href: "/dashboard",
-    color: "text-primary",
-  },
-  {
-    label: "Courses",
-    icon: BookOpen,
-    href: "/courses",
-    color: "text-accent",
-  },
-  {
-    label: "Practice",
-    icon: Target,
-    href: "/practice",
-    color: "text-np-red",
-  },
-  {
-    label: "Flashcards",
-    icon: Brain,
-    href: "/flashcards",
-    color: "text-np-success",
-  },
-  {
-    label: "Profile",
-    icon: User,
-    href: "/profile",
-    color: "text-primary",
-  },
-  {
-    label: "Settings",
-    icon: Settings,
-    href: "/settings",
-    color: "text-muted-foreground",
-  },
-];
 
 export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
   const pathname = usePathname();
@@ -69,38 +32,34 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogOverlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
-      <DialogContent className="fixed inset-y-0 left-0 z-50 flex h-full w-[280px] flex-col border-r border-border bg-sidebar p-0 text-sidebar-foreground shadow-2xl transition-all duration-300 focus:outline-none data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent
+        side="left"
+        className="w-[290px] gap-0 border-border bg-sidebar p-0 text-sidebar-foreground"
+      >
         {/* Header */}
-        <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
-          <div className="flex items-center gap-2">
-            <LogoMark className="h-6 w-6" />
-            <Wordmark className="text-lg" />
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground transition-colors"
-          >
-            <X className="h-5 w-5" />
-            <span className="sr-only">Close menu</span>
-          </button>
+        <div className="flex h-16 items-center gap-2 border-b border-border/50 px-6"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
+          <LogoMark className="h-6 w-6" />
+          <Wordmark className="text-lg" />
+          <SheetTitle className="sr-only">Navigation menu</SheetTitle>
         </div>
 
         {/* Links */}
-        <div className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
-          {routes.map((route) => {
-            const isActive = pathname === route.href || pathname?.startsWith(`${route.href}/`);
+        <div className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+          {navRoutes.map((route) => {
+            const isActive = isRouteActive(pathname, route.href);
             return (
               <Link
                 key={route.href}
                 href={route.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group",
+                  "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-[0.98]",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold border-l-2 border-primary pl-2.5"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 <route.icon className={cn("h-4 w-4", route.color)} />
@@ -110,19 +69,22 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
           })}
         </div>
 
-        {/* User Card */}
-        <div className="border-t border-border/50 p-4 space-y-3">
-          <div className="flex items-center gap-3 rounded-lg bg-card/35 p-3 border border-border/40">
+        {/* User card + credits */}
+        <div
+          className="space-y-3 border-t border-border/50 p-4"
+          style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-card/35 p-3">
             <Avatar className="h-9 w-9 border border-border">
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+              <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                 {displayName.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 overflow-hidden">
-              <h4 className="text-sm font-medium leading-none truncate text-foreground">
+              <h4 className="truncate text-sm font-medium leading-none text-foreground">
                 {displayName}
               </h4>
-              <p className="mt-1 text-xs text-muted-foreground truncate">
+              <p className="mt-1 truncate text-xs text-muted-foreground">
                 {userRank} (Lvl {userLevel})
               </p>
             </div>
@@ -130,13 +92,15 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
 
           <button
             onClick={handleSignOut}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 active:scale-[0.98]"
           >
             <LogOut className="h-4 w-4" />
             Sign Out
           </button>
+
+          <DexForgeCredit compact />
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

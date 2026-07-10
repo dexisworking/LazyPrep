@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { navRoutes, isRouteActive } from "@/lib/nav";
+import { DexForgeCredit } from "@/components/shared/dexforge-credit";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 export function Sidebar({ profile }: { profile: ProfileSummary }) {
@@ -75,6 +76,8 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
           <LogOut className="h-4 w-4" />
           Sign Out
         </button>
+
+        <DexForgeCredit compact />
       </div>
     </div>
   );

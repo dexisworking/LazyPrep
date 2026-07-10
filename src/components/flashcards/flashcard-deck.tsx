@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RotateCcw, Sparkles, Zap, MousePointerClick } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type PanInfo,
+} from "framer-motion";
+import { RotateCcw, Sparkles, Zap, MousePointerClick, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { reviewCard } from "@/lib/actions/flashcards";
 import {
@@ -21,6 +29,8 @@ const GRADES: { grade: ReviewGrade; label: string; cls: string }[] = [
   { grade: "easy", label: "Easy", cls: "border-np-success/40 bg-np-success/10 text-np-success hover:bg-np-success/20" },
 ];
 
+const SWIPE_THRESHOLD = 90;
+
 export function FlashcardDeck({
   cards,
   backHref,
@@ -29,11 +39,28 @@ export function FlashcardDeck({
   backHref: string;
 }) {
   const router = useRouter();
+  const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [xp, setXp] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [isGrading, setIsGrading] = useState(false);
+  const [exitX, setExitX] = useState(0);
+  const gradingRef = useRef(false);
+
+  // Swipe feedback: drag position drives rotation + hint opacity.
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-220, 220], [-10, 10]);
+  const againHint = useTransform(x, [-SWIPE_THRESHOLD, -20], [1, 0]);
+  const goodHint = useTransform(x, [20, SWIPE_THRESHOLD], [0, 1]);
+
+  // Re-arm the grade guard whenever a new card is shown.
+  useEffect(() => {
+    gradingRef.current = false;
+    setIsGrading(false);
+    x.set(0);
+  }, [index, x]);
 
   if (cards.length === 0) {
     return (
@@ -57,7 +84,12 @@ export function FlashcardDeck({
 
   if (finished) {
     return (
-      <div className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 24 }}
+        className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center"
+      >
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <Sparkles className="h-8 w-8 text-np-orange" />
         </div>
@@ -75,19 +107,19 @@ export function FlashcardDeck({
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={() => router.refresh()}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
           >
             <RotateCcw className="h-4 w-4" />
             Study more
           </button>
           <Link
             href={backHref}
-            className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
           >
             Done
           </Link>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -95,9 +127,14 @@ export function FlashcardDeck({
   const baseState = card.state ?? INITIAL_SRS;
   const progress = (index / cards.length) * 100;
 
-  const handleGrade = (grade: ReviewGrade) => {
+  const handleGrade = (grade: ReviewGrade, swipeDirection = 0) => {
+    if (gradingRef.current) return;
+    gradingRef.current = true;
+    setIsGrading(true);
+    setExitX(swipeDirection);
+
     reviewCard(card.id, grade)
-      .then((r) => setXp((x) => x + r.xpAwarded))
+      .then((r) => setXp((v) => v + r.xpAwarded))
       .catch(() => {});
     setReviewed((n) => n + 1);
 
@@ -108,6 +145,13 @@ export function FlashcardDeck({
     setIndex((i) => i + 1);
     setFlipped(false);
   };
+
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    if (info.offset.x > SWIPE_THRESHOLD) handleGrade("good", 400);
+    else if (info.offset.x < -SWIPE_THRESHOLD) handleGrade("again", -400);
+  };
+
+  const canSwipe = flipped && !reduced && !isGrading;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -134,56 +178,112 @@ export function FlashcardDeck({
         </div>
       </div>
 
-      {/* Flip card */}
-      <button
-        onClick={() => setFlipped((f) => !f)}
-        className="group block w-full [perspective:1200px]"
-        aria-label="Flip card"
-      >
-        <div
-          className={cn(
-            "relative min-h-[16rem] w-full transition-transform duration-500 [transform-style:preserve-3d]",
-            flipped && "[transform:rotateY(180deg)]",
-          )}
-        >
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-border/60 bg-card p-8 text-center [backface-visibility:hidden]">
-            <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
-              {card.topic}
-            </span>
-            <p className="text-xl font-semibold text-foreground">{card.front}</p>
-            <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <MousePointerClick className="h-3.5 w-3.5" />
-              Click to flip
-            </span>
-          </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-primary">Answer</span>
-            <p className="text-lg font-medium leading-relaxed text-foreground">{card.back}</p>
-          </div>
-        </div>
-      </button>
+      {/* Flip card (swipeable once flipped: left = Again, right = Good) */}
+      <div className="relative">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={card.id}
+            style={canSwipe ? { x, rotate } : undefined}
+            drag={canSwipe ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.9}
+            onDragEnd={canSwipe ? handleDragEnd : undefined}
+            initial={reduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={
+              reduced
+                ? { opacity: 0 }
+                : { x: exitX, opacity: 0, rotate: exitX / 30, transition: { duration: 0.2 } }
+            }
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={cn(canSwipe && "cursor-grab active:cursor-grabbing")}
+          >
+            <button
+              onClick={() => setFlipped((f) => !f)}
+              className="group block w-full [perspective:1200px]"
+              aria-label="Flip card"
+            >
+              <div
+                className={cn(
+                  "relative min-h-[16rem] w-full transition-transform duration-500 [transform-style:preserve-3d]",
+                  flipped && "[transform:rotateY(180deg)]",
+                )}
+              >
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-border/60 bg-card p-8 text-center [backface-visibility:hidden]">
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                    {card.topic}
+                  </span>
+                  <p className="text-xl font-semibold text-foreground">{card.front}</p>
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MousePointerClick className="h-3.5 w-3.5" />
+                    Tap to flip
+                  </span>
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-primary">Answer</span>
+                  <p className="text-lg font-medium leading-relaxed text-foreground">{card.back}</p>
+                </div>
+              </div>
+            </button>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Swipe hints */}
+        {canSwipe && (
+          <>
+            <motion.div
+              style={{ opacity: againHint }}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-destructive/40 bg-destructive/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-destructive"
+            >
+              Again
+            </motion.div>
+            <motion.div
+              style={{ opacity: goodHint }}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary"
+            >
+              Good
+            </motion.div>
+          </>
+        )}
+      </div>
 
       {/* Grade buttons (after flip) with projected intervals */}
       {flipped ? (
-        <div className="grid grid-cols-4 gap-2">
-          {GRADES.map(({ grade, label, cls }) => {
-            const projected = scheduleNext(baseState, grade).interval;
-            return (
-              <button
-                key={grade}
-                onClick={() => handleGrade(grade)}
-                className={cn("flex flex-col items-center gap-0.5 rounded-lg border py-2.5 text-sm font-semibold transition-all", cls)}
-              >
-                {label}
-                <span className="text-[10px] font-normal opacity-80">{formatInterval(projected)}</span>
-              </button>
-            );
-          })}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {GRADES.map(({ grade, label, cls }) => {
+              const projected = scheduleNext(baseState, grade).interval;
+              return (
+                <button
+                  key={grade}
+                  disabled={isGrading}
+                  onClick={() => handleGrade(grade)}
+                  className={cn(
+                    "flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-lg border py-3 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50",
+                    cls,
+                  )}
+                >
+                  {label}
+                  <span className="text-[10px] font-normal opacity-80">{formatInterval(projected)}</span>
+                </button>
+              );
+            })}
+          </div>
+          {!reduced && (
+            <p className="flex items-center justify-center gap-3 text-[11px] text-muted-foreground sm:hidden">
+              <span className="inline-flex items-center gap-1">
+                <ChevronsLeft className="h-3.5 w-3.5" /> Swipe left: Again
+              </span>
+              <span className="inline-flex items-center gap-1">
+                Swipe right: Good <ChevronsRight className="h-3.5 w-3.5" />
+              </span>
+            </p>
+          )}
         </div>
       ) : (
         <button
           onClick={() => setFlipped(true)}
-          className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+          className="min-h-[3rem] w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.99]"
         >
           Show answer
         </button>

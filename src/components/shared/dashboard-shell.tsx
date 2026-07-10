@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/shared/sidebar";
 import { Navbar } from "@/components/shared/navbar";
 import { MobileNav } from "@/components/shared/mobile-nav";
+import { BottomNav } from "@/components/shared/bottom-nav";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 export function DashboardShell({
@@ -31,7 +32,10 @@ export function DashboardShell({
         <Navbar onOpenMobileNav={() => setIsMobileNavOpen(true)} profile={profile} />
         <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
+          {/* Spacer so content clears the mobile bottom tab bar */}
+          <div className="h-24 md:hidden" aria-hidden />
         </main>
+        <BottomNav />
       </div>
     </div>
   );

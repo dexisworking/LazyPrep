@@ -29,7 +29,10 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-md sm:px-6">
+    <header
+      className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-md sm:px-6"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       {/* Page Title & Mobile Toggle */}
       <div className="flex items-center gap-3">
         <Button
@@ -47,8 +50,8 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
       </div>
 
       {/* Quick Status Stats & Theme Toggle */}
-      <div className="flex items-center gap-4 sm:gap-6">
-        {/* Level & XP Stats */}
+      <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
+        {/* Level & XP — full widget on md+, compact chip on mobile */}
         <div className="hidden items-center gap-3 rounded-xl border border-border/40 bg-card/30 px-3 py-1.5 md:flex">
           <div className="flex items-center gap-1.5">
             <Trophy className="h-4 w-4 text-np-orange" />
@@ -61,9 +64,13 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
             {currentLevelXp} / {nextLevelXp} XP
           </span>
         </div>
+        <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 md:hidden">
+          <Trophy className="h-3.5 w-3.5 text-np-orange" />
+          <span className="text-xs font-bold text-foreground">Lvl {level}</span>
+        </div>
 
         {/* Streak Counter */}
-        <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-3 py-1.5">
+        <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 sm:px-3">
           <Flame className="h-4 w-4 text-np-streak animate-pulse" />
           <span className="text-sm font-bold text-foreground">{currentStreak}</span>
           <span className="hidden text-xs font-medium text-muted-foreground sm:inline">day streak</span>

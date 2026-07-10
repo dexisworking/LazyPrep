@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 import { generateCourse } from "@/lib/actions/generate";
 import type { Questionnaire, CourseLevel, CourseDepth } from "@/lib/ai/types";
 
@@ -220,14 +221,17 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 <span>Number of modules</span>
                 <span className="text-primary">{form.moduleCount}</span>
               </label>
-              <input
-                type="range"
-                min={2}
-                max={8}
-                value={form.moduleCount}
-                onChange={(e) => set("moduleCount", Number(e.target.value))}
-                className="w-full accent-[var(--primary)]"
-              />
+              <div className="py-2">
+                <Slider
+                  min={2}
+                  max={8}
+                  step={1}
+                  value={form.moduleCount}
+                  onValueChange={(value) =>
+                    set("moduleCount", Array.isArray(value) ? value[0] : value)
+                  }
+                />
+              </div>
               <p className="text-xs text-muted-foreground">
                 More modules = broader coverage (and more of your AI credits used).
               </p>
