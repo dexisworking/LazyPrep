@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SwRegister } from "@/components/shared/sw-register";
+import { AppIconSync } from "@/components/shared/app-icon-sync";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+// Wordmark-only face: rounded geometric bold matching the NetPrep reference.
+const poppins = Poppins({ weight: ["600", "700"], subsets: ["latin"], variable: "--font-wordmark" });
 
 const APP_NAME = "NetPrep";
 const APP_TITLE = "NetPrep — The Preparation Operating System";
@@ -20,21 +23,36 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
+  category: "education",
+  alternates: { canonical: "/" },
+  authors: [{ name: "Dibyanshu Singh" }],
+  creator: "Dibyanshu Singh",
+  publisher: "NetPrep",
+  formatDetection: { telephone: false, email: false, address: false },
   keywords: [
     "exam preparation",
     "AI course generator",
+    "AI study tutor",
     "certification prep",
+    "CCNA",
     "competitive exams",
     "spaced repetition",
     "flashcards",
+    "mock tests",
     "study platform",
   ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
   openGraph: {
     type: "website",
     siteName: APP_NAME,
     title: APP_TITLE,
     description: APP_DESCRIPTION,
     url: "https://netprep.iamdex.codes",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
@@ -47,6 +65,8 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: APP_NAME,
   },
+  // app/icon.svg + app/icon.png are auto-injected by Next's file convention;
+  // only the public apple-touch icon needs declaring here.
   icons: {
     apple: "/apple-touch-icon.png",
   },
@@ -68,8 +88,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${geist.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, poppins.variable)}>
+      <body className={`${geist.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -79,6 +99,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <SwRegister />
+        <AppIconSync />
       </body>
     </html>
   );

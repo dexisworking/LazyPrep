@@ -1,22 +1,27 @@
-<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="np-icon-bolt" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2b8fff" />
-      <stop offset="0.5" stop-color="#5aa2ff" />
-      <stop offset="1" stop-color="#ff7a1a" />
+    <linearGradient id="np-tile-bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1220" />
+      <stop offset="1" stop-color="#070A12" />
     </linearGradient>
-    <linearGradient id="np-icon-ring" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2b8fff" stop-opacity="0.55" />
-      <stop offset="1" stop-color="#ff7a1a" stop-opacity="0.55" />
+    <linearGradient id="np-tile-rim" x1="40" y1="40" x2="472" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2E9CE8" stop-opacity="0.7" />
+      <stop offset="1" stop-color="#F2822E" stop-opacity="0.7" />
+    </linearGradient>
+    <linearGradient id="np-tile-bolt" x1="0.2" y1="0.05" x2="0.8" y2="0.95">
+      <stop stop-color="#2E9CE8" />
+      <stop offset="0.45" stop-color="#3FA3EE" />
+      <stop offset="1" stop-color="#F2822E" />
     </linearGradient>
   </defs>
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="#0a0a0f" stroke="url(#np-icon-ring)" stroke-width="1.5" />
-  <g transform="translate(15.5 12) scale(1.375)">
+  <rect x="6" y="6" width="500" height="500" rx="115" fill="url(#np-tile-bg)" />
+  <rect x="7.5" y="7.5" width="497" height="497" rx="113.5" fill="none" stroke="url(#np-tile-rim)" stroke-width="3" />
+  <g transform="translate(136 136) scale(10)">
     <path
-      d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+      d="M13.5 2.5 L4.5 13.5 L10.5 13.5 L10 21.5 L19.5 10.5 L13.5 10.5 Z"
       fill="none"
-      stroke="url(#np-icon-bolt)"
-      stroke-width="1.8"
+      stroke="url(#np-tile-bolt)"
+      stroke-width="2.1"
       stroke-linejoin="round"
       stroke-linecap="round"
     />

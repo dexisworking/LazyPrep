@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
-import { CalendarDays, KeyRound, Palette, User } from "lucide-react";
+import { CalendarDays, KeyRound, Palette, Smartphone, User } from "lucide-react";
 import { getSession, getCurrentProfile } from "@/lib/session";
 import { getAiKeyStatus } from "@/lib/ai/keys";
 import { getRank } from "@/lib/xp";
 import { AiKeyForm } from "@/components/settings/ai-key-form";
+import { AppIconPicker } from "@/components/settings/app-icon-picker";
 import { DeleteAccountSection } from "@/components/settings/delete-account-section";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -95,6 +96,16 @@ export default async function SettingsPage() {
           <p className="text-sm text-muted-foreground">Theme</p>
           <ThemeToggle />
         </div>
+      </section>
+
+      {/* App icon */}
+      <section className="space-y-4">
+        <SectionHeader
+          icon={Smartphone}
+          title="App Icon"
+          description="Choose the icon used when you add NetPrep to your home screen."
+        />
+        <AppIconPicker />
       </section>
 
       {/* AI configuration */}

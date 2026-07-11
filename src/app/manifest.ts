@@ -1,6 +1,19 @@
 import type { MetadataRoute } from "next";
+import { cookies } from "next/headers";
 
-export default function manifest(): MetadataRoute.Manifest {
+const VALID = new Set(["gradient", "light", "dark", "mono"]);
+
+/**
+ * Dynamic manifest: the icon set reflects the user's `netprep-icon` cookie so
+ * a chosen variant is used when they install to the home screen. Defaults to
+ * the gradient tile. (Android can't change an already-installed icon; this
+ * governs install time.)
+ */
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const store = await cookies();
+  const picked = store.get("netprep-icon")?.value;
+  const v = picked && VALID.has(picked) ? picked : "gradient";
+
   return {
     name: "NetPrep — The Preparation OS",
     short_name: "NetPrep",
@@ -15,19 +28,19 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0a0a0f",
     categories: ["education", "productivity"],
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: `/icons/${v}-192.png`, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: `/icons/${v}-512.png`, sizes: "512x512", type: "image/png", purpose: "any" },
       {
-        src: "/icons/maskable-192.png",
-        sizes: "192x192",
+        src: `/icons/${v}-maskable-512.png`,
+        sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icons/maskable-512.png",
+        src: "/icons/monochrome-512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "maskable",
+        purpose: "monochrome",
       },
     ],
   };
