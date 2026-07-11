@@ -451,3 +451,29 @@ button,
     linear-gradient(90deg, color-mix(in oklch, var(--foreground) 3%, transparent) 1px, transparent 1px);
   background-size: 60px 60px;
 }
+
+/* ─── AI tutor chat markdown (compact, bubble-friendly) ─── */
+.tutor-md > *:first-child { margin-top: 0; }
+.tutor-md > *:last-child { margin-bottom: 0; }
+.tutor-md p { margin: 0.35rem 0; }
+.tutor-md ul,
+.tutor-md ol { margin: 0.35rem 0; padding-left: 1.15rem; }
+.tutor-md ul { list-style: disc; }
+.tutor-md ol { list-style: decimal; }
+.tutor-md li { margin: 0.15rem 0; }
+.tutor-md strong { font-weight: 600; }
+.tutor-md code:not(pre code) {
+  background: color-mix(in oklch, var(--foreground) 10%, transparent);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+.tutor-md pre {
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.4rem;
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+  overflow-x: auto;
+  font-size: 0.8rem;
+}
