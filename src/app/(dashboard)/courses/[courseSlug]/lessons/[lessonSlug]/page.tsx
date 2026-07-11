@@ -76,12 +76,14 @@ export default async function LessonPage({
         </>
       )}
 
-      {/* Prev / Next navigation */}
-      <div className="flex items-center justify-between gap-4 border-t border-border/40 pt-6">
+      {/* Prev / Next navigation — stacks on mobile, side-by-side from sm up.
+          min-w-0 on each card lets the long lesson titles truncate instead of
+          forcing the row wider than the phone screen. */}
+      <div className="flex flex-col gap-3 border-t border-border/40 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         {prev ? (
           <Link
             href={lessonHref(prev.slug)}
-            className="group flex flex-1 items-center gap-3 rounded-lg border border-border/50 bg-card p-3 transition-colors hover:border-primary/40"
+            className="group flex w-full min-w-0 items-center gap-3 rounded-lg border border-border/50 bg-card p-3 transition-colors hover:border-primary/40 sm:flex-1"
           >
             <ChevronLeft className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-primary" />
             <span className="min-w-0">
@@ -90,12 +92,12 @@ export default async function LessonPage({
             </span>
           </Link>
         ) : (
-          <span className="flex-1" />
+          <span className="hidden sm:block sm:flex-1" />
         )}
         {next ? (
           <Link
             href={lessonHref(next.slug)}
-            className="group flex flex-1 items-center justify-end gap-3 rounded-lg border border-border/50 bg-card p-3 text-right transition-colors hover:border-primary/40"
+            className="group flex w-full min-w-0 items-center justify-end gap-3 rounded-lg border border-border/50 bg-card p-3 text-right transition-colors hover:border-primary/40 sm:flex-1"
           >
             <span className="min-w-0">
               <span className="block text-xs text-muted-foreground">Next</span>
@@ -104,7 +106,7 @@ export default async function LessonPage({
             <ChevronRight className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-primary" />
           </Link>
         ) : (
-          <span className="flex-1" />
+          <span className="hidden sm:block sm:flex-1" />
         )}
       </div>
 
