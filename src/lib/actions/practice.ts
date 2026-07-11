@@ -5,11 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
+import { scheduleNext, INITIAL_SRS } from "@/lib/srs";
 
 /**
  * Grade and record a single MCQ answer. Correctness is computed server-side
  * from the stored question (the client never receives correctIdx up front), so
- * XP can't be gamed. Awards XP, advances streak, and logs to today's session.
+ * XP can't be gamed. Awards XP, advances streak, logs to today's session, and
+ * schedules the question for spaced-repetition review (SM-2).
  * Returns the grading so the client can show immediate feedback.
  */
 export async function submitAnswer(questionId: string, selectedIdx: number) {
@@ -25,15 +27,40 @@ export async function submitAnswer(questionId: string, selectedIdx: number) {
     throw new Error("Not allowed");
   }
 
-  // XP is awarded only for the FIRST attempt at a question — repeats are still
-  // recorded (accuracy, notebook, heatmap) and count as daily activity, but
-  // earn no XP, so re-answering can't be used to farm XP.
-  const priorAttempt = await prisma.questionAttempt.findFirst({
-    where: { profileId: profile.id, questionId },
-    select: { id: true },
-  });
+  const now = new Date();
   const correct = selectedIdx === question.correctIdx;
-  const baseXp = priorAttempt ? 0 : correct ? XP_REWARDS.MCQ_CORRECT : XP_REWARDS.MCQ_INCORRECT;
+
+  const [priorAttempt, review] = await Promise.all([
+    prisma.questionAttempt.findFirst({
+      where: { profileId: profile.id, questionId },
+      select: { id: true },
+    }),
+    prisma.questionReview.findUnique({
+      where: { profileId_questionId: { profileId: profile.id, questionId } },
+    }),
+  ]);
+
+  // XP integrity: award on the FIRST-ever attempt, or on a legitimate DUE review.
+  // Repeats that aren't due earn 0 (recorded for accuracy/heatmap, but no XP), so
+  // re-answering can't be used to farm XP. Mirrors reviewCard's due-only rule.
+  const isFirst = !priorAttempt;
+  const isDueReview = Boolean(review && review.dueDate <= now);
+  const earnsXp = isFirst || isDueReview;
+  const baseXp = earnsXp ? (correct ? XP_REWARDS.MCQ_CORRECT : XP_REWARDS.MCQ_INCORRECT) : 0;
+
+  // Schedule the next review with SM-2. Correct → "good", incorrect → "again".
+  const next = scheduleNext(
+    review
+      ? {
+          easeFactor: review.easeFactor,
+          interval: review.interval,
+          repetitions: review.repetitions,
+          lapses: review.lapses,
+        }
+      : INITIAL_SRS,
+    correct ? "good" : "again",
+  );
+
   const updates = buildActivityUpdates(profile, {
     xp: baseXp,
     questionsAnswered: 1,
@@ -43,6 +70,26 @@ export async function submitAnswer(questionId: string, selectedIdx: number) {
   await prisma.$transaction([
     prisma.questionAttempt.create({
       data: { profileId: profile.id, questionId, selectedIdx, correct },
+    }),
+    prisma.questionReview.upsert({
+      where: { profileId_questionId: { profileId: profile.id, questionId } },
+      update: {
+        easeFactor: next.easeFactor,
+        interval: next.interval,
+        repetitions: next.repetitions,
+        lapses: next.lapses,
+        dueDate: next.dueDate,
+        lastReviewedAt: now,
+      },
+      create: {
+        profileId: profile.id,
+        questionId,
+        easeFactor: next.easeFactor,
+        interval: next.interval,
+        repetitions: next.repetitions,
+        lapses: next.lapses,
+        dueDate: next.dueDate,
+      },
     }),
     prisma.profile.update(updates.profileUpdate),
     prisma.studySession.upsert(updates.sessionUpsert),

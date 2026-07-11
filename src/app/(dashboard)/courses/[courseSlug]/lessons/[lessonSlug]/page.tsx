@@ -7,6 +7,7 @@ import { recordLessonView } from "@/lib/actions/progress";
 import { LessonContent } from "@/components/lesson/lesson-content";
 import { LessonGenerator } from "@/components/lesson/lesson-generator";
 import { MarkCompleteButton } from "@/components/lesson/mark-complete-button";
+import { TutorPanel } from "@/components/tutor/tutor-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,11 @@ export default async function LessonPage({
           <span className="flex-1" />
         )}
       </div>
+
+      {/* In-context AI tutor (grounded in this lesson) — only once content exists */}
+      {profile && !needsGeneration && (
+        <TutorPanel courseId={course.id} lessonId={lesson.id} />
+      )}
     </div>
   );
 }

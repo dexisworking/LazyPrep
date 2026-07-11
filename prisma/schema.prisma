@@ -106,6 +106,8 @@ model Profile {
   flashcardReviews FlashcardReview[]
   ownedFlashcards  Flashcard[]       @relation("ProfileFlashcards")
   mockTests        MockTest[]
+  questionReviews  QuestionReview[]
+  studyPlans       StudyPlan[]
 }
 
 // ═══════════════════════════════════════════
@@ -159,9 +161,29 @@ model Course {
   questions   Question[]
   flashcards  Flashcard[]
   mockTests   MockTest[]
+  studyPlans  StudyPlan[]
 
   @@index([ownerId])
   @@index([parentId])
+}
+
+// ═══════════════════════════════════════════
+// STUDY PLAN (per-user, per-course exam-date + habit engine)
+// ═══════════════════════════════════════════
+
+model StudyPlan {
+  id        String   @id @default(cuid())
+  profileId String
+  courseId  String
+  examDate  DateTime? @db.Date // target exam date; null = no date set yet
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, courseId])
+  @@index([profileId])
 }
 
 model Enrollment {
@@ -299,9 +321,34 @@ model Question {
 
   course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attempts QuestionAttempt[]
+  reviews  QuestionReview[]
 
   @@index([courseId, topic])
   @@index([courseId, difficulty])
+}
+
+// ═══════════════════════════════════════════
+// SPACED REPETITION FOR MCQs (SM-2 per-user question state)
+// Mirrors FlashcardReview: every practice answer schedules the question so
+// weak/missed questions resurface on the right day.
+// ═══════════════════════════════════════════
+
+model QuestionReview {
+  id             String   @id @default(cuid())
+  profileId      String
+  questionId     String
+  easeFactor     Float    @default(2.5)
+  interval       Int      @default(0) // days until next review
+  repetitions    Int      @default(0)
+  lapses         Int      @default(0)
+  dueDate        DateTime @default(now())
+  lastReviewedAt DateTime @default(now())
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, questionId])
+  @@index([profileId, dueDate])
 }
 
 model QuestionAttempt {

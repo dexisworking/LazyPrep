@@ -49,12 +49,21 @@ export async function getPracticeOverview(profileId: string | null) {
     latestCorrect: Map<string, boolean>;
   };
   const stats = new Map<string, Stat>();
+  const dueByCourse = new Map<string, number>();
   if (profileId && ids.length > 0) {
-    const attempts = await prisma.questionAttempt.findMany({
-      where: { profileId, question: { courseId: { in: ids } } },
-      orderBy: { createdAt: "desc" },
-      select: { correct: true, questionId: true, question: { select: { courseId: true } } },
-    });
+    const now = new Date();
+    const [attempts, dueReviews] = await Promise.all([
+      prisma.questionAttempt.findMany({
+        where: { profileId, question: { courseId: { in: ids } } },
+        orderBy: { createdAt: "desc" },
+        select: { correct: true, questionId: true, question: { select: { courseId: true } } },
+      }),
+      // Questions due for spaced-repetition review, tallied per course.
+      prisma.questionReview.findMany({
+        where: { profileId, dueDate: { lte: now }, question: { courseId: { in: ids } } },
+        select: { question: { select: { courseId: true } } },
+      }),
+    ]);
     for (const a of attempts) {
       const cid = a.question.courseId;
       let s = stats.get(cid);
@@ -67,6 +76,10 @@ export async function getPracticeOverview(profileId: string | null) {
       s.answered.add(a.questionId);
       // desc order → the first row seen per question is its latest attempt.
       if (!s.latestCorrect.has(a.questionId)) s.latestCorrect.set(a.questionId, a.correct);
+    }
+    for (const r of dueReviews) {
+      const cid = r.question.courseId;
+      dueByCourse.set(cid, (dueByCourse.get(cid) ?? 0) + 1);
     }
   }
 
@@ -83,9 +96,42 @@ export async function getPracticeOverview(profileId: string | null) {
       correct,
       answered,
       wrong,
+      dueReviews: dueByCourse.get(course.id) ?? 0,
       accuracy: attempts > 0 ? Math.round((correct / attempts) * 100) : 0,
     };
   });
+}
+
+/**
+ * Questions due for spaced-repetition review in a course (dueDate ≤ now),
+ * oldest-due first. Answers stripped — the review session grades server-side.
+ * Mirrors getStudyCards for flashcards.
+ */
+export async function getReviewQuestions(
+  courseSlug: string,
+  profileId: string | null,
+  limit = 15,
+): Promise<QuizQuestion[]> {
+  if (!profileId) return [];
+  const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
+  if (!course) return [];
+
+  const due = await prisma.questionReview.findMany({
+    where: { profileId, dueDate: { lte: new Date() }, question: { courseId: course.id } },
+    orderBy: { dueDate: "asc" },
+    take: limit,
+    include: {
+      question: { select: { id: true, text: true, options: true, topic: true, difficulty: true } },
+    },
+  });
+
+  return due.map((r) => ({
+    id: r.question.id,
+    text: r.question.text,
+    options: r.question.options as string[],
+    topic: r.question.topic,
+    difficulty: r.question.difficulty,
+  }));
 }
 
 /**

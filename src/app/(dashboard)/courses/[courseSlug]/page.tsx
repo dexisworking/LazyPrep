@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { StartCourseButton } from "@/components/courses/start-course-button";
 import { DeleteCourseButton } from "@/components/courses/delete-course-button";
 import { AdaptiveCourse } from "@/components/adaptive/adaptive-course";
+import { ExamPlanCard } from "@/components/study-plan/exam-plan-card";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,22 @@ export default async function CourseDetailPage({
         where: { id: course.parentId },
         select: { slug: true, title: true },
       })
+    : null;
+
+  // Study-plan data (signed-in users only): exam date + today's workload inputs.
+  const [studyPlan, dueReviews] = profile
+    ? await Promise.all([
+        prisma.studyPlan.findUnique({
+          where: { profileId_courseId: { profileId: profile.id, courseId: course.id } },
+          select: { examDate: true },
+        }),
+        prisma.questionReview.count({
+          where: { profileId: profile.id, dueDate: { lte: new Date() }, question: { courseId: course.id } },
+        }),
+      ])
+    : [null, 0];
+  const examDateIso = studyPlan?.examDate
+    ? studyPlan.examDate.toISOString().slice(0, 10)
     : null;
 
   return (
@@ -112,6 +129,16 @@ export default async function CourseDetailPage({
           />
         </div>
       </div>
+
+      {/* Exam planner (signed-in users) */}
+      {profile && (
+        <ExamPlanCard
+          courseId={course.id}
+          examDateIso={examDateIso}
+          remainingLessons={Math.max(0, totalLessons - completedLessons)}
+          dueReviews={dueReviews}
+        />
+      )}
 
       {/* Deep-dive CTA when the whole course is mastered */}
       {mastered && (

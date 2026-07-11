@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Target, ArrowRight, BookOpenCheck, CheckCircle2, AlarmClock } from "lucide-react";
+import { Target, ArrowRight, BookOpenCheck, CheckCircle2, AlarmClock, RotateCcw } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getPracticeOverview } from "@/lib/data/practice";
 import { Stagger, StaggerItem } from "@/components/motion/motion";
@@ -46,6 +46,15 @@ export default async function PracticePage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                  {course.dueReviews > 0 && (
+                    <Link
+                      href={`/practice/${course.slug}/review`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-np-orange/40 bg-np-orange/10 px-4 py-2.5 text-sm font-semibold text-np-orange transition-all hover:bg-np-orange/20"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Review ({course.dueReviews})
+                    </Link>
+                  )}
                   {course.wrong > 0 && (
                     <Link
                       href={`/practice/${course.slug}/notebook`}

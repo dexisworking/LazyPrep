@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { getWrongAnswers } from "@/lib/data/practice";
 import { canAccessCourse } from "@/lib/data/courses";
+import { TutorPanel } from "@/components/tutor/tutor-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,17 @@ export default async function NotebookPage({
                 <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                   {q.difficulty}
                 </span>
+                {profile && (
+                  <span className="ml-auto">
+                    <TutorPanel
+                      courseId={course.id}
+                      questionId={q.id}
+                      trigger="inline"
+                      label="Ask why"
+                      seedPrompt="Why is my answer wrong, and how should I reason to the correct one?"
+                    />
+                  </span>
+                )}
               </div>
 
               <p className="font-medium text-foreground">{q.text}</p>

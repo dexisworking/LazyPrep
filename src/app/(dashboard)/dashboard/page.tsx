@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Zap, Play, Flame, Trophy, Target, BookOpen, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Zap, Play, Flame, Trophy, Target, BookOpen, TrendingUp, CheckCircle2, CalendarDays, RotateCcw } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getDashboardData } from "@/lib/data/dashboard";
+import { getCourseTree } from "@/lib/data/courses";
+import { prisma } from "@/lib/prisma";
 import { getLevelProgress, getRank } from "@/lib/xp";
+import { computeDailyTarget, daysUntil, formatCountdown } from "@/lib/study-plan";
 import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/motion";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
+import { StudyReminder } from "@/components/study-plan/study-reminder";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +18,45 @@ export default async function DashboardPage() {
   if (!profile) redirect("/sign-in");
 
   const data = await getDashboardData(profile);
+
+  // Nearest upcoming exam (if the user set one) → countdown + today's target.
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const nextPlan = await prisma.studyPlan.findFirst({
+    where: { profileId: profile.id, examDate: { gte: startOfToday } },
+    orderBy: { examDate: "asc" },
+    include: { course: { select: { slug: true, title: true } } },
+  });
+  let examWidget: {
+    title: string;
+    slug: string;
+    left: number;
+    lessonsPerDay: number;
+    reviewsToday: number;
+  } | null = null;
+  if (nextPlan?.examDate) {
+    const [tree, due] = await Promise.all([
+      getCourseTree(nextPlan.course.slug, profile.id),
+      prisma.questionReview.count({
+        where: { profileId: profile.id, dueDate: { lte: new Date() }, question: { courseId: nextPlan.courseId } },
+      }),
+    ]);
+    const remaining = tree ? Math.max(0, tree.totalLessons - tree.completedLessons) : 0;
+    const left = daysUntil(nextPlan.examDate);
+    const target = computeDailyTarget(remaining, due, left);
+    examWidget = {
+      title: nextPlan.course.title,
+      slug: nextPlan.course.slug,
+      left,
+      lessonsPerDay: target.lessonsPerDay,
+      reviewsToday: target.reviewsToday,
+    };
+  }
+
+  const goalMet =
+    (data.todaySession?.xpEarned ?? 0) > 0 ||
+    (data.todaySession?.questionsAnswered ?? 0) > 0 ||
+    (data.todaySession?.lessonsCompleted ?? 0) > 0;
   const { level, currentLevelXp, nextLevelXp, progress } = getLevelProgress(profile.xp);
   const rank = getRank(level);
 
@@ -76,6 +119,39 @@ export default async function DashboardPage() {
         ))}
       </Stagger>
 
+      {/* Next exam countdown */}
+      {examWidget && (
+        <Link
+          href={`/courses/${examWidget.slug}`}
+          className="group flex flex-col gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-5 transition-colors hover:border-primary/50 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+              <CalendarDays className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">
+                {formatCountdown(examWidget.left)} · {examWidget.title}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Today&apos;s target: {examWidget.lessonsPerDay} lesson
+                {examWidget.lessonsPerDay === 1 ? "" : "s"}
+                {examWidget.reviewsToday > 0 && (
+                  <>
+                    {" "}
+                    · <RotateCcw className="inline h-3.5 w-3.5 text-np-orange" />{" "}
+                    {examWidget.reviewsToday} review{examWidget.reviewsToday === 1 ? "" : "s"} due
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+          <span className="text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
+            Study now →
+          </span>
+        </Link>
+      )}
+
       {/* Continue learning */}
       {cp && (
         <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/60 p-6">
@@ -118,10 +194,13 @@ export default async function DashboardPage() {
       {/* Today + quick actions */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border border-border/50 bg-card p-5">
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <TrendingUp className="h-4 w-4 text-np-success" />
-            Today
-          </h3>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <TrendingUp className="h-4 w-4 text-np-success" />
+              Today
+            </h3>
+            <StudyReminder goalMet={goalMet} />
+          </div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <p className="text-xl font-bold text-foreground">{data.todaySession?.lessonsCompleted ?? 0}</p>
