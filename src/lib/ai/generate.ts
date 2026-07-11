@@ -1,5 +1,6 @@
 import "server-only";
 import { chatJson, chatComplete, AiError, type AiConfig } from "@/lib/ai/client";
+import { INTERACTIVE_LANGS, validateBlock } from "@/lib/lesson-blocks";
 import type {
   Questionnaire,
   PhaseLevel,
@@ -55,8 +56,17 @@ device# show something
  …output…
 \`\`\`
 
-End every lesson with one quiz block as a final knowledge check. Regular fenced
-code blocks (bash, python, json, …) still work normally for actual code.`;
+REQUIRED for every lesson:
+- At least ONE \`diagram\` block — pick the type that fits the material: "layers"
+  for hierarchies/stacks, "flow" for processes/sequences, "compare" for A-vs-B
+  contrasts. Prefer a diagram over ASCII art. This is the most illustrative
+  element — always include one.
+- One \`flip\` block of the lesson's key terms/definitions.
+- End the lesson with exactly one \`quiz\` block as a final knowledge check.
+Add \`sort\`/\`match\`/\`callout\` blocks too wherever they genuinely help.
+
+Regular fenced code blocks (bash, python, json, …) still work normally for
+actual code and are NOT interactive blocks.`;
 
 const PHASE_GUIDE: Record<PhaseLevel, string> = {
   foundation:
@@ -96,6 +106,15 @@ export async function generateLessonMarkdown(
         ? "Be thorough and detailed (~900–1400 words) with multiple examples."
         : "Aim for a balanced length (~600–900 words).";
 
+  // Interactive-block target scales with depth/phase: shorter lessons stay light,
+  // in-depth/advanced lessons earn more widgets.
+  const inDepth =
+    ctx.phaseLevel === "advanced" ||
+    (!ctx.phaseLevel && ctx.q.depth === "in-depth");
+  const concise = !ctx.phaseLevel && ctx.q.depth === "concise";
+  const blockTarget = concise ? "2–3" : inDepth ? "4–5" : "3–4";
+  const maxTokens = inDepth ? 3600 : 3200;
+
   const system =
     "You are an expert instructor writing ONE self-contained lesson in GitHub-flavored " +
     "Markdown. Use headings (##, ###), bullet lists, tables, and fenced code blocks where " +
@@ -113,7 +132,7 @@ export async function generateLessonMarkdown(
 
 ${depthGuide}
 Focus only on this lesson's topic; assume earlier lessons covered prerequisites.
-Weave in 2–4 interactive blocks (and end with a quiz block) as described in the system prompt.`;
+Weave in ${blockTarget} interactive blocks — including at least one diagram, one flip block, and a closing quiz — as described in the system prompt.`;
 
   const md = await chatComplete(
     config,
@@ -121,13 +140,91 @@ Weave in 2–4 interactive blocks (and end with a quiz block) as described in th
       { role: "system", content: system },
       { role: "user", content: user },
     ],
-    { temperature: 0.7, maxTokens: 3200 },
+    { temperature: 0.7, maxTokens },
   );
 
   // Strip an accidental full-document code fence if present.
   const trimmed = md.trim();
   const fenced = trimmed.match(/^```(?:markdown|md)?\s*([\s\S]*?)```$/i);
-  return (fenced ? fenced[1] : trimmed).trim();
+  const body = (fenced ? fenced[1] : trimmed).trim();
+
+  // Validate the interactive blocks; repair any malformed ones once, then strip
+  // whatever still won't parse so a learner never sees raw JSON.
+  return finalizeInteractiveBlocks(config, body);
+}
+
+// ─── interactive-block validation & repair ───
+
+type FoundBlock = { lang: string; raw: string; fence: string };
+
+/** Fenced blocks whose language is an interactive widget. `fence` is the full ```…``` text. */
+export function findInteractiveBlocks(md: string): FoundBlock[] {
+  const re = /```([A-Za-z0-9_-]+)\n([\s\S]*?)```/g;
+  const out: FoundBlock[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(md)) !== null) {
+    const lang = m[1];
+    if (INTERACTIVE_LANGS.has(lang)) {
+      out.push({ lang, raw: m[2].trim(), fence: m[0] });
+    }
+  }
+  return out;
+}
+
+/**
+ * Validate every interactive block; if any are malformed, ask the model ONCE to
+ * fix just those blocks and splice the corrected versions back in. Any block
+ * still invalid after the repair pass is removed entirely. Best-effort: if the
+ * repair call fails, we just strip the bad blocks.
+ */
+export async function finalizeInteractiveBlocks(config: AiConfig, md: string): Promise<string> {
+  const blocks = findInteractiveBlocks(md);
+  const bad = blocks.filter((b) => !validateBlock(b.lang, b.raw));
+  if (bad.length === 0) return md;
+
+  let repaired: FoundBlock[] = [];
+  try {
+    repaired = await repairBlocks(config, bad);
+  } catch {
+    repaired = [];
+  }
+
+  let result = md;
+  for (const b of bad) {
+    const fix = repaired.find((r) => r.lang === b.lang && validateBlock(r.lang, r.raw));
+    if (fix) {
+      result = result.replace(b.fence, "```" + fix.lang + "\n" + fix.raw + "\n```");
+    } else {
+      // Drop the malformed block (and a trailing blank line) rather than show raw JSON.
+      result = result.replace(b.fence + "\n\n", "").replace(b.fence + "\n", "").replace(b.fence, "");
+    }
+  }
+  return result.trim();
+}
+
+/** One repair call: send only the malformed fenced blocks, get corrected ones back. */
+async function repairBlocks(config: AiConfig, bad: FoundBlock[]): Promise<FoundBlock[]> {
+  const system =
+    "You fix malformed interactive lesson blocks. Each block is a fenced code block whose " +
+    "language names a widget and whose body must be STRICTLY VALID JSON. Return ONLY the same " +
+    "number of corrected fenced blocks, in the same order, same languages, no prose between them.\n" +
+    INTERACTIVE_BLOCK_GUIDE;
+
+  const user =
+    "Fix the JSON in each of these blocks so it exactly matches the schema for its language. " +
+    "Preserve the intended content; only correct structure/syntax:\n\n" +
+    bad.map((b) => b.fence).join("\n\n");
+
+  const out = await chatComplete(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.2, maxTokens: 1500 },
+  );
+
+  return findInteractiveBlocks(out);
 }
 
 /**
@@ -260,6 +357,45 @@ Output a JSON array of EXACTLY ${count} objects:
       { role: "user", content: user },
     ],
     { temperature: 0.6, maxTokens: Math.max(3500, count * 220) },
+  );
+
+  const valid = validQuestions(qs);
+  if (valid.length === 0) throw new AiError("The model returned no valid questions. Try again.");
+  return valid.slice(0, count);
+}
+
+/**
+ * Generate a course's PRACTICE question bank (mixed difficulty, spread across
+ * all lessons). Same MCQ shape as mock tests but tuned for spaced practice
+ * rather than a timed exam. Persisted as course `Question` rows.
+ */
+export async function generatePracticeQuestions(
+  config: AiConfig,
+  ctx: { courseTitle: string; lessonTitles: string[]; count: number },
+): Promise<GeneratedQuestion[]> {
+  const count = Math.min(Math.max(ctx.count, 5), 30);
+  const system =
+    "You write high-quality practice questions for spaced repetition study. Output ONLY a valid JSON array — no prose, no code fences.";
+
+  const user = `Create ${count} multiple-choice practice questions for the course "${ctx.courseTitle}".
+Spread them evenly across these lessons so the whole course is covered:
+- ${ctx.lessonTitles.slice(0, 80).join("\n- ")}
+
+Output a JSON array of EXACTLY ${count} objects:
+[ { "topic": string, "difficulty": "easy"|"medium"|"hard", "text": string, "options": [string, string, string, string], "correctIdx": 0-3, "explanation": string } ]
+- Exactly 4 options each, exactly one correct. Plausible distractors.
+- "topic" = the specific concept tested.
+- Mix difficulties roughly 35% easy / 45% medium / 20% hard.
+- Write a clear one-sentence explanation for each answer.
+- Output ONLY the JSON array.`;
+
+  const qs = await chatJson<GeneratedQuestion[]>(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.6, maxTokens: Math.max(3000, count * 200) },
   );
 
   const valid = validQuestions(qs);

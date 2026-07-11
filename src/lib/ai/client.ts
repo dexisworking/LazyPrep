@@ -48,35 +48,72 @@ export async function chatComplete(
 ): Promise<string> {
   const url = `${config.baseUrl.replace(/\/+$/, "")}/chat/completions`;
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${config.apiKey}`,
-      // OpenRouter attribution headers (ignored by other providers).
-      "HTTP-Referer": process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
-      "X-Title": "NetPrep",
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages,
-      temperature: opts.temperature ?? 0.7,
-      ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
-    }),
-    signal: opts.signal,
-  });
+  // One retry for TRANSIENT failures only (rate limits, provider 5xx, network
+  // blips). Auth/quota/not-found (4xx except 429) fail fast — retrying can't help.
+  const maxAttempts = 2;
+  let lastErr: AiError = new AiError("AI request failed.");
 
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new AiError(friendlyError(res.status, body), res.status);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.apiKey}`,
+          // OpenRouter attribution headers (ignored by other providers).
+          "HTTP-Referer": process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+          "X-Title": "NetPrep",
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages,
+          temperature: opts.temperature ?? 0.7,
+          ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
+        }),
+        signal: opts.signal,
+      });
+    } catch (e) {
+      // Network-level failure — retryable.
+      lastErr = new AiError("We couldn't reach your AI provider. Try again in a moment.");
+      if (attempt < maxAttempts) {
+        await sleep(600 * attempt);
+        continue;
+      }
+      throw lastErr;
+    }
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      const err = new AiError(friendlyError(res.status, body), res.status);
+      const retryable = res.status === 429 || res.status >= 500;
+      if (retryable && attempt < maxAttempts) {
+        lastErr = err;
+        await sleep(600 * attempt);
+        continue;
+      }
+      throw err;
+    }
+
+    const data = await res.json().catch(() => null);
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== "string" || content.length === 0) {
+      // Empty completion — retry once, then give up.
+      lastErr = new AiError("The model returned an empty response.");
+      if (attempt < maxAttempts) {
+        await sleep(600 * attempt);
+        continue;
+      }
+      throw lastErr;
+    }
+    return content;
   }
 
-  const data = await res.json().catch(() => null);
-  const content = data?.choices?.[0]?.message?.content;
-  if (typeof content !== "string" || content.length === 0) {
-    throw new AiError("The model returned an empty response.");
-  }
-  return content;
+  throw lastErr;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 /** Extract the first JSON object/array from possibly fenced or chatty output. */

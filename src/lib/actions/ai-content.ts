@@ -5,7 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { getAiConfig } from "@/lib/ai/keys";
 import { canAccessCourse } from "@/lib/data/courses";
-import { generateFlashcardsAi, generateMockTestQuestions } from "@/lib/ai/generate";
+import {
+  generateFlashcardsAi,
+  generateMockTestQuestions,
+  generatePracticeQuestions,
+} from "@/lib/ai/generate";
 import { AiError } from "@/lib/ai/client";
 import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
@@ -93,6 +97,96 @@ export async function generateFlashcards(
   revalidatePath("/flashcards");
   revalidatePath(`/flashcards/${course.slug}`);
   return { ok: true as const, added: cards.length };
+}
+
+// ─── Lazy first-visit population (AI courses only) ───
+//
+// Curated packs ship a practice bank + flashcard deck. AI courses start with
+// neither, so the first time their owner opens the Practice / Flashcards tab we
+// auto-generate a starter set. Both actions are idempotent: they bail if the
+// content already exists, so a revisit never re-spends the user's AI credits.
+
+const STARTER_QUESTION_COUNT = 18;
+const STARTER_CARD_COUNT = 18;
+
+/** Generate a starter practice-question bank for an AI course, once. */
+export async function ensurePracticeBank(courseId: string) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const course = await prisma.course.findUnique({ where: { id: courseId } });
+  if (!course || !canAccessCourse(course, profile.id)) {
+    return { ok: false as const, error: "Course not found." };
+  }
+  // Only auto-populate AI courses owned by this user.
+  if (!course.aiGenerated || course.ownerId !== profile.id) {
+    return { ok: false as const, error: "Not allowed." };
+  }
+  // Idempotent: already has a bank → no-op (no API call).
+  const existing = await prisma.question.count({ where: { courseId: course.id } });
+  if (existing > 0) return { ok: true as const, added: 0 };
+
+  const config = await getAiConfig(profile.id);
+  if (!config) return { ok: false as const, error: "no-key" };
+
+  const lessonTitles = await courseLessonTitles(course.id);
+  if (lessonTitles.length === 0) {
+    return { ok: false as const, error: "This course has no lessons yet." };
+  }
+
+  let questions;
+  try {
+    questions = await generatePracticeQuestions(config, {
+      courseTitle: course.title,
+      lessonTitles,
+      count: STARTER_QUESTION_COUNT,
+    });
+  } catch (e) {
+    return { ok: false as const, error: aiErrorMessage(e) };
+  }
+
+  // Guard against a race: re-check before inserting.
+  const stillEmpty = (await prisma.question.count({ where: { courseId: course.id } })) === 0;
+  if (!stillEmpty) return { ok: true as const, added: 0 };
+
+  await prisma.question.createMany({
+    data: questions.map((q) => ({
+      courseId: course.id,
+      topic: (q.topic || "General").slice(0, 80),
+      difficulty: q.difficulty || "medium",
+      text: q.text,
+      options: q.options,
+      correctIdx: q.correctIdx,
+      explanation: q.explanation ?? "",
+      tags: [],
+    })),
+  });
+
+  revalidatePath("/practice");
+  revalidatePath(`/practice/${course.slug}`);
+  return { ok: true as const, added: questions.length };
+}
+
+/** Generate a starter flashcard deck for an AI course, once. */
+export async function ensureFlashcardDeck(courseId: string) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const course = await prisma.course.findUnique({ where: { id: courseId } });
+  if (!course || !canAccessCourse(course, profile.id)) {
+    return { ok: false as const, error: "Course not found." };
+  }
+  if (!course.aiGenerated || course.ownerId !== profile.id) {
+    return { ok: false as const, error: "Not allowed." };
+  }
+  // Idempotent: user already has cards for this course (curated or their own) → no-op.
+  const existing = await prisma.flashcard.count({
+    where: { courseId: course.id, OR: [{ ownerId: null }, { ownerId: profile.id }] },
+  });
+  if (existing > 0) return { ok: true as const, added: 0 };
+
+  // Delegate to the shared generator (handles key check, ownership, SRS entry).
+  return generateFlashcards(courseId, { count: STARTER_CARD_COUNT });
 }
 
 // ─── Mock tests ───

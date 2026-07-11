@@ -13,20 +13,6 @@ export type Questionnaire = {
   style: string; // optional, e.g. "practical, lots of examples, include CLI"
 };
 
-/** The structured outline the model returns (titles only — no content yet). */
-export type CourseBlueprint = {
-  title: string;
-  description: string;
-  category: string;
-  modules: {
-    title: string;
-    chapters: {
-      title: string;
-      lessons: { title: string; estimatedMinutes: number }[];
-    }[];
-  }[];
-};
-
 export type PhaseLevel = "foundation" | "intermediate" | "advanced";
 
 /** The lesson structure for a single phase of an adaptive course. */

@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getStudyCards } from "@/lib/data/flashcards";
+import { getStudyCards, flashcardVisibility } from "@/lib/data/flashcards";
 import { canAccessCourse } from "@/lib/data/courses";
 import { getCurrentProfile } from "@/lib/session";
 import { getAiKeyStatus } from "@/lib/ai/keys";
 import { FlashcardDeck } from "@/components/flashcards/flashcard-deck";
+import { FlashcardDeckGenerator } from "@/components/flashcards/flashcard-deck-generator";
 import { GenerateCardsDialog } from "@/components/flashcards/generate-cards-dialog";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +24,16 @@ export default async function FlashcardDeckPage({
   const profile = await getCurrentProfile();
   if (!canAccessCourse(course, profile?.id ?? null)) notFound();
 
-  const [cards, keyStatus] = await Promise.all([
+  const [cards, keyStatus, cardCount] = await Promise.all([
     getStudyCards(courseSlug, profile?.id ?? null, 20),
     profile ? getAiKeyStatus(profile.id) : Promise.resolve({ configured: false as const }),
+    prisma.flashcard.count({
+      where: { courseId: course.id, ...flashcardVisibility(profile?.id ?? null) },
+    }),
   ]);
+
+  // First visit to an AI course's deck with no cards yet → auto-generate a starter deck.
+  const canAutoGen = cardCount === 0 && course.aiGenerated && profile?.id === course.ownerId;
 
   return (
     <div className="space-y-6">
@@ -42,11 +49,15 @@ export default async function FlashcardDeckPage({
           <h1 className="text-2xl font-bold tracking-tight text-foreground">{course.title}</h1>
           <p className="text-sm text-muted-foreground">Tap a card to reveal the answer.</p>
         </div>
-        {profile && (
+        {profile && !canAutoGen && (
           <GenerateCardsDialog courseId={course.id} hasAiKey={keyStatus.configured} />
         )}
       </div>
-      <FlashcardDeck cards={cards} backHref="/flashcards" />
+      {canAutoGen ? (
+        <FlashcardDeckGenerator courseId={course.id} />
+      ) : (
+        <FlashcardDeck cards={cards} backHref="/flashcards" />
+      )}
     </div>
   );
 }

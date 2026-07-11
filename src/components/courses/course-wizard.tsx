@@ -106,7 +106,8 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
         </h2>
         <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
           Building the module and lesson structure for <b>{form.subject}</b>. This takes about
-          10–30 seconds. Lesson content is written on demand as you open each lesson.
+          10–30 seconds. Each lesson is written on demand with interactive diagrams, quizzes, and
+          flip-cards — and practice questions and flashcards are generated as you study.
         </p>
       </div>
     );
