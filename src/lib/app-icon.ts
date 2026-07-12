@@ -38,14 +38,31 @@ export function getStoredIcon(): IconVariant {
 }
 
 /**
- * Persist the choice and apply it to the served icon links so the next
- * add-to-home-screen / install uses it. No-op on the server.
+ * Persist the choice and apply it live. No-op on the server.
+ *
+ * - Browser-tab favicon: swapped immediately so the choice is VISIBLE now (this
+ *   is the feedback users expect — previously only the invisible add-to-home-
+ *   screen icon changed, so the picker felt like it did nothing).
+ * - apple-touch-icon + cookie-aware manifest: govern the icon captured at
+ *   add-to-home-screen / install time (no web API can repaint an already-
+ *   installed home-screen icon).
  */
 export function applyAppIcon(variant: IconVariant): void {
   if (typeof document === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, variant);
   document.cookie = `${STORAGE_KEY}=${variant}; path=/; max-age=31536000; samesite=lax`;
 
+  // Live browser-tab favicon. Replace every existing icon link (Next injects
+  // icon.svg + icon.png, and SVG favicons win by default) with a single PNG for
+  // the chosen variant so the swap actually takes effect.
+  document.querySelectorAll('link[rel~="icon"]').forEach((l) => l.remove());
+  const favicon = document.createElement("link");
+  favicon.rel = "icon";
+  favicon.type = "image/png";
+  favicon.href = `/icons/${variant}-192.png`;
+  document.head.appendChild(favicon);
+
+  // iOS add-to-home-screen icon.
   let apple = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
   if (!apple) {
     apple = document.createElement("link");

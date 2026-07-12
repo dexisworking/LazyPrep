@@ -19,6 +19,7 @@ import {
 export function AppIconPicker() {
   const [selected, setSelected] = useState<IconVariant>("gradient");
   const [mounted, setMounted] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   // Read the saved choice after mount to avoid a hydration mismatch.
   useEffect(() => {
@@ -29,6 +30,8 @@ export function AppIconPicker() {
   const choose = (v: IconVariant) => {
     setSelected(v);
     applyAppIcon(v);
+    setJustSaved(true);
+    window.setTimeout(() => setJustSaved(false), 2500);
   };
 
   return (
@@ -76,6 +79,17 @@ export function AppIconPicker() {
           );
         })}
       </div>
+
+      <p
+        className={cn(
+          "flex items-center gap-2 text-xs font-medium text-primary transition-opacity",
+          justSaved ? "opacity-100" : "opacity-0",
+        )}
+        aria-live="polite"
+      >
+        <Check className="h-3.5 w-3.5" />
+        Saved — your browser tab icon updated; it applies to your home-screen icon at install.
+      </p>
 
       <p className="flex items-start gap-2 rounded-lg border border-border/40 bg-secondary/40 p-3 text-xs text-muted-foreground">
         <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
