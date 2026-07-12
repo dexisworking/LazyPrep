@@ -1,10 +1,13 @@
 "use server";
 
+import { after } from "next/server";
 import { headers } from "next/headers";
+import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/lib/prisma";
-import { getCurrentProfile } from "@/lib/session";
+import { getSession, getCurrentProfile } from "@/lib/session";
 import { checkRateLimit, RateLimitError } from "@/lib/rate-limit";
 import { feedbackSchema } from "@/lib/validation";
+import { sendFeedbackNotification } from "@/lib/email";
 
 /** Store a piece of in-app feedback (bug/idea/other) from the signed-in user. */
 export async function submitFeedback(input: { type: string; message: string; url?: string }) {
@@ -34,6 +37,27 @@ export async function submitFeedback(input: { type: string; message: string; url
       url: parsed.data.url?.slice(0, 500) ?? null,
       userAgent,
     },
+  });
+
+  // Notify the operator by email — after the response so it never blocks or
+  // fails the user's submission. Submitter details are captured now (request
+  // context) and passed into the deferred callback.
+  const session = await getSession();
+  const fromEmail = session?.user?.email ?? null;
+  const fromName = profile.displayName ?? session?.user?.name ?? null;
+  after(async () => {
+    try {
+      await sendFeedbackNotification({
+        type: parsed.data.type,
+        message: parsed.data.message,
+        url: parsed.data.url ?? null,
+        fromEmail,
+        fromName,
+      });
+    } catch (e) {
+      console.error("[feedback] notification email failed:", e);
+      Sentry.captureException(e);
+    }
   });
 
   return { ok: true as const };

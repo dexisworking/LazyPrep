@@ -83,3 +83,51 @@ export async function sendResetPasswordEmail(to: string, name: string, url: stri
     html: resetPasswordEmailHtml(name, url),
   });
 }
+
+/** Where in-app feedback notifications are delivered (the operator's inbox). */
+const FEEDBACK_TO = process.env.FEEDBACK_EMAIL;
+
+const TYPE_LABEL: Record<string, string> = { bug: "🐛 Bug", idea: "💡 Idea", other: "💬 Feedback" };
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function feedbackNotificationHtml(input: {
+  type: string;
+  message: string;
+  url?: string | null;
+  fromEmail?: string | null;
+  fromName?: string | null;
+}): string {
+  const who = input.fromName ? escapeHtml(input.fromName) : "A user";
+  const contact = input.fromEmail ? ` (${escapeHtml(input.fromEmail)})` : "";
+  const where = input.url ? ` on <code style="color:#3b82f6;">${escapeHtml(input.url)}</code>` : "";
+  const body = escapeHtml(input.message).replace(/\n/g, "<br/>");
+  return emailShell(
+    `${TYPE_LABEL[input.type] ?? "Feedback"} received`,
+    `<p style="color:#a1a1b3;line-height:1.6;margin:0 0 16px;">${who}${contact}${where} wrote:</p>
+      <div style="border-left:3px solid #3b82f6;background:#0f0f18;border-radius:6px;padding:12px 16px;color:#e7e7ee;line-height:1.6;white-space:pre-wrap;">${body}</div>`,
+  );
+}
+
+/**
+ * Notify the operator of new in-app feedback. No-op when email or FEEDBACK_EMAIL
+ * isn't configured. `replyTo` is set to the submitter so you can reply directly.
+ */
+export async function sendFeedbackNotification(input: {
+  type: string;
+  message: string;
+  url?: string | null;
+  fromEmail?: string | null;
+  fromName?: string | null;
+}) {
+  if (!resend || !FEEDBACK_TO) return;
+  await resend.emails.send({
+    from: FROM,
+    to: FEEDBACK_TO,
+    replyTo: input.fromEmail || undefined,
+    subject: `${TYPE_LABEL[input.type] ?? "Feedback"} — LazyPrep`,
+    html: feedbackNotificationHtml(input),
+  });
+}
