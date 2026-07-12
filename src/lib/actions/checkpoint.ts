@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { guardAiRateLimit } from "@/lib/rate-limit";
+import { checkpointAnswersSchema } from "@/lib/validation";
 import { getAiConfig } from "@/lib/ai/keys";
 import { generateCheckpointQuestions } from "@/lib/ai/generate";
 import { AiError } from "@/lib/ai/client";
@@ -90,6 +91,10 @@ export async function submitCheckpoint(
 ) {
   const profile = await getCurrentProfile();
   if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  if (!checkpointAnswersSchema.safeParse(answers).success) {
+    return { ok: false as const, error: "Invalid submission." };
+  }
 
   const mod = await prisma.module.findUnique({
     where: { id: moduleId },

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
 import { guardAiRateLimit } from "@/lib/rate-limit";
+import { questionnaireSchema } from "@/lib/validation";
 import { getAiConfig } from "@/lib/ai/keys";
 import {
   generatePhaseBlueprint,
@@ -188,7 +189,9 @@ export async function generateCourse(q: Questionnaire) {
 
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false as const, error: "no-key" };
-  if (!q.subject?.trim()) return { ok: false as const, error: "Subject is required." };
+  if (!questionnaireSchema.safeParse(q).success) {
+    return { ok: false as const, error: "Please check the course details and try again." };
+  }
 
   const limited = await guardAiRateLimit(profile.id, "course");
   if (limited) return { ok: false as const, error: limited };
