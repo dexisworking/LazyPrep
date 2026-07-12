@@ -17,6 +17,13 @@ export const checkpointAnswersSchema = z.array(
   }),
 );
 
+/** In-app feedback submission. */
+export const feedbackSchema = z.object({
+  type: z.enum(["bug", "idea", "other"]),
+  message: z.string().trim().min(3).max(2000),
+  url: z.string().max(500).optional(),
+});
+
 /** Course-generation questionnaire. Extra keys are ignored, not rejected. */
 export const questionnaireSchema = z.object({
   subject: z.string().trim().min(1).max(200),

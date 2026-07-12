@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/lib/session";
 import { toProfileSummary } from "@/lib/data/dashboard";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { TimezoneSync } from "@/components/shared/timezone-sync";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 /**
  * Lock zoom inside the app (dashboard) pages only — this makes the installed
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
     <DashboardShell profile={toProfileSummary(profile)}>
       <TimezoneSync current={profile.timezone} />
       {children}
+      <FeedbackWidget />
     </DashboardShell>
   );
 }

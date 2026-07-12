@@ -135,6 +135,7 @@ model Profile {
   mockTests        MockTest[]
   questionReviews  QuestionReview[]
   studyPlans       StudyPlan[]
+  feedback         Feedback[]
 }
 
 // ═══════════════════════════════════════════
@@ -530,4 +531,24 @@ model Bookmark {
 
   @@unique([profileId, targetType, targetId])
   @@index([profileId, targetType])
+}
+
+// ═══════════════════════════════════════════
+// FEEDBACK (in-app bug reports / ideas / notes)
+// profileId is nullable + SetNull on delete so feedback survives account deletion.
+// ═══════════════════════════════════════════
+
+model Feedback {
+  id        String   @id @default(cuid())
+  profileId String?
+  type      String   @default("bug") // "bug" | "idea" | "other"
+  message   String
+  url       String? // page the user was on when submitting
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  profile Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([profileId])
 }
