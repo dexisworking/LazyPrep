@@ -196,7 +196,7 @@ export default function HomePage() {
             <span className="text-primary">next exam</span>?
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Join NetPrep today — completely free. No credit card required.
+            Join LazyPrep today — completely free. No credit card required.
           </p>
           <Link
             href="/sign-up"

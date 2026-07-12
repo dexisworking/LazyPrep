@@ -7,19 +7,19 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
-// Wordmark-only face: rounded geometric bold matching the NetPrep reference.
+// Wordmark-only face: rounded geometric bold matching the LazyPrep reference.
 const poppins = Poppins({ weight: ["600", "700"], subsets: ["latin"], variable: "--font-wordmark" });
 
-const APP_NAME = "NetPrep";
-const APP_TITLE = "NetPrep — The Preparation Operating System";
+const APP_NAME = "LazyPrep";
+const APP_TITLE = "LazyPrep — The Preparation Operating System";
 const APP_DESCRIPTION =
   "Your complete preparation operating system for certifications, competitive exams, and professional training. Study smarter with gamified learning, smart revision, and real-time analytics.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://netprep.iamdex.codes"),
+  metadataBase: new URL("https://lazyprep.iamdex.codes"),
   title: {
     default: APP_TITLE,
-    template: "%s | NetPrep",
+    template: "%s | LazyPrep",
   },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   authors: [{ name: "Dibyanshu Singh" }],
   creator: "Dibyanshu Singh",
-  publisher: "NetPrep",
+  publisher: "LazyPrep",
   formatDetection: { telephone: false, email: false, address: false },
   keywords: [
     "exam preparation",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     siteName: APP_NAME,
     title: APP_TITLE,
     description: APP_DESCRIPTION,
-    url: "https://netprep.iamdex.codes",
+    url: "https://lazyprep.iamdex.codes",
     locale: "en_US",
   },
   twitter: {

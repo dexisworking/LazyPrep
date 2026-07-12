@@ -38,7 +38,7 @@ function PreBlock(props: React.HTMLAttributes<HTMLPreElement>) {
 
 /**
  * Renders lesson Markdown (GFM tables/lists + fenced-code syntax highlighting)
- * plus NetPrep's interactive lesson blocks. Server-rendered — static styling
+ * plus LazyPrep's interactive lesson blocks. Server-rendered — static styling
  * lives in the `.md-content` block in globals.css.
  */
 export function LessonContent({ content }: { content: string }) {

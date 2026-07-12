@@ -1,5 +1,5 @@
 /**
- * NetPrep Streak System
+ * LazyPrep Streak System
  *
  * Streaks track consecutive study days.
  * A day counts if the user completes at least one activity:

@@ -1,4 +1,4 @@
-You typed `netprep.dev`, but packets need `76.76.21.21`. The **Domain Name System (DNS)** performs that translation billions of times a second, planet-wide, using a distributed database so elegant it's basically infrastructure poetry. When DNS breaks, users say "the Internet is down."
+You typed `lazyprep.dev`, but packets need `76.76.21.21`. The **Domain Name System (DNS)** performs that translation billions of times a second, planet-wide, using a distributed database so elegant it's basically infrastructure poetry. When DNS breaks, users say "the Internet is down."
 
 ## The resolution journey
 

@@ -1,5 +1,5 @@
 /**
- * NetPrep XP System
+ * LazyPrep XP System
  *
  * XP Sources:
  * - Lesson completed: 10 XP

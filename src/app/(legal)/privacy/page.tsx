@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How NetPrep collects, uses, and protects your data.",
+  description: "How LazyPrep collects, uses, and protects your data.",
 };
 
 const UPDATED = "July 10, 2026";
@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         <em>Last updated: {UPDATED}</em>
       </p>
       <p>
-        NetPrep (&quot;we&quot;, &quot;us&quot;) is a study platform operated by DexForge. This
+        LazyPrep (&quot;we&quot;, &quot;us&quot;) is a study platform operated by DexForge. This
         policy explains what we collect, why, and the choices you have. The short version: we
         collect only what the product needs, we don&apos;t sell data, and we don&apos;t run ads or
         third-party tracking.
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
       <h2>Where your data lives</h2>
       <p>
-        NetPrep runs on trusted infrastructure providers acting as data processors: Vercel
+        LazyPrep runs on trusted infrastructure providers acting as data processors: Vercel
         (hosting), Neon (PostgreSQL database), and Resend (transactional email such as
         verification messages). If you use AI course generation, your prompts are sent to the AI
         provider you configured (e.g. OpenRouter) under your own key and their terms.
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2>Children</h2>
-      <p>NetPrep is not directed at children under 13 and we do not knowingly collect their data.</p>
+      <p>LazyPrep is not directed at children under 13 and we do not knowingly collect their data.</p>
 
       <h2>Changes</h2>
       <p>

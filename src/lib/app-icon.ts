@@ -1,6 +1,6 @@
 /**
  * Client-side app-icon preference. Lets users pick which home-screen icon
- * NetPrep uses when they (re)add / reinstall to their home screen.
+ * LazyPrep uses when they (re)add / reinstall to their home screen.
  *
  * Platform reality: there is NO web API to repaint an ALREADY-installed PWA /
  * home-screen icon on iOS or Android. So this only governs the icon captured at
@@ -19,7 +19,7 @@ export const ICON_VARIANTS = [
 export type IconVariant = (typeof ICON_VARIANTS)[number]["key"];
 
 export const DEFAULT_ICON: IconVariant = "gradient";
-const STORAGE_KEY = "netprep-icon";
+const STORAGE_KEY = "lazyprep-icon";
 
 function isVariant(v: string | null | undefined): v is IconVariant {
   return !!v && ICON_VARIANTS.some((x) => x.key === v);

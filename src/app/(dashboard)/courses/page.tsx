@@ -120,7 +120,7 @@ export default async function CoursesPage() {
             <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
             <p className="font-medium text-foreground">Create your first course</p>
             <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              Tell NetPrep any subject and it builds a full mastery path — from the absolute basics
+              Tell LazyPrep any subject and it builds a full mastery path — from the absolute basics
               up to advanced — tailored as you learn.
             </p>
             <Link
@@ -150,7 +150,7 @@ export default async function CoursesPage() {
             Course Catalog
           </h2>
           <p className="text-sm text-muted-foreground">
-            Curated packs by NetPrep — more subjects on the way.
+            Curated packs by LazyPrep — more subjects on the way.
           </p>
         </div>
 

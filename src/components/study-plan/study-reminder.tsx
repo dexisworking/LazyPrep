@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, BellOff, BellRing } from "lucide-react";
 
-const STORAGE_KEY = "netprep-last-reminder"; // yyyy-mm-dd of last shown notification
+const STORAGE_KEY = "lazyprep-last-reminder"; // yyyy-mm-dd of last shown notification
 
 /**
  * Opt-in daily study reminder (zero-infra, MVP).

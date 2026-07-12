@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to your NetPrep account",
+  description: "Sign in to your LazyPrep account",
 };
 
 export default function AuthLayout({

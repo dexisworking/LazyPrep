@@ -1,5 +1,5 @@
 /**
- * NetPrep service worker — installability + offline fallback.
+ * LazyPrep service worker — installability + offline fallback.
  *
  * Deliberately hand-rolled (no Serwist/next-pwa build plugin — Next 16 builds
  * with Turbopack, and this needs zero bundler integration).
@@ -10,7 +10,7 @@
  * - Never touches /api/* or non-GET requests.
  */
 
-const VERSION = "netprep-v1";
+const VERSION = "lazyprep-v1";
 const OFFLINE_URL = "/offline";
 
 const PRECACHE = [

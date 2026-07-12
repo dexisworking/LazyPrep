@@ -62,7 +62,7 @@ export default async function SettingsPage() {
         <SectionHeader
           icon={User}
           title="Account"
-          description="Your identity on NetPrep."
+          description="Your identity on LazyPrep."
         />
         <Separator />
         <div className="flex items-center gap-4">
@@ -103,7 +103,7 @@ export default async function SettingsPage() {
         <SectionHeader
           icon={Smartphone}
           title="App Icon"
-          description="Choose the icon used when you add NetPrep to your home screen."
+          description="Choose the icon used when you add LazyPrep to your home screen."
         />
         <AppIconPicker />
       </section>

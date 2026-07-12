@@ -19,7 +19,7 @@ export default function OfflinePage() {
       </div>
       <h1 className="mt-6 text-xl font-bold text-foreground">You&apos;re offline</h1>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        NetPrep needs a connection to load your courses and progress. Check your
+        LazyPrep needs a connection to load your courses and progress. Check your
         network and try again.
       </p>
       <RetryButton />

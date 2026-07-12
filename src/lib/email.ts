@@ -7,9 +7,9 @@ export const emailEnabled = Boolean(process.env.RESEND_API_KEY);
 const resend = emailEnabled ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // For production, verify a domain in Resend and set EMAIL_FROM to an address on
-// it (e.g. "NetPrep <noreply@netprep.iamdex.codes>"). The default onboarding
+// it (e.g. "LazyPrep <noreply@lazyprep.iamdex.codes>"). The default onboarding
 // sender only delivers to your own Resend account email.
-const FROM = process.env.EMAIL_FROM || "NetPrep <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM || "LazyPrep <onboarding@resend.dev>";
 
 function verificationEmailHtml(name: string, url: string): string {
   const safeName = name ? name.replace(/[<>]/g, "") : "there";
@@ -21,7 +21,7 @@ function verificationEmailHtml(name: string, url: string): string {
       </div>
       <h1 style="font-size:20px;margin:16px 0 8px;color:#ffffff;">Verify your email</h1>
       <p style="color:#a1a1b3;line-height:1.6;margin:0 0 24px;">
-        Hi ${safeName}, welcome to NetPrep! Confirm your email address to activate your account and start preparing.
+        Hi ${safeName}, welcome to LazyPrep! Confirm your email address to activate your account and start preparing.
       </p>
       <a href="${url}" style="display:inline-block;background:#3b82f6;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:10px;">
         Verify email
@@ -31,7 +31,7 @@ function verificationEmailHtml(name: string, url: string): string {
         <a href="${url}" style="color:#3b82f6;word-break:break-all;">${url}</a>
       </p>
       <p style="color:#71718a;font-size:12px;margin:24px 0 0;">
-        If you didn't create a NetPrep account, you can ignore this email.
+        If you didn't create a LazyPrep account, you can ignore this email.
       </p>
     </div>
   </div>`;
@@ -42,7 +42,7 @@ export async function sendVerificationEmail(to: string, name: string, url: strin
   await resend.emails.send({
     from: FROM,
     to,
-    subject: "Verify your NetPrep email",
+    subject: "Verify your LazyPrep email",
     html: verificationEmailHtml(name, url),
   });
 }

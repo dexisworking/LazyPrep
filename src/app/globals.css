@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * NetPrep Design System
+ * LazyPrep Design System
  * Theme: Black / Blue / Orange with Red accents
  * Dark-mode-first, premium aesthetic
  */
@@ -45,7 +45,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* ─── NetPrep Custom Colors ─── */
+  /* ─── LazyPrep Custom Colors ─── */
   --color-np-blue: var(--np-blue);
   --color-np-orange: var(--np-orange);
   --color-np-red: var(--np-red);
@@ -118,7 +118,7 @@
   --sidebar-border: oklch(0.88 0.01 260);
   --sidebar-ring: oklch(0.55 0.22 250);
 
-  /* Custom NetPrep Tokens */
+  /* Custom LazyPrep Tokens */
   --np-blue: oklch(0.55 0.22 250);
   --np-orange: oklch(0.65 0.20 55);
   --np-red: oklch(0.55 0.24 25);
@@ -182,7 +182,7 @@
   --sidebar-border: oklch(0.16 0.008 260);
   --sidebar-ring: oklch(0.65 0.19 250);
 
-  /* Custom NetPrep Tokens */
+  /* Custom LazyPrep Tokens */
   --np-blue: oklch(0.65 0.19 250);
   --np-orange: oklch(0.72 0.17 55);
   --np-red: oklch(0.60 0.22 25);

@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 
-/** Brand gradient stops (blue → orange), matched to the NetPrep reference art. */
+/** Brand gradient stops (blue → orange), matched to the LazyPrep reference art. */
 export const BRAND_BLUE = "#2E9CE8";
 export const BRAND_BLUE_MID = "#3FA3EE";
 export const BRAND_ORANGE = "#F2822E";
 
 /**
- * The NetPrep lightning-bolt mark — a hollow, rounded-outline bolt with the
+ * The LazyPrep lightning-bolt mark — a hollow, rounded-outline bolt with the
  * brand blue→orange gradient running top-left → bottom-right.
  *
  * `variant` recolors the stroke/fill for different tile backgrounds:
@@ -55,7 +55,7 @@ export function LogoMark({
   );
 }
 
-/** The "NetPrep" wordmark: "Net" solid + "Prep" in the brand gradient (Poppins). */
+/** The "LazyPrep" wordmark: "Net" solid + "Prep" in the brand gradient (Poppins). */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span
@@ -64,7 +64,7 @@ export function Wordmark({ className }: { className?: string }) {
         className,
       )}
     >
-      Net
+      Lazy
       <span
         className="bg-clip-text text-transparent"
         style={{ backgroundImage: `linear-gradient(90deg, ${BRAND_BLUE}, ${BRAND_ORANGE})` }}

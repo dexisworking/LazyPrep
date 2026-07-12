@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "NetPrep — Prepare Smarter. Pass with Confidence.";
+export const alt = "LazyPrep — Prepare Smarter. Pass with Confidence.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -47,7 +47,7 @@ export default function OpengraphImage() {
 
         {/* Wordmark */}
         <div style={{ display: "flex", fontSize: 104, fontWeight: 800, letterSpacing: -4, marginTop: 24 }}>
-          <span style={{ color: "#fafafa" }}>Net</span>
+          <span style={{ color: "#fafafa" }}>Lazy</span>
           <span
             style={{
               backgroundImage: `linear-gradient(90deg, ${BLUE}, ${ORANGE})`,

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://netprep.iamdex.codes";
+const BASE = "https://lazyprep.iamdex.codes";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

@@ -148,7 +148,7 @@ export default async function CourseDetailPage({
           </div>
           <h3 className="text-lg font-bold text-foreground">Course mastered! 🎉</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            Want to go deeper? Pick a key concept from this course and NetPrep will build a whole
+            Want to go deeper? Pick a key concept from this course and LazyPrep will build a whole
             new from-basics-to-advanced course dedicated to mastering it.
           </p>
           <Link

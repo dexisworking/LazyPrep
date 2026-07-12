@@ -16,6 +16,6 @@ export default function robots(): MetadataRoute.Robots {
         "/offline",
       ],
     },
-    sitemap: "https://netprep.iamdex.codes/sitemap.xml",
+    sitemap: "https://lazyprep.iamdex.codes/sitemap.xml",
   };
 }

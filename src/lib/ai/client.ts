@@ -63,7 +63,7 @@ export async function chatComplete(
           Authorization: `Bearer ${config.apiKey}`,
           // OpenRouter attribution headers (ignored by other providers).
           "HTTP-Referer": process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
-          "X-Title": "NetPrep",
+          "X-Title": "LazyPrep",
         },
         body: JSON.stringify({
           model: config.model,

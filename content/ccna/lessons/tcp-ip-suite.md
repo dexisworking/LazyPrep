@@ -24,7 +24,7 @@ The mapping to remember:
 A few Application-layer protocols carry most of the Internet:
 
 - **HTTP/HTTPS** — the web (HTTPS = HTTP inside TLS encryption).
-- **DNS** — turns names (`netprep.dev`) into IP addresses.
+- **DNS** — turns names (`lazyprep.dev`) into IP addresses.
 - **DHCP** — hands devices their IP configuration automatically.
 - **SSH** — secure remote login (how you'll manage switches and routers).
 - **SMTP/IMAP** — email moving and reading.

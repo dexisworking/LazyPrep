@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
-  description: "The terms that govern your use of NetPrep.",
+  description: "The terms that govern your use of LazyPrep.",
 };
 
 const UPDATED = "July 10, 2026";
@@ -15,13 +15,13 @@ export default function TermsPage() {
         <em>Last updated: {UPDATED}</em>
       </p>
       <p>
-        These terms govern your use of NetPrep, a study platform operated by DexForge. By creating
+        These terms govern your use of LazyPrep, a study platform operated by DexForge. By creating
         an account you agree to them. If you don&apos;t agree, please don&apos;t use the service.
       </p>
 
       <h2>The service</h2>
       <p>
-        NetPrep provides study tools: curated and AI-generated courses, practice questions,
+        LazyPrep provides study tools: curated and AI-generated courses, practice questions,
         flashcards with spaced repetition, and progress analytics. The service is provided free of
         charge today; we may introduce paid tiers in the future with notice.
       </p>
@@ -61,7 +61,7 @@ export default function TermsPage() {
       <h2>Curated content</h2>
       <p>
         Curated course content is provided for your personal study. Certification names (e.g.
-        CCNA) are trademarks of their respective owners; NetPrep is not affiliated with or
+        CCNA) are trademarks of their respective owners; LazyPrep is not affiliated with or
         endorsed by them.
       </p>
 
@@ -75,7 +75,7 @@ export default function TermsPage() {
 
       <h2>Termination</h2>
       <p>
-        You can stop using NetPrep at any time and request deletion of your data. We may suspend
+        You can stop using LazyPrep at any time and request deletion of your data. We may suspend
         or terminate accounts that violate these terms.
       </p>
 

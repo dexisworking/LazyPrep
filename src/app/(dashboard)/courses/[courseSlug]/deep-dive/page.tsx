@@ -45,7 +45,7 @@ export default async function DeepDivePage({
         </h1>
         <p className="text-sm text-muted-foreground">
           Pick a concept from <span className="text-foreground">{course.title}</span> to master in
-          depth. NetPrep will build a whole new mastery course dedicated to it.
+          depth. LazyPrep will build a whole new mastery course dedicated to it.
         </p>
       </div>
 

@@ -13,7 +13,7 @@ import {
 
 /**
  * App-icon chooser. Picking a variant persists it and updates the served
- * icon links so it's used when the user (re)adds/reinstalls NetPrep to their
+ * icon links so it's used when the user (re)adds/reinstalls LazyPrep to their
  * home screen. Installed icons can't change live (no web API) — the copy says so.
  */
 export function AppIconPicker() {
@@ -80,7 +80,7 @@ export function AppIconPicker() {
       <p className="flex items-start gap-2 rounded-lg border border-border/40 bg-secondary/40 p-3 text-xs text-muted-foreground">
         <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
         <span>
-          Your pick applies when you <b className="text-foreground">add NetPrep to your home
+          Your pick applies when you <b className="text-foreground">add LazyPrep to your home
           screen</b> (iOS: Share → Add to Home Screen; Android: Install app). Phones can&apos;t
           repaint an icon that&apos;s already installed — remove and re-add to switch.
         </span>

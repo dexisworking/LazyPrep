@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * NetPrep site footer — adapted from the DexForge homepage CinematicFooter.
+ * LazyPrep site footer — adapted from the DexForge homepage CinematicFooter.
  * Same visual language (diagonal marquee, giant outline text, glass pills,
  * 4-column links, "Crafted at DexForge" credit) rebuilt with CSS keyframes +
  * framer-motion scroll reveals instead of GSAP/WebGL. Zero heavy deps.
@@ -104,7 +104,7 @@ export function SiteFooter() {
           className="footer-giant-bg-text pointer-events-none absolute bottom-0 left-1/2 z-0 -translate-x-1/2 select-none whitespace-nowrap"
           aria-hidden
         >
-          NETPREP
+          LAZYPREP
         </div>
 
         {/* 1. Diagonal marquee */}
@@ -246,7 +246,7 @@ export function SiteFooter() {
           {/* Bottom bar / credits */}
           <div className="flex flex-col items-center justify-between gap-6 border-t border-border/50 pb-8 pt-8 md:flex-row">
             <div className="order-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground md:order-1 md:text-xs">
-              © {new Date().getFullYear()} NetPrep. All rights reserved.
+              © {new Date().getFullYear()} LazyPrep. All rights reserved.
             </div>
 
             <div className="order-1 md:order-2">

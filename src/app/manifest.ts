@@ -4,19 +4,19 @@ import { cookies } from "next/headers";
 const VALID = new Set(["gradient", "light", "dark", "mono"]);
 
 /**
- * Dynamic manifest: the icon set reflects the user's `netprep-icon` cookie so
+ * Dynamic manifest: the icon set reflects the user's `lazyprep-icon` cookie so
  * a chosen variant is used when they install to the home screen. Defaults to
  * the gradient tile. (Android can't change an already-installed icon; this
  * governs install time.)
  */
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const store = await cookies();
-  const picked = store.get("netprep-icon")?.value;
+  const picked = store.get("lazyprep-icon")?.value;
   const v = picked && VALID.has(picked) ? picked : "gradient";
 
   return {
-    name: "NetPrep — The Preparation OS",
-    short_name: "NetPrep",
+    name: "LazyPrep — The Preparation OS",
+    short_name: "LazyPrep",
     description:
       "Your complete preparation operating system for certifications, competitive exams, and professional training.",
     id: "/",

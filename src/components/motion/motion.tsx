@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * NetPrep motion primitives — thin framer-motion wrappers used across the app.
+ * LazyPrep motion primitives — thin framer-motion wrappers used across the app.
  *
  * Rules of the system:
  * - UI motion stays ≤ 250ms; springs are reserved for celebratory moments.

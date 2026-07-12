@@ -1,5 +1,5 @@
 /**
- * Generates the full PWA / platform icon set for NetPrep from a single source
+ * Generates the full PWA / platform icon set for LazyPrep from a single source
  * of truth (the bolt geometry + tile styles defined below).
  * Run: pnpm icons:generate   (alias for: tsx scripts/generate-icons.ts)
  *
