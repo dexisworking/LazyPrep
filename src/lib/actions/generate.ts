@@ -1,6 +1,7 @@
 "use server";
 
 import { Prisma } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
@@ -161,8 +162,9 @@ async function createAdaptiveCourse(
       await writePhaseContent(foundationModule.id, foundation);
     } catch (e) {
       // Non-fatal: the course exists and the phase is idempotently regenerated on
-      // first view (writePhaseContent clears partials). Log so it's observable.
+      // first view (writePhaseContent clears partials). Log + report so it's observable.
       console.error("[generateCourse] foundation phase write failed; will regenerate on view:", e);
+      Sentry.captureException(e, { tags: { area: "course-generation" } });
     }
   }
 

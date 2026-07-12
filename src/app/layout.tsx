@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SwRegister } from "@/components/shared/sw-register";
 import { AppIconSync } from "@/components/shared/app-icon-sync";
@@ -100,6 +101,7 @@ export default function RootLayout({
         </ThemeProvider>
         <SwRegister />
         <AppIconSync />
+        <Analytics />
       </body>
     </html>
   );
