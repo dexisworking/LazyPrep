@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Flame, Trophy, Zap, BookOpen, Target, Brain, CalendarDays, Award } from "lucide-react";
+import { Flame, Trophy, Zap, BookOpen, Target, Brain, CalendarDays, Award, Settings } from "lucide-react";
 import { getSession, getCurrentProfile } from "@/lib/session";
 import { getProfileStats, getHeatmapData } from "@/lib/data/profile";
 import { getLevelProgress, getRank } from "@/lib/xp";
@@ -65,7 +66,18 @@ export default async function ProfilePage() {
               </div>
             </div>
           </div>
-          <SignOutButton />
+          {/* Settings lives in the sidebar on desktop; on mobile (no sidebar) it
+              lives here in the profile section. */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/settings"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:hidden"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         {/* Level progress */}

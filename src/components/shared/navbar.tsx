@@ -2,18 +2,16 @@
 
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
-import { Flame, Trophy, Menu } from "lucide-react";
+import { Flame, Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getLevelProgress } from "@/lib/xp";
-import { Button } from "@/components/ui/button";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
 interface NavbarProps {
-  onOpenMobileNav: () => void;
   profile: ProfileSummary;
 }
 
-export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
+export function Navbar({ profile }: NavbarProps) {
   const pathname = usePathname();
 
   const userXp = profile.xp;
@@ -33,17 +31,8 @@ export function Navbar({ onOpenMobileNav, profile }: NavbarProps) {
       className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-md sm:px-6"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      {/* Page Title & Mobile Toggle */}
+      {/* Page Title */}
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onOpenMobileNav}
-          className="rounded-lg md:hidden text-muted-foreground hover:text-foreground"
-        >
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Open menu</span>
-        </Button>
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           {getPageTitle()}
         </h2>
