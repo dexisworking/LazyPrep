@@ -43,3 +43,6 @@ next-env.d.ts
 # Prisma generated client
 /node_modules/.prisma
 .claude/launch.json
+
+# Sentry Config File
+.env.sentry-build-plugin
