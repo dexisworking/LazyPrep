@@ -18,16 +18,38 @@ export function LessonGenerator({ lessonId }: { lessonId: string }) {
 
   const run = () => {
     setStatus("loading");
-    generateLessonContent(lessonId).then((res) => {
-      if (res.ok) {
-        router.refresh();
-      } else if (res.error === "no-key") {
-        setStatus("no-key");
-      } else {
+    // Client-side fail-safe: never leave the spinner hanging if the server
+    // action is killed (e.g. a 504 past the function limit) or the network drops.
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      setStatus("error");
+      setMessage("This is taking longer than expected. Please try again.");
+    }, 75_000);
+    const finish = () => {
+      settled = true;
+      clearTimeout(timer);
+    };
+    generateLessonContent(lessonId)
+      .then((res) => {
+        if (settled) return;
+        finish();
+        if (res.ok) {
+          router.refresh();
+        } else if (res.error === "no-key") {
+          setStatus("no-key");
+        } else {
+          setStatus("error");
+          setMessage(res.error ?? "Generation failed.");
+        }
+      })
+      .catch(() => {
+        if (settled) return;
+        finish();
         setStatus("error");
-        setMessage(res.error ?? "Generation failed.");
-      }
-    });
+        setMessage("Generation failed. Please try again.");
+      });
   };
 
   useEffect(() => {

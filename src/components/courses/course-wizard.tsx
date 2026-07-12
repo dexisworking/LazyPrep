@@ -81,17 +81,41 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
   const handleGenerate = () => {
     setError("");
     setGenerating(true);
-    generateCourse(form).then((res) => {
-      if (res.ok) {
-        router.push(`/courses/${res.slug}`);
-      } else if (res.error === "no-key") {
+    // Client-side fail-safe so the "Designing your course…" state can't hang
+    // forever if the server action is killed (504) or the connection drops.
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      setGenerating(false);
+      setError("This is taking longer than expected. Please try again.");
+    }, 75_000);
+    const finish = () => {
+      settled = true;
+      clearTimeout(timer);
+    };
+    generateCourse(form)
+      .then((res) => {
+        if (settled) return;
+        if (res.ok) {
+          finish();
+          router.push(`/courses/${res.slug}`);
+        } else if (res.error === "no-key") {
+          finish();
+          setGenerating(false);
+          setError("Your AI key is missing. Add it in Settings.");
+        } else {
+          finish();
+          setGenerating(false);
+          setError(res.error);
+        }
+      })
+      .catch(() => {
+        if (settled) return;
+        finish();
         setGenerating(false);
-        setError("Your AI key is missing. Add it in Settings.");
-      } else {
-        setGenerating(false);
-        setError(res.error);
-      }
-    });
+        setError("Generation failed. Please try again.");
+      });
   };
 
   if (generating) {

@@ -80,6 +80,33 @@ model Verification {
   @@map("verification")
 }
 
+// ═══════════════════════════════════════════
+// RATE LIMITING
+// RateLimit       = Better Auth's DB-backed limiter for /api/auth/* endpoints.
+//                   Shape (key/count/lastRequest) is fixed by better-auth's
+//                   getAuthTables — do NOT rename fields. Accessor `prisma.rateLimit`.
+// ActionRateLimit = our per-user fixed-window limiter for AI-generation actions.
+// ═══════════════════════════════════════════
+
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rateLimit")
+}
+
+model ActionRateLimit {
+  id        String   @id @default(cuid())
+  key       String   @unique // `${profileId}:${action}`
+  count     Int      @default(0)
+  windowEnd DateTime
+  updatedAt DateTime @updatedAt
+
+  @@map("action_rate_limit")
+}
+
 model Profile {
   id            String    @id @default(cuid())
   userId        String    @unique // references Better Auth user.id
@@ -184,6 +211,7 @@ model StudyPlan {
 
   @@unique([profileId, courseId])
   @@index([profileId])
+  @@index([courseId])
 }
 
 model Enrollment {
@@ -197,6 +225,7 @@ model Enrollment {
 
   @@unique([profileId, courseId])
   @@index([profileId])
+  @@index([courseId])
 }
 
 model Module {
@@ -431,6 +460,7 @@ model MockTest {
   attempts  MockTestAttempt[]
 
   @@index([profileId, courseId])
+  @@index([courseId])
 }
 
 model MockTestQuestion {

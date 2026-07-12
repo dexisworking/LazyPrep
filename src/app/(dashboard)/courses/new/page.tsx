@@ -7,6 +7,9 @@ import { CourseWizard } from "@/components/courses/course-wizard";
 
 export const dynamic = "force-dynamic";
 
+// AI course generation can take 10–30s; raise the serverless ceiling (Hobby max).
+export const maxDuration = 60;
+
 export default async function NewCoursePage() {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/sign-in");

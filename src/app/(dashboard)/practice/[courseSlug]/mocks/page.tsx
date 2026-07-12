@@ -19,6 +19,9 @@ import { Stagger, StaggerItem } from "@/components/motion/motion";
 
 export const dynamic = "force-dynamic";
 
+// Hosts mock-test generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function MockTestsPage({
   params,
 }: {

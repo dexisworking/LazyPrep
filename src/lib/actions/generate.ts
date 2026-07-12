@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
+import { guardAiRateLimit } from "@/lib/rate-limit";
 import { getAiConfig } from "@/lib/ai/keys";
 import {
   generatePhaseBlueprint,
@@ -60,29 +61,41 @@ const PHASE_TITLE: Record<PhaseLevel, string> = {
   advanced: "Advanced",
 };
 
-/** Write a phase's chapters + (empty) lessons under a module, then mark generated. */
+/**
+ * Write a phase's chapters + (empty) lessons under a module, then mark generated.
+ *
+ * Atomic + idempotent: the whole write runs in one transaction that first clears
+ * any pre-existing chapters for the module. So a re-generation (e.g. after a
+ * previous run was killed mid-write, leaving partial chapters and
+ * contentGenerated=false) can't collide on the @@unique([moduleId, slug]/order)
+ * constraint or leave duplicated/mixed chapters — it cleanly replaces them, and
+ * either all rows land with contentGenerated=true or none do.
+ */
 async function writePhaseContent(moduleId: string, blueprint: PhaseBlueprint) {
   const chapters = blueprint.chapters.slice(0, 5);
-  for (const [ci, ch] of chapters.entries()) {
-    await prisma.chapter.create({
-      data: {
-        moduleId,
-        title: ch.title.slice(0, 200),
-        slug: `${slugify(ch.title, "chapter")}-${ci}`,
-        order: ci + 1,
-        lessons: {
-          create: (ch.lessons ?? []).slice(0, 6).map((l, li) => ({
-            title: l.title.slice(0, 200),
-            slug: `${slugify(l.title, "lesson")}-${li}`,
-            order: li + 1,
-            content: "",
-            estimatedMinutes: clampMinutes(l.estimatedMinutes),
-          })),
+  await prisma.$transaction([
+    prisma.chapter.deleteMany({ where: { moduleId } }),
+    ...chapters.map((ch, ci) =>
+      prisma.chapter.create({
+        data: {
+          moduleId,
+          title: ch.title.slice(0, 200),
+          slug: `${slugify(ch.title, "chapter")}-${ci}`,
+          order: ci + 1,
+          lessons: {
+            create: (ch.lessons ?? []).slice(0, 6).map((l, li) => ({
+              title: l.title.slice(0, 200),
+              slug: `${slugify(l.title, "lesson")}-${li}`,
+              order: li + 1,
+              content: "",
+              estimatedMinutes: clampMinutes(l.estimatedMinutes),
+            })),
+          },
         },
-      },
-    });
-  }
-  await prisma.module.update({ where: { id: moduleId }, data: { contentGenerated: true } });
+      }),
+    ),
+    prisma.module.update({ where: { id: moduleId }, data: { contentGenerated: true } }),
+  ]);
 }
 
 // ─── actions ───
@@ -146,8 +159,10 @@ async function createAdaptiveCourse(
   if (foundationModule) {
     try {
       await writePhaseContent(foundationModule.id, foundation);
-    } catch {
-      // Foundation content failed to write; the phase can be regenerated on view.
+    } catch (e) {
+      // Non-fatal: the course exists and the phase is idempotently regenerated on
+      // first view (writePhaseContent clears partials). Log so it's observable.
+      console.error("[generateCourse] foundation phase write failed; will regenerate on view:", e);
     }
   }
 
@@ -173,6 +188,9 @@ export async function generateCourse(q: Questionnaire) {
   if (!config) return { ok: false as const, error: "no-key" };
   if (!q.subject?.trim()) return { ok: false as const, error: "Subject is required." };
 
+  const limited = await guardAiRateLimit(profile.id, "course");
+  if (limited) return { ok: false as const, error: limited };
+
   return createAdaptiveCourse(profile.id, config, q);
 }
 
@@ -183,6 +201,9 @@ export async function suggestDeepDiveTopics(courseId: string) {
 
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false as const, error: "no-key" };
+
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
 
   const course = await prisma.course.findUnique({
     where: { id: courseId },
@@ -217,6 +238,9 @@ export async function spawnDeepDive(parentCourseId: string, topic: string) {
 
   const t = topic.trim();
   if (!t) return { ok: false as const, error: "Pick a topic." };
+
+  const limited = await guardAiRateLimit(profile.id, "course");
+  if (limited) return { ok: false as const, error: limited };
 
   const parent = await prisma.course.findUnique({
     where: { id: parentCourseId },
@@ -274,6 +298,9 @@ export async function generatePhase(moduleId: string) {
   if (mod.locked) return { ok: false as const, error: "This phase is locked." };
   if (mod.contentGenerated) return { ok: true as const };
 
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
+
   const q =
     (mod.course.aiContext as unknown as Questionnaire | null) ?? fallbackQuestionnaire(mod.course);
   const learned = await priorPhaseLessonTitles(mod.courseId, mod.order);
@@ -320,6 +347,9 @@ export async function generateLessonContent(lessonId: string) {
     return { ok: false as const, error: "Not allowed." };
   }
   if (lesson.content.trim().length > 0) return { ok: true as const };
+
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
 
   const q =
     (course.aiContext as unknown as Questionnaire | null) ?? fallbackQuestionnaire(course);

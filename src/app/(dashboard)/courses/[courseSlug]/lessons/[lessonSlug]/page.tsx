@@ -11,6 +11,9 @@ import { TutorPanel } from "@/components/tutor/tutor-panel";
 
 export const dynamic = "force-dynamic";
 
+// Hosts on-demand lesson-content generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function LessonPage({
   params,
 }: {

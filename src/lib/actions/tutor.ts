@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
+import { guardAiRateLimit } from "@/lib/rate-limit";
 import { getAiConfig } from "@/lib/ai/keys";
 import { canAccessCourse } from "@/lib/data/courses";
 import { chatComplete, AiError, type ChatMessage } from "@/lib/ai/client";
@@ -38,6 +39,9 @@ export async function askTutor(input: {
   if (!Array.isArray(input.messages) || input.messages.length === 0) {
     return { ok: false, error: "Ask a question to start." };
   }
+
+  const limited = await guardAiRateLimit(profile.id, "tutor");
+  if (limited) return { ok: false, error: limited };
 
   // Build grounding context from whatever the learner is looking at.
   let context = `The learner is studying the course "${course.title}".`;

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
+import { guardAiRateLimit } from "@/lib/rate-limit";
 import { getAiConfig } from "@/lib/ai/keys";
 import { canAccessCourse } from "@/lib/data/courses";
 import {
@@ -51,6 +52,9 @@ export async function generateFlashcards(
 
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false as const, error: "no-key" };
+
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
 
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course || !canAccessCourse(course, profile.id)) {
@@ -129,6 +133,9 @@ export async function ensurePracticeBank(courseId: string) {
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false as const, error: "no-key" };
 
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
+
   const lessonTitles = await courseLessonTitles(course.id);
   if (lessonTitles.length === 0) {
     return { ok: false as const, error: "This course has no lessons yet." };
@@ -204,6 +211,9 @@ export async function createMockTest(
 
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false as const, error: "no-key" };
+
+  const limited = await guardAiRateLimit(profile.id, "content");
+  if (limited) return { ok: false as const, error: limited };
 
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course || !canAccessCourse(course, profile.id)) {

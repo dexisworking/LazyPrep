@@ -8,6 +8,9 @@ import { CheckpointMocktest } from "@/components/adaptive/checkpoint-mocktest";
 
 export const dynamic = "force-dynamic";
 
+// Hosts checkpoint-question generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function CheckpointPage({
   params,
 }: {

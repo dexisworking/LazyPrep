@@ -10,6 +10,9 @@ import { PracticeBankGenerator } from "@/components/practice/practice-bank-gener
 
 export const dynamic = "force-dynamic";
 
+// Hosts starter practice-bank generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function QuizPage({
   params,
 }: {

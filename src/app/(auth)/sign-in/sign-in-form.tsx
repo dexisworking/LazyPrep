@@ -13,6 +13,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const justReset = searchParams.get("reset") === "1";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,6 +66,12 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
         <p className="text-sm text-muted-foreground">Sign in to continue your preparation</p>
       </div>
 
+      {justReset && (
+        <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground">
+          Your password has been reset. Sign in with your new password.
+        </div>
+      )}
+
       {googleEnabled && (
         <>
           <GoogleButton callbackUrl={callbackUrl} label="Continue with Google" onError={setError} />
@@ -106,9 +113,14 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium text-foreground">
-            Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
+              Password
+            </label>
+            <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input

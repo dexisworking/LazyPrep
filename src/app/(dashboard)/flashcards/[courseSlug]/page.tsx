@@ -12,6 +12,9 @@ import { GenerateCardsDialog } from "@/components/flashcards/generate-cards-dial
 
 export const dynamic = "force-dynamic";
 
+// Hosts starter/extra flashcard generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function FlashcardDeckPage({
   params,
 }: {

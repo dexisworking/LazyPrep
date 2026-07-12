@@ -32,6 +32,15 @@ export class AiError extends Error {
   }
 }
 
+/** Default per-call timeout. Kept well under the 60s serverless function cap so
+ *  a stalled provider fails fast instead of hanging until the platform 504s. */
+const DEFAULT_TIMEOUT_MS = 30_000;
+
+/** True when an error is an abort/timeout from our AbortSignal (not a real network error). */
+function isAbort(e: unknown): boolean {
+  return e instanceof Error && (e.name === "AbortError" || e.name === "TimeoutError");
+}
+
 function friendlyError(status: number, body: string): string {
   if (status === 401 || status === 403) return "Invalid or unauthorized API key.";
   if (status === 402) return "Your provider reports insufficient credits/quota.";
@@ -44,9 +53,13 @@ function friendlyError(status: number, body: string): string {
 export async function chatComplete(
   config: AiConfig,
   messages: ChatMessage[],
-  opts: { temperature?: number; maxTokens?: number; signal?: AbortSignal } = {},
+  opts: { temperature?: number; maxTokens?: number; signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<string> {
   const url = `${config.baseUrl.replace(/\/+$/, "")}/chat/completions`;
+
+  // Bound the whole call (both attempts share this deadline) so a hung provider
+  // can never outlive the serverless function. A caller-supplied signal wins.
+  const signal = opts.signal ?? AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
   // One retry for TRANSIENT failures only (rate limits, provider 5xx, network
   // blips). Auth/quota/not-found (4xx except 429) fail fast — retrying can't help.
@@ -71,9 +84,13 @@ export async function chatComplete(
           temperature: opts.temperature ?? 0.7,
           ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
         }),
-        signal: opts.signal,
+        signal,
       });
     } catch (e) {
+      // Timed out / aborted — fail fast, retrying can't beat the deadline.
+      if (isAbort(e)) {
+        throw new AiError("The AI request timed out. Your provider took too long — please try again.");
+      }
       // Network-level failure — retryable.
       lastErr = new AiError("We couldn't reach your AI provider. Try again in a moment.");
       if (attempt < maxAttempts) {
@@ -146,7 +163,7 @@ export function extractJson<T = unknown>(raw: string): T {
 export async function chatJson<T = unknown>(
   config: AiConfig,
   messages: ChatMessage[],
-  opts: { temperature?: number; maxTokens?: number; signal?: AbortSignal } = {},
+  opts: { temperature?: number; maxTokens?: number; signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<T> {
   const content = await chatComplete(config, messages, opts);
   return extractJson<T>(content);

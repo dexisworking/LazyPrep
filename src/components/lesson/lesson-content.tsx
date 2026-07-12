@@ -42,6 +42,10 @@ function PreBlock(props: React.HTMLAttributes<HTMLPreElement>) {
  * lives in the `.md-content` block in globals.css.
  */
 export function LessonContent({ content }: { content: string }) {
+  // SECURITY: `content` is AI-generated Markdown. react-markdown escapes raw
+  // HTML by default, so injected <script>/<img onerror> etc. never execute.
+  // Do NOT add `rehype-raw` (or otherwise enable raw HTML) here — it would make
+  // untrusted model output an XSS vector.
   return (
     <div className="md-content">
       <ReactMarkdown

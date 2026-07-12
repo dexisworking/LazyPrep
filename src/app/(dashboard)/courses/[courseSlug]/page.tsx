@@ -12,6 +12,9 @@ import { ExamPlanCard } from "@/components/study-plan/exam-plan-card";
 
 export const dynamic = "force-dynamic";
 
+// Hosts on-demand phase/checkpoint generation (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function CourseDetailPage({
   params,
 }: {

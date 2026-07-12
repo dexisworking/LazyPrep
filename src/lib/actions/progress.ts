@@ -3,8 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/session";
+import { canAccessCourse } from "@/lib/data/courses";
 import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
+
+/**
+ * Confirm a lesson exists and belongs to a course the profile may access
+ * (curated, or their own). Prevents marking progress on arbitrary lesson IDs
+ * (e.g. lessons in another user's private course) to farm XP/streak.
+ */
+async function assertLessonAccessible(lessonId: string, profileId: string): Promise<boolean> {
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { chapter: { select: { module: { select: { course: { select: { ownerId: true } } } } } } },
+  });
+  if (!lesson) return false;
+  return canAccessCourse(lesson.chapter.module.course, profileId);
+}
 
 /**
  * Mark a lesson complete: records progress, awards XP (with streak multiplier),
@@ -14,6 +29,10 @@ import { buildActivityUpdates } from "@/lib/study-activity";
 export async function markLessonComplete(lessonId: string, coursePath?: string) {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Not authenticated");
+
+  if (!(await assertLessonAccessible(lessonId, profile.id))) {
+    throw new Error("Lesson not found");
+  }
 
   const existing = await prisma.progress.findUnique({
     where: { profileId_lessonId: { profileId: profile.id, lessonId } },
@@ -57,6 +76,8 @@ export async function markLessonComplete(lessonId: string, coursePath?: string) 
 export async function recordLessonView(lessonId: string) {
   const profile = await getCurrentProfile();
   if (!profile) return;
+
+  if (!(await assertLessonAccessible(lessonId, profile.id))) return;
 
   await prisma.progress.upsert({
     where: { profileId_lessonId: { profileId: profile.id, lessonId } },

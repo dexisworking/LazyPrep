@@ -7,6 +7,9 @@ import { DeepDivePicker } from "@/components/adaptive/deep-dive-picker";
 
 export const dynamic = "force-dynamic";
 
+// Hosts deep-dive topic suggestion + course spawn (AI); raise the serverless ceiling.
+export const maxDuration = 60;
+
 export default async function DeepDivePage({
   params,
 }: {
