@@ -46,3 +46,10 @@ next-env.d.ts
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Android / Bubblewrap TWA
+android/*.keystore
+android/*.jks
+android/app-*.apk
+android/app-*.aab
+android/.build/

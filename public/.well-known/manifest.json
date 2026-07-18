@@ -1,0 +1,19 @@
+{
+  "name": "LazyPrep — The Preparation OS",
+  "short_name": "LazyPrep",
+  "description": "Your complete preparation operating system for certifications, competitive exams, and professional training.",
+  "id": "/",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/icons/gradient-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/gradient-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/gradient-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/monochrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "monochrome" }
+  ]
+}
