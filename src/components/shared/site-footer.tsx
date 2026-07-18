@@ -25,10 +25,10 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
-  X,
 } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { DexForgeCredit } from "@/components/shared/dexforge-credit";
+import { GithubIcon, XIcon } from "@/components/shared/icons";
 
 const marqueeTokens = [
   { name: "CCNA", Icon: GitBranch },
@@ -73,8 +73,8 @@ const accountLinks = [
 ];
 
 const socials = [
-  { label: "GitHub", href: "https://github.com/dexisworking", Icon: GitBranch },
-  { label: "X (Twitter)", href: "https://x.com/SekharDibyanshu", Icon: X },
+  { label: "GitHub", href: "https://github.com/dexisworking", Icon: GithubIcon },
+  { label: "X (Twitter)", href: "https://x.com/SekharDibyanshu", Icon: XIcon },
 ];
 
 export function SiteFooter() {
