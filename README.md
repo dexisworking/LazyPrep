@@ -20,6 +20,10 @@ repetition, and mock exams that adapt to what you keep forgetting.
 
 <sub>A product by **[DexForge](https://dexforge.iamdex.codes)**</sub>
 
+<br />
+
+<img src="docs/showcase/hero.webp" alt="LazyPrep — Study Smarter. Master Faster." width="380" />
+
 </div>
 
 ---
@@ -61,10 +65,37 @@ database and is never returned to any client after saving.
 **Installable, and offline-tolerant.** A PWA on desktop and iOS, and a native
 Android app via Trusted Web Activity — full-screen, no browser chrome.
 
+## See it
+
+<table>
+<tr>
+<td width="25%" align="center">
+<img src="docs/showcase/dashboard.webp" alt="Dashboard with streaks, XP, and daily goal" /><br />
+<b>One dashboard</b><br />
+<sub>Streaks, XP, and today's target</sub>
+</td>
+<td width="25%" align="center">
+<img src="docs/showcase/practice.webp" alt="Practice question with instant feedback" /><br />
+<b>Exam-style practice</b><br />
+<sub>Instant feedback, mistakes tracked</sub>
+</td>
+<td width="25%" align="center">
+<img src="docs/showcase/flashcards.webp" alt="Spaced-repetition flashcards" /><br />
+<b>Smart flashcards</b><br />
+<sub>SM-2 scheduling, no manual review</sub>
+</td>
+<td width="25%" align="center">
+<img src="docs/showcase/ai-courses.webp" alt="AI course generation" /><br />
+<b>AI course builder</b><br />
+<sub>Any subject, your own API key</sub>
+</td>
+</tr>
+</table>
+
 <div align="center">
-<img src="docs/screenshots/android-dashboard.png" alt="LazyPrep dashboard on Android" width="300" />
+<img src="docs/screenshots/android-dashboard.png" alt="LazyPrep dashboard running on Android" width="260" />
 <br />
-<sub>The Android app — a Trusted Web Activity wrapping the live PWA</sub>
+<sub>Running on Android — a Trusted Web Activity around the live PWA, no browser chrome</sub>
 </div>
 
 ## Built with
