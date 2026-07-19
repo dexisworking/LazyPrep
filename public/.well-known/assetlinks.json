@@ -5,8 +5,7 @@
       "namespace": "android_app",
       "package_name": "com.lazyprep.app",
       "sha256_cert_fingerprints": [
-        "__UPLOAD_KEY_SHA256__",
-        "__PLAY_APP_SIGNING_KEY_SHA256__"
+        "AC:AD:D3:2A:61:DD:DD:00:95:E5:52:00:A4:84:C1:E6:B3:FC:E6:D8:18:4F:EC:4B:A3:7E:3A:E7:6D:D4:3A:27"
       ]
     }
   }
