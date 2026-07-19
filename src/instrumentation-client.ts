@@ -5,7 +5,9 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-  dsn: "https://19109e9b448bb3e1577c766e43c3c0df@o4511722327506944.ingest.de.sentry.io/4511722365124688",
+  // Must be NEXT_PUBLIC_* to be inlined into the client bundle. Self-hosted
+  // deployments report to their own project; unset means Sentry stays inert.
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
   // Sample 10% of performance traces — enough signal without burning quota at
   // scale. Errors are always captured at 100%, independent of this.
