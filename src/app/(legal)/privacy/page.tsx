@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "How LazyPrep collects, uses, and protects your data.",
 };
 
-const UPDATED = "July 10, 2026";
+const UPDATED = "July 19, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -43,6 +43,12 @@ export default function PrivacyPage() {
           <strong>Timezone</strong> — detected from your browser so streaks and study days follow
           your local calendar.
         </li>
+        <li>
+          <strong>Diagnostics</strong> — when something breaks, we record the error, the page it
+          happened on, and basic device and browser details so we can fix it. A small sample of
+          requests is also timed to find slow pages. This is error monitoring, not analytics: we
+          don&apos;t build profiles, track you across sites, or measure engagement.
+        </li>
       </ul>
 
       <h2>What we don&apos;t do</h2>
@@ -55,9 +61,10 @@ export default function PrivacyPage() {
       <h2>Where your data lives</h2>
       <p>
         LazyPrep runs on trusted infrastructure providers acting as data processors: Vercel
-        (hosting), Neon (PostgreSQL database), and Resend (transactional email such as
-        verification messages). If you use AI course generation, your prompts are sent to the AI
-        provider you configured (e.g. OpenRouter) under your own key and their terms.
+        (hosting), Neon (PostgreSQL database), Resend (transactional email such as verification
+        messages), and Sentry (error and performance monitoring). If you use AI course
+        generation, your prompts are sent to the AI provider you configured (e.g. OpenRouter)
+        under your own key and their terms.
       </p>
 
       <h2>Cookies</h2>
@@ -66,12 +73,39 @@ export default function PrivacyPage() {
         marketing cookies.
       </p>
 
+      <h2>The Android app</h2>
+      <p>
+        The LazyPrep Android app (<code>com.lazyprep.app</code>, distributed through Google Play)
+        is a Trusted Web Activity: a thin native shell around this same website. It collects no
+        data beyond what the web app collects, contains no advertising or third-party analytics
+        SDKs, and reads nothing from your device — no contacts, location, photos, or files.
+      </p>
+      <p>
+        The app requests one optional permission, <strong>notifications</strong>, used solely to
+        deliver the study reminders you enable yourself. You can decline it at install time or
+        revoke it later in Android Settings; the rest of the app works unchanged either way. The
+        app signs you in through the same session as your browser, so signing out in one place
+        signs you out in both.
+      </p>
+
       <h2>Data retention &amp; deletion</h2>
       <p>
         Your data is kept while your account is active. Deleting a course you created removes its
-        content. To delete your account and all associated data, email{" "}
+        content.
+      </p>
+      <p>
+        <strong>You can delete your account yourself at any time</strong> — open{" "}
+        <strong>Settings → Delete account</strong> in the app (web or Android). This permanently
+        removes your profile, study history, progress, flashcard and practice records, and any
+        stored AI provider key. The deletion is immediate and cannot be undone; we keep no shadow
+        copy.
+      </p>
+      <p>
+        If you&apos;d rather we did it, or you can&apos;t sign in, email{" "}
         <a href="mailto:hello@iamdex.codes">hello@iamdex.codes</a> and we&apos;ll process it
-        promptly.
+        promptly. Encrypted database backups held by our hosting provider may retain residual
+        copies for a limited period after deletion before they are overwritten in the normal
+        backup cycle.
       </p>
 
       <h2>Security</h2>
