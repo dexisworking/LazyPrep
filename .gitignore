@@ -53,3 +53,10 @@ android/*.jks
 android/app-*.apk
 android/app-*.aab
 android/.build/
+# Gradle build output and machine-local SDK path
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+# Bubblewrap writes signing-key passwords here when --skipSigning is not used
+android/keystore.properties
