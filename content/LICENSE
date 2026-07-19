@@ -1,0 +1,68 @@
+COURSE CONTENT LICENSE
+======================
+
+Copyright (c) 2026 DexForge
+
+The contents of this directory — course lessons, flashcards, practice
+questions, and course metadata — are licensed under the
+
+    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+    International License (CC BY-NC-ND 4.0)
+
+Full legal text: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+This license is SEPARATE from, and takes precedence over, the MIT License
+that covers the LazyPrep source code (see `../LICENSE`). Code is MIT;
+educational content is not.
+
+
+WHAT YOU MAY DO
+---------------
+
+  * Read, study, and learn from this material.
+  * Share it verbatim, in any medium or format, for non-commercial purposes,
+    with attribution to DexForge and a link to this license.
+  * Run a personal, non-commercial self-hosted instance of LazyPrep that
+    serves this content.
+
+
+WHAT YOU MAY NOT DO
+-------------------
+
+  * NonCommercial — you may not use this material, in whole or in part, for
+    commercial advantage or monetary compensation. This includes paid
+    courses, paid apps, ad-supported sites, and paid tiers of any product.
+  * NoDerivatives — if you remix, transform, adapt, translate, reformat, or
+    build upon this material, you may not distribute the modified material.
+  * You may not remove or obscure attribution, or represent this material as
+    your own work.
+
+
+ATTRIBUTION
+-----------
+
+When sharing permitted copies, include:
+
+    "LazyPrep course content by DexForge, licensed under CC BY-NC-ND 4.0.
+     https://lazyprep.iamdex.codes"
+
+
+NOTE ON SUBJECT MATTER
+----------------------
+
+These materials are independently authored study aids. Certification and
+exam names referenced in this content (including but not limited to Cisco
+CCNA) are trademarks of their respective owners. This content is not
+affiliated with, endorsed by, sponsored by, or certified by any of those
+organizations.
+
+
+CONTRIBUTIONS
+-------------
+
+Contributions to `content/` are accepted under these same terms. By
+submitting content you confirm it is your original work and you agree to
+license it under CC BY-NC-ND 4.0 with copyright assigned to DexForge.
+
+Permission for uses beyond this license: hello@iamdex.codes
