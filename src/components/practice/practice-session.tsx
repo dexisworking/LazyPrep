@@ -34,6 +34,13 @@ export function PracticeSession({
 }) {
   const router = useRouter();
   const reduced = useReducedMotion();
+  // Snapshot the deck for the whole session. `submitAnswer` revalidates
+  // paths, which re-runs the page and reshuffles `questions` mid-session —
+  // without this freeze, the visible question changes underneath feedback
+  // state that still belongs to the answered one (wrong explanation, and the
+  // green highlight lands on an arbitrary option). The fresh prop is adopted
+  // only on an explicit restart.
+  const [deck, setDeck] = useState(questions);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -42,10 +49,10 @@ export function PracticeSession({
   const [finished, setFinished] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const question = questions[index];
-  const isLast = index === questions.length - 1;
+  const question = deck[index];
+  const isLast = index === deck.length - 1;
 
-  if (questions.length === 0) {
+  if (deck.length === 0) {
     return (
       <div className="rounded-xl border border-border/50 bg-card p-10 text-center text-muted-foreground">
         No practice questions available for this course yet.
@@ -53,8 +60,21 @@ export function PracticeSession({
     );
   }
 
+  const handleRestart = () => {
+    // Adopt the latest server-provided deck (revalidations during the session
+    // have already refreshed the prop), then ask for an even fresher one.
+    setDeck(questions);
+    setIndex(0);
+    setSelected(null);
+    setFeedback(null);
+    setCorrectCount(0);
+    setXpTotal(0);
+    setFinished(false);
+    router.refresh();
+  };
+
   if (finished) {
-    const pct = Math.round((correctCount / questions.length) * 100);
+    const pct = Math.round((correctCount / deck.length) * 100);
     return (
       <div className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -63,7 +83,7 @@ export function PracticeSession({
         <div>
           <h2 className="text-2xl font-bold text-foreground">Session complete!</h2>
           <p className="mt-1 text-muted-foreground">
-            You scored {correctCount} / {questions.length} ({pct}%)
+            You scored {correctCount} / {deck.length} ({pct}%)
           </p>
         </div>
         <div className="flex items-center justify-center gap-2 text-np-xp">
@@ -72,7 +92,7 @@ export function PracticeSession({
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
-            onClick={() => router.refresh()}
+            onClick={handleRestart}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
           >
             <RotateCcw className="h-4 w-4" />
@@ -116,7 +136,7 @@ export function PracticeSession({
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            Question {index + 1} of {questions.length}
+            Question {index + 1} of {deck.length}
           </span>
           <span className="flex items-center gap-1 font-medium text-np-success">
             <CheckCircle2 className="h-4 w-4" />
@@ -126,7 +146,7 @@ export function PracticeSession({
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
           <div
             className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${((index + (feedback ? 1 : 0)) / questions.length) * 100}%` }}
+            style={{ width: `${((index + (feedback ? 1 : 0)) / deck.length) * 100}%` }}
           />
         </div>
       </div>
