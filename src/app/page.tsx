@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Brain, Target, BarChart3, Flame, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, Brain, Target, BarChart3, Flame, ArrowRight, Sparkles, Smartphone, Globe, Play } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { SiteFooter } from "@/components/shared/site-footer";
 import { InstallHint } from "@/components/shared/install-hint";
@@ -186,6 +186,103 @@ export default function HomePage() {
             </StaggerItem>
           ))}
         </Stagger>
+      </section>
+
+      {/* Mobile App / Download — desktop only (hidden below lg) */}
+      <section className="hidden border-t border-border/50 bg-card/20 lg:block">
+        <div className="mx-auto max-w-6xl px-4 py-24">
+          <div className="grid grid-cols-2 items-center gap-12">
+            {/* Copy + download options */}
+            <SlideUp inView className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm text-primary">
+                <Smartphone className="h-3.5 w-3.5" />
+                <span>Study on the go</span>
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Take LazyPrep <span className="text-primary">anywhere</span>
+              </h2>
+              <p className="max-w-md text-muted-foreground">
+                Your courses, streaks and flashcards, in your pocket. The native Android app is on
+                its way — and you can start right now, straight from your browser.
+              </p>
+
+              <div className="space-y-4 pt-2">
+                {/* Google Play — placeholder, not yet live */}
+                <div
+                  aria-disabled="true"
+                  role="button"
+                  aria-label="Android app coming soon to Google Play"
+                  className="relative inline-flex cursor-not-allowed select-none items-center gap-3 rounded-xl border border-border bg-card/60 px-5 py-3 opacity-70"
+                >
+                  <Play className="h-6 w-6 fill-foreground text-foreground" />
+                  <span className="text-left leading-tight">
+                    <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+                      Coming soon to
+                    </span>
+                    <span className="block text-sm font-semibold text-foreground">Google Play</span>
+                  </span>
+                  <span className="absolute -right-2 -top-2 rounded-full bg-np-streak px-2 py-0.5 text-[10px] font-semibold text-white shadow-lg">
+                    Coming Soon
+                  </span>
+                </div>
+
+                {/* PWA suggestion — available today */}
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <div className="flex items-start gap-3">
+                    <Globe className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <div className="space-y-2.5">
+                      <p className="text-sm text-foreground">
+                        <span className="font-semibold">Available right now as a web app.</span>{" "}
+                        Install LazyPrep to your home screen — it works like a native app, no store
+                        required.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          href="/sign-up"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+                        >
+                          Open the web app
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                        <span className="text-xs text-muted-foreground">
+                          Then “Add to Home Screen” from your browser menu
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SlideUp>
+
+            {/* Device mockups — overlapping trio, center raised */}
+            <SlideUp inView className="relative flex h-[540px] items-center justify-center">
+              <img
+                src="/mockups/practice.webp"
+                alt="LazyPrep practice questions on Android"
+                loading="lazy"
+                width={480}
+                height={860}
+                className="absolute left-[8%] top-1/2 w-[42%] -translate-y-1/2 -rotate-6 rounded-[1.75rem] border border-border/40 shadow-2xl"
+              />
+              <img
+                src="/mockups/flashcards.webp"
+                alt="LazyPrep spaced-repetition flashcards on Android"
+                loading="lazy"
+                width={480}
+                height={860}
+                className="absolute right-[8%] top-1/2 w-[42%] -translate-y-1/2 rotate-6 rounded-[1.75rem] border border-border/40 shadow-2xl"
+              />
+              <img
+                src="/mockups/hero.webp"
+                alt="LazyPrep dashboard on Android"
+                loading="lazy"
+                width={480}
+                height={860}
+                className="relative z-10 w-[46%] rounded-[1.75rem] border border-border/40 shadow-2xl"
+              />
+            </SlideUp>
+          </div>
+        </div>
       </section>
 
       {/* CTA Section */}
