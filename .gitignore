@@ -62,3 +62,8 @@ android/app/build/
 android/local.properties
 # Bubblewrap writes signing-key passwords here when --skipSigning is not used
 android/keystore.properties
+# one-off local scripts and DB snapshots (demo-data seeding)
+scripts/tmp-*
+# marketing workfiles — captures contain the owner's real account state
+docs/marketing/captures/
+docs/marketing/lazyprep-captures.zip
