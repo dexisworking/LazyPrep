@@ -67,3 +67,5 @@ scripts/tmp-*
 # marketing workfiles — captures contain the owner's real account state
 docs/marketing/captures/
 docs/marketing/lazyprep-captures.zip
+# generated store renders — regenerable from Stitch, kept local only
+docs/marketing/renders/
