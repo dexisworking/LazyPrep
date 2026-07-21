@@ -39,15 +39,3 @@ template only; every real value comes from the environment.
 
 If you believe a secret has been committed, email rather than filing an issue,
 so it can be rotated before attention is drawn to it.
-
-## Notes for self-hosters
-
-Running your own instance means you own its security posture. In particular:
-
-- **`ENCRYPTION_KEY`** decrypts the AI provider keys your users store. Treat it
-  with the same care as a database password, and never reuse one across
-  environments.
-- **`BETTER_AUTH_SECRET`** signs session tokens. Rotating it signs everyone out.
-- Both should be 32 random bytes — `openssl rand -base64 32`.
-- Sentry is inert unless you set your own DSN. Do not point it at the DexForge
-  project.

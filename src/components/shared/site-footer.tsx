@@ -168,6 +168,20 @@ export function SiteFooter() {
                   </a>
                 ))}
               </div>
+
+              <a
+                href="https://www.buymeacoffee.com/dexisworking"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block transition-opacity hover:opacity-90 active:scale-[0.98]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=dexisworking&button_colour=FFDD00&font_colour=000000&font_family=Inter&outline_colour=000000&coffee_colour=ffffff"
+                  alt="Buy me a coffee"
+                  className="h-12 w-auto rounded-lg"
+                />
+              </a>
             </div>
 
             {/* Product */}
@@ -224,6 +238,26 @@ export function SiteFooter() {
                   <Link href="/terms" className="transition-colors hover:text-foreground">
                     Terms &amp; Conditions
                   </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/dexisworking/LazyPrep/blob/master/LICENSE"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    Code License — MIT
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/dexisworking/LazyPrep/blob/master/content/LICENSE"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    Content License — CC BY-NC-ND 4.0
+                  </a>
                 </li>
                 <li>
                   <a

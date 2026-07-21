@@ -22,6 +22,10 @@ repetition, and mock exams that adapt to what you keep forgetting.
 
 <br />
 
+<a href="https://www.buymeacoffee.com/dexisworking"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=dexisworking&button_colour=FFDD00&font_colour=000000&font_family=Inter&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" height="48" /></a>
+
+<br />
+
 <img src="docs/showcase/hero.webp" alt="LazyPrep — Study Smarter. Master Faster." width="380" />
 
 </div>
@@ -112,55 +116,21 @@ Android app via Trusted Web Activity — full-screen, no browser chrome.
 | Validation | Zod 4 |
 | Android | Bubblewrap TWA, `targetSdk` 36 |
 
-## Self-hosting
-
-You'll need Node.js 20+, pnpm, and a PostgreSQL database
-([Neon](https://neon.tech) has a usable free tier).
-
-```bash
-git clone https://github.com/dexisworking/LazyPrep.git
-cd LazyPrep
-pnpm install
-
-cp .env.example .env      # then fill in the values
-```
-
-At minimum set `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, and
-`ENCRYPTION_KEY`. Generate the two secrets with:
-
-```bash
-openssl rand -base64 32
-```
-
-Google OAuth, Resend, and Sentry are all optional — leave them blank and those
-features disable themselves cleanly.
-
-```bash
-pnpm prisma migrate deploy   # create the schema
-pnpm content:import          # load the bundled CCNA course
-pnpm dev                     # http://localhost:3000
-```
-
-### Adding your own course
-
-Content lives in `content/` as plain Markdown and JSON — no code changes
-required. Create a folder, add `course.json`, drop lessons in `lessons/*.md`,
-and re-run the importer. See [`content/README.md`](content/README.md) for the
-schema.
-
 ## Licensing
 
-This repository is deliberately **split-licensed**:
+This repository is **split-licensed**:
 
-| What | License | Means |
-| --- | --- | --- |
-| Application code | [MIT](LICENSE) | Fork it, self-host it, build on it |
-| Course content in `content/` | [CC BY-NC-ND 4.0](content/LICENSE) | Read and learn — no commercial use, no redistributing modified versions |
-| "LazyPrep", "DexForge", logos | Trademarks | Not licensed — forks must use their own branding |
+| What | License |
+| --- | --- |
+| Application code | [MIT](LICENSE) |
+| Course content in `content/` | [CC BY-NC-ND 4.0](content/LICENSE) — read and learn, no commercial use, no redistributing modified versions |
+| "LazyPrep", "DexForge", logos | Trademarks — not licensed |
 
-Put plainly: **the engine is yours to use, the curriculum isn't.** The 51
-lessons and flashcard decks under `content/` represent the bulk of the work
-here, and they stay under DexForge copyright. Everything else is MIT.
+LazyPrep is a DexForge product, hosted and operated at
+[lazyprep.iamdex.codes](https://lazyprep.iamdex.codes). The source is public
+for transparency; the course content under `content/` — the 51 lessons and
+flashcard decks that are the bulk of the work here — stays under DexForge
+copyright and the CC BY-NC-ND terms above.
 
 ## Contributing
 
@@ -171,7 +141,7 @@ Issues and pull requests are welcome — see
 ## Legal
 
 [Privacy Policy](https://lazyprep.iamdex.codes/privacy) ·
-[Terms of Service](https://lazyprep.iamdex.codes/terms)
+[Terms & Conditions](https://lazyprep.iamdex.codes/terms)
 
 Certification and exam names referenced in the course content (including Cisco
 CCNA) are trademarks of their respective owners. LazyPrep is an independent

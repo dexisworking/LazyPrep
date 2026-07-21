@@ -24,15 +24,9 @@ copyright infringement and will be rejected.
 
 ## Local setup
 
-See [Self-hosting](README.md#self-hosting) in the README. Short version:
-
-```bash
-pnpm install
-cp .env.example .env      # fill in DATABASE_URL, DIRECT_URL, and the two secrets
-pnpm prisma migrate deploy
-pnpm content:import
-pnpm dev
-```
+LazyPrep is a hosted product, not a self-host kit, so setup isn't documented
+publicly. If a maintainer has agreed on your change, the setup steps needed to
+work on it will be shared with you directly on the issue.
 
 ## Before you open a PR
 
