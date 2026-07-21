@@ -15,6 +15,24 @@ Sentry.init({
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
+  // Third-party noise. `window.onerror` attributes any uncaught error on the
+  // page to us, including ones thrown by scripts we don't ship or control.
+  ignoreErrors: [
+    // Instagram/Facebook iOS in-app browsers inject a native bridge
+    // (sendDataToNative → sendPageHideMessage) that reads
+    // window.webkit.messageHandlers. On some iOS builds that object is absent
+    // and their injected script throws on page hide. Nothing in this app
+    // touches window.webkit — see LAZYPREP-2.
+    /window\.webkit\.messageHandlers/,
+  ],
+
+  denyUrls: [
+    // Browser extensions that inject scripts into the page.
+    /^chrome-extension:\/\//,
+    /^moz-extension:\/\//,
+    /^safari-web-extension:\/\//,
+  ],
+
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection

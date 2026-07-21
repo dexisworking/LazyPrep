@@ -280,7 +280,7 @@ export function SiteFooter() {
           {/* Bottom bar / credits */}
           <div className="flex flex-col items-center justify-between gap-6 border-t border-border/50 pb-8 pt-8 md:flex-row">
             <div className="order-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground md:order-1 md:text-xs">
-              © {new Date().getFullYear()} LazyPrep. All rights reserved.
+              © {new Date().getFullYear()} DexForge. All rights reserved.
             </div>
 
             <div className="order-1 md:order-2">
