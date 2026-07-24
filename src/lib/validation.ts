@@ -9,6 +9,9 @@ import { z } from "zod";
 /** Mock-test submission: one answer per question, null = skipped. */
 export const mockAnswersSchema = z.array(z.number().int().min(0).nullable());
 
+/** Single practice answer submission index validation. */
+export const selectedOptionIdxSchema = z.number().int().min(0).max(10);
+
 /** Checkpoint submission: selected option index per question id. */
 export const checkpointAnswersSchema = z.array(
   z.object({

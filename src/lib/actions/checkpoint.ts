@@ -8,14 +8,10 @@ import { guardAiRateLimit } from "@/lib/rate-limit";
 import { checkpointAnswersSchema } from "@/lib/validation";
 import { getAiConfig } from "@/lib/ai/keys";
 import { generateCheckpointQuestions } from "@/lib/ai/generate";
-import { AiError } from "@/lib/ai/client";
+import { formatAiError } from "@/lib/ai/client";
 import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
 import type { Questionnaire } from "@/lib/ai/types";
-
-function aiError(e: unknown): string {
-  return e instanceof AiError ? e.message : "Generation failed. Try again.";
-}
 
 function subjectOf(course: { title: string; category: string; aiContext: unknown }): string {
   const q = course.aiContext as unknown as Questionnaire | null;
@@ -77,7 +73,7 @@ export async function startCheckpoint(moduleId: string) {
       prisma.checkpoint.update({ where: { id: checkpointId }, data: { generated: true } }),
     ]);
   } catch (e) {
-    return { ok: false as const, error: aiError(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   revalidatePath(`/courses/${mod.course.slug}`);

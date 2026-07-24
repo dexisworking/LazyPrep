@@ -119,6 +119,8 @@ model Profile {
   currentStreak Int       @default(0)
   longestStreak Int       @default(0)
   lastStudyDate DateTime?
+  streakFreezes   Int       @default(1) // available streak freezes (paywall ready)
+  lastLoginXpDate DateTime? // track daily login XP claim
   onboardedAt   DateTime? // null = hasn't completed the first-run tour yet
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -136,6 +138,7 @@ model Profile {
   questionReviews  QuestionReview[]
   studyPlans       StudyPlan[]
   feedback         Feedback[]
+  lessonRatings    LessonRating[]
 }
 
 // ═══════════════════════════════════════════
@@ -177,6 +180,8 @@ model Course {
   aiGenerated Boolean  @default(false)
   adaptive    Boolean  @default(false) // phased mastery course (Foundation→Intermediate→Advanced)
   parentId    String? // set when this course was spawned as a deep-dive of another
+  shareCode   String?  @unique // unique token for read-only public sharing link
+  isShared    Boolean  @default(false) // whether public sharing link is active
   aiContext   Json? // the questionnaire answers, used as context when generating lessons
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -308,8 +313,9 @@ model Lesson {
   order            Int
   estimatedMinutes Int    @default(10)
 
-  chapter  Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter  Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   progress Progress[]
+  ratings  LessonRating[]
 
   @@unique([chapterId, slug])
   @@unique([chapterId, order])
@@ -551,4 +557,23 @@ model Feedback {
 
   @@index([createdAt])
   @@index([profileId])
+}
+
+// ═══════════════════════════════════════════
+// LESSON CONTENT QUALITY RATINGS
+// ═══════════════════════════════════════════
+
+model LessonRating {
+  id        String   @id @default(cuid())
+  profileId String
+  lessonId  String
+  rating    Int      // 1 = thumbs down, 5 = thumbs up
+  feedback  String?
+  createdAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, lessonId])
+  @@index([lessonId])
 }

@@ -29,3 +29,35 @@ export async function deleteCourse(courseId: string) {
   revalidatePath("/dashboard");
   return { ok: true as const };
 }
+
+/**
+ * Toggle read-only public sharing link for a course owned by the user.
+ */
+export async function toggleCourseShare(courseId: string) {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false as const, error: "Not authenticated." };
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { id: true, ownerId: true, isShared: true, shareCode: true, slug: true },
+  });
+
+  if (!course) return { ok: false as const, error: "Course not found." };
+  if (course.ownerId !== profile.id) {
+    return { ok: false as const, error: "You can only share courses you created." };
+  }
+
+  const nextIsShared = !course.isShared;
+  const shareCode = course.shareCode || Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+
+  await prisma.course.update({
+    where: { id: courseId },
+    data: {
+      isShared: nextIsShared,
+      shareCode,
+    },
+  });
+
+  revalidatePath(`/courses/${course.slug}`);
+  return { ok: true as const, isShared: nextIsShared, shareCode };
+}

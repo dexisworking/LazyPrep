@@ -4,6 +4,8 @@ import { getCurrentProfile } from "@/lib/session";
 import { toProfileSummary } from "@/lib/data/dashboard";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { TimezoneSync } from "@/components/shared/timezone-sync";
+import { StudyTimer } from "@/components/shared/study-timer";
+import { DailyLoginBonus } from "@/components/shared/daily-login-bonus";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 /**
@@ -32,6 +34,8 @@ export default async function DashboardLayout({
   return (
     <DashboardShell profile={toProfileSummary(profile)}>
       <TimezoneSync current={profile.timezone} />
+      <StudyTimer />
+      <DailyLoginBonus />
       {children}
       <FeedbackWidget />
     </DashboardShell>

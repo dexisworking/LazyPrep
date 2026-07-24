@@ -6,6 +6,7 @@ import { getProfileStats, getHeatmapData } from "@/lib/data/profile";
 import { getLevelProgress, getRank } from "@/lib/xp";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudyHeatmap } from "@/components/profile/heatmap";
+import { AnalyticsExpandable } from "@/components/profile/analytics-expandable";
 import { SignOutButton } from "@/components/profile/sign-out-button";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +116,14 @@ export default async function ProfilePage() {
         </h2>
         <StudyHeatmap days={heatmap} tz={profile.timezone} />
       </div>
+
+      {/* Expandable Analytics */}
+      <AnalyticsExpandable
+        accuracy={stats.accuracy}
+        totalAttempts={stats.totalAttempts}
+        correctAttempts={stats.correctAttempts}
+        studyDays={stats.studyDays}
+      />
     </div>
   );
 }

@@ -32,6 +32,11 @@ export class AiError extends Error {
   }
 }
 
+/** Formats AI errors for display to end-users. */
+export function formatAiError(e: unknown): string {
+  return e instanceof AiError ? e.message : "Generation failed. Try again.";
+}
+
 /** Default per-call timeout. Kept well under the 60s serverless function cap so
  *  a stalled provider fails fast instead of hanging until the platform 504s. */
 const DEFAULT_TIMEOUT_MS = 30_000;

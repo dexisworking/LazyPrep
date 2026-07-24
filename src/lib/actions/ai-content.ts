@@ -12,13 +12,9 @@ import {
   generateMockTestQuestions,
   generatePracticeQuestions,
 } from "@/lib/ai/generate";
-import { AiError } from "@/lib/ai/client";
+import { formatAiError } from "@/lib/ai/client";
 import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
-
-function aiErrorMessage(e: unknown): string {
-  return e instanceof AiError ? e.message : "Generation failed. Try again.";
-}
 
 /** All lesson titles of a course, in course order (context for generation). */
 async function courseLessonTitles(courseId: string): Promise<string[]> {
@@ -84,7 +80,7 @@ export async function generateFlashcards(
       existingFronts: existing.map((f) => f.front),
     });
   } catch (e) {
-    return { ok: false as const, error: aiErrorMessage(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   await prisma.flashcard.createMany({
@@ -150,7 +146,7 @@ export async function ensurePracticeBank(courseId: string) {
       count: STARTER_QUESTION_COUNT,
     });
   } catch (e) {
-    return { ok: false as const, error: aiErrorMessage(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   // Guard against a race: re-check before inserting.
@@ -236,7 +232,7 @@ export async function createMockTest(
       difficulty: opts.difficulty,
     });
   } catch (e) {
-    return { ok: false as const, error: aiErrorMessage(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   const testNumber =

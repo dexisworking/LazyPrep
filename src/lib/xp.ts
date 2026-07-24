@@ -45,11 +45,11 @@ export function getLevelProgress(xp: number): {
   nextLevelXp: number;
   progress: number;
 } {
-  let level = 1;
+  const level = getLevelFromXp(xp);
+  // Total XP required to reach current level threshold
   let threshold = 0;
-  while (threshold + level * 100 <= xp) {
-    threshold += level * 100;
-    level++;
+  for (let l = 1; l < level; l++) {
+    threshold += l * 100;
   }
 
   const currentLevelXp = xp - threshold;

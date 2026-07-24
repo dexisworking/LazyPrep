@@ -3,6 +3,7 @@ import {
   BookOpen,
   Target,
   Brain,
+  Bookmark,
   User,
   Settings,
   type LucideIcon,
@@ -27,6 +28,7 @@ export const navRoutes: NavRoute[] = [
   { label: "Courses", icon: BookOpen, href: "/courses", color: "text-accent", mobilePrimary: true },
   { label: "Practice", icon: Target, href: "/practice", color: "text-np-red", mobilePrimary: true },
   { label: "Flashcards", icon: Brain, href: "/flashcards", color: "text-np-success", mobilePrimary: true },
+  { label: "Bookmarks", icon: Bookmark, href: "/bookmarks", color: "text-amber-400", mobilePrimary: false },
   { label: "Profile", icon: User, href: "/profile", color: "text-primary", mobilePrimary: true },
   { label: "Settings", icon: Settings, href: "/settings", color: "text-muted-foreground", mobilePrimary: false },
 ];

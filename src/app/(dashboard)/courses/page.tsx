@@ -88,6 +88,8 @@ function CourseCard({ course }: { course: CourseOverview }) {
   );
 }
 
+import { CourseFilterContainer } from "@/components/courses/course-filter";
+
 export default async function CoursesPage() {
   const profile = await getCurrentProfile();
   const courses = await getCoursesOverview(profile?.id ?? null);
@@ -97,80 +99,87 @@ export default async function CoursesPage() {
 
   return (
     <div className="space-y-10">
-      {/* My Courses */}
-      <section className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">My Courses</h1>
-            <p className="text-sm text-muted-foreground">
-              Mastery courses you&apos;ve generated with AI.
-            </p>
-          </div>
-          <Link
-            href="/courses/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" />
-            Create with AI
-          </Link>
-        </div>
+      <CourseFilterContainer
+        mine={mine}
+        curated={curated}
+        renderGrid={(filteredMine, filteredCurated) => (
+          <div className="space-y-10">
+            {/* My Courses */}
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">My Courses</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Mastery courses you&apos;ve generated with AI.
+                  </p>
+                </div>
+                <Link
+                  href="/courses/new"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create with AI
+                </Link>
+              </div>
 
-        {mine.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/60 bg-card/40 p-10 text-center">
-            <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
-            <p className="font-medium text-foreground">Create your first course</p>
-            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              Tell LazyPrep any subject and it builds a full mastery path — from the absolute basics
-              up to advanced — tailored as you learn.
-            </p>
-            <Link
-              href="/courses/new"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              <Plus className="h-4 w-4" />
-              Create with AI
-            </Link>
+              {filteredMine.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border/60 bg-card/40 p-10 text-center">
+                  <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
+                  <p className="font-medium text-foreground">No matching courses</p>
+                  <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                    Try adjusting your search terms or create a new course with AI.
+                  </p>
+                  <Link
+                    href="/courses/new"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create with AI
+                  </Link>
+                </div>
+              ) : (
+                <Stagger className="grid gap-4 sm:grid-cols-2">
+                  {filteredMine.map((course) => (
+                    <StaggerItem key={course.id} className="flex">
+                      <CourseCard course={course} />
+                    </StaggerItem>
+                  ))}
+                </Stagger>
+              )}
+            </section>
+
+            {/* Catalog */}
+            <section className="space-y-4">
+              <div>
+                <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+                  <Library className="h-5 w-5 text-np-success" />
+                  Course Catalog
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Curated packs by LazyPrep — more subjects on the way.
+                </p>
+              </div>
+
+              <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredCurated.map((course) => (
+                  <StaggerItem key={course.id} className="flex">
+                    <CourseCard course={course} />
+                  </StaggerItem>
+                ))}
+
+                {/* Coming soon placeholder */}
+                <StaggerItem className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/50 bg-card/30 p-6 text-center">
+                  <Clock className="h-6 w-6 text-muted-foreground/60" />
+                  <p className="text-sm font-medium text-muted-foreground">More courses coming soon</p>
+                  <p className="text-xs text-muted-foreground/70">
+                    Can&apos;t wait? Generate any subject above.
+                  </p>
+                </StaggerItem>
+              </Stagger>
+            </section>
           </div>
-        ) : (
-          <Stagger className="grid gap-4 sm:grid-cols-2">
-            {mine.map((course) => (
-              <StaggerItem key={course.id} className="flex">
-                <CourseCard course={course} />
-              </StaggerItem>
-            ))}
-          </Stagger>
         )}
-      </section>
-
-      {/* Catalog */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
-            <Library className="h-5 w-5 text-np-success" />
-            Course Catalog
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Curated packs by LazyPrep — more subjects on the way.
-          </p>
-        </div>
-
-        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {curated.map((course) => (
-            <StaggerItem key={course.id} className="flex">
-              <CourseCard course={course} />
-            </StaggerItem>
-          ))}
-
-          {/* Coming soon placeholder */}
-          <StaggerItem className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/50 bg-card/30 p-6 text-center">
-            <Clock className="h-6 w-6 text-muted-foreground/60" />
-            <p className="text-sm font-medium text-muted-foreground">More courses coming soon</p>
-            <p className="text-xs text-muted-foreground/70">
-              Can&apos;t wait? Generate any subject above.
-            </p>
-          </StaggerItem>
-        </Stagger>
-      </section>
+      />
     </div>
   );
 }

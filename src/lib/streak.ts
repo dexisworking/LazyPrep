@@ -21,10 +21,13 @@ export function calculateStreak(
   currentStreak: number,
   longestStreak: number,
   tz: string = DEFAULT_TZ,
+  streakFreezesAvailable: number = 0,
 ): {
   newStreak: number;
   newLongestStreak: number;
   streakBroken: boolean;
+  freezeUsed: boolean;
+  remainingFreezes: number;
 } {
   if (!lastStudyDate) {
     // First ever study session
@@ -32,6 +35,8 @@ export function calculateStreak(
       newStreak: 1,
       newLongestStreak: Math.max(longestStreak, 1),
       streakBroken: false,
+      freezeUsed: false,
+      remainingFreezes: streakFreezesAvailable,
     };
   }
 
@@ -45,6 +50,8 @@ export function calculateStreak(
       newStreak: currentStreak,
       newLongestStreak: longestStreak,
       streakBroken: false,
+      freezeUsed: false,
+      remainingFreezes: streakFreezesAvailable,
     };
   }
 
@@ -55,6 +62,20 @@ export function calculateStreak(
       newStreak,
       newLongestStreak: Math.max(longestStreak, newStreak),
       streakBroken: false,
+      freezeUsed: false,
+      remainingFreezes: streakFreezesAvailable,
+    };
+  }
+
+  // Gap of 2 days (missed 1 day) and has available streak freeze → consume freeze & maintain streak
+  if (diffDays === 2 && streakFreezesAvailable > 0) {
+    const newStreak = currentStreak + 1;
+    return {
+      newStreak,
+      newLongestStreak: Math.max(longestStreak, newStreak),
+      streakBroken: false,
+      freezeUsed: true,
+      remainingFreezes: streakFreezesAvailable - 1,
     };
   }
 
@@ -63,6 +84,8 @@ export function calculateStreak(
     newStreak: 1,
     newLongestStreak: longestStreak,
     streakBroken: true,
+    freezeUsed: false,
+    remainingFreezes: streakFreezesAvailable,
   };
 }
 

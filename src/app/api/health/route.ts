@@ -11,18 +11,27 @@ export const dynamic = "force-dynamic";
 // Neon usage alert too). Cast to float8 in SQL to avoid BigInt JSON issues.
 const DB_LIMIT_MB = 512;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const [{ size_mb }] = await prisma.$queryRaw<{ size_mb: number }[]>`
       SELECT (pg_database_size(current_database()) / 1024.0 / 1024.0)::float8 AS size_mb`;
     const dbSizeMb = Math.round(size_mb * 10) / 10;
-    return NextResponse.json({
-      ok: true,
-      db: "up",
-      dbSizeMb,
-      dbLimitMb: DB_LIMIT_MB,
-      dbUsedPct: Math.round((dbSizeMb / DB_LIMIT_MB) * 1000) / 10,
-    });
+
+    const authHeader = request.headers.get("authorization");
+    const secretKey = process.env.HEALTH_SECRET_KEY;
+    const isAuthorized = Boolean(secretKey && authHeader === `Bearer ${secretKey}`);
+
+    if (isAuthorized) {
+      return NextResponse.json({
+        ok: true,
+        db: "up",
+        dbSizeMb,
+        dbLimitMb: DB_LIMIT_MB,
+        dbUsedPct: Math.round((dbSizeMb / DB_LIMIT_MB) * 1000) / 10,
+      });
+    }
+
+    return NextResponse.json({ ok: true, db: "up" });
   } catch {
     return NextResponse.json({ ok: false, db: "down" }, { status: 503 });
   }

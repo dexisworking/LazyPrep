@@ -17,6 +17,23 @@ const MAX_LESSON_CHARS = 4000; // truncate lesson body used for grounding
  * learner is looking at (fetched server-side — the client never supplies the
  * answer key). Stateless: the client holds the thread and sends it each turn.
  */
+import { z } from "zod";
+
+const tutorInputSchema = z.object({
+  courseId: z.string().min(1).max(64),
+  lessonId: z.string().max(64).optional(),
+  questionId: z.string().max(64).optional(),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1).max(5000),
+      }),
+    )
+    .min(1)
+    .max(20),
+});
+
 export async function askTutor(input: {
   courseId: string;
   lessonId?: string;
@@ -28,6 +45,11 @@ export async function askTutor(input: {
   const profile = await getCurrentProfile();
   if (!profile) return { ok: false, error: "Not authenticated." };
 
+  const parsed = tutorInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid message payload." };
+  }
+
   const course = await prisma.course.findUnique({ where: { id: input.courseId } });
   if (!course || !canAccessCourse(course, profile.id)) {
     return { ok: false, error: "Course not found." };
@@ -35,10 +57,6 @@ export async function askTutor(input: {
 
   const config = await getAiConfig(profile.id);
   if (!config) return { ok: false, error: "no-key" };
-
-  if (!Array.isArray(input.messages) || input.messages.length === 0) {
-    return { ok: false, error: "Ask a question to start." };
-  }
 
   const limited = await guardAiRateLimit(profile.id, "tutor");
   if (limited) return { ok: false, error: limited };

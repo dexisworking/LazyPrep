@@ -7,6 +7,8 @@ import { XP_REWARDS } from "@/lib/xp";
 import { buildActivityUpdates } from "@/lib/study-activity";
 import { scheduleNext, INITIAL_SRS } from "@/lib/srs";
 
+import { selectedOptionIdxSchema } from "@/lib/validation";
+
 /**
  * Grade and record a single MCQ answer. Correctness is computed server-side
  * from the stored question (the client never receives correctIdx up front), so
@@ -17,6 +19,10 @@ import { scheduleNext, INITIAL_SRS } from "@/lib/srs";
 export async function submitAnswer(questionId: string, selectedIdx: number) {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Not authenticated");
+
+  if (!selectedOptionIdxSchema.safeParse(selectedIdx).success) {
+    throw new Error("Invalid option selected");
+  }
 
   const question = await prisma.question.findUnique({
     where: { id: questionId },

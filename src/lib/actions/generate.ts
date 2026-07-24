@@ -13,7 +13,7 @@ import {
   generateLessonMarkdown,
   generateDeepDiveTopics,
 } from "@/lib/ai/generate";
-import { AiError } from "@/lib/ai/client";
+import { formatAiError } from "@/lib/ai/client";
 import type { Questionnaire, PhaseBlueprint, PhaseLevel } from "@/lib/ai/types";
 
 // ─── shared helpers (not exported — "use server" only exports async actions) ───
@@ -34,10 +34,6 @@ function randomSuffix(): string {
 
 function clampMinutes(m: number): number {
   return Math.min(Math.max(Math.round(m) || 10, 3), 60);
-}
-
-function aiError(e: unknown): string {
-  return e instanceof AiError ? e.message : "Generation failed. Try again.";
 }
 
 function fallbackQuestionnaire(course: {
@@ -119,7 +115,7 @@ async function createAdaptiveCourse(
       weakTopics: [],
     });
   } catch (e) {
-    return { ok: false, error: aiError(e) };
+    return { ok: false, error: formatAiError(e) };
   }
 
   const title = q.subject.trim().slice(0, 150);
@@ -226,7 +222,7 @@ export async function suggestDeepDiveTopics(courseId: string) {
     const topics = await generateDeepDiveTopics(config, { subject, lessonTitles });
     return { ok: true as const, topics };
   } catch (e) {
-    return { ok: false as const, error: aiError(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 }
 
@@ -325,7 +321,7 @@ export async function generatePhase(moduleId: string) {
     });
     await writePhaseContent(mod.id, bp);
   } catch (e) {
-    return { ok: false as const, error: aiError(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   revalidatePath(`/courses/${mod.course.slug}`);
@@ -346,8 +342,8 @@ export async function generateLessonContent(lessonId: string) {
   });
   if (!lesson) return { ok: false as const, error: "Lesson not found." };
 
-  const module = lesson.chapter.module;
-  const course = module.course;
+  const lessonModule = lesson.chapter.module;
+  const course = lessonModule.course;
   if (course.ownerId && course.ownerId !== profile.id) {
     return { ok: false as const, error: "Not allowed." };
   }
@@ -364,13 +360,13 @@ export async function generateLessonContent(lessonId: string) {
     md = await generateLessonMarkdown(config, {
       q,
       courseTitle: course.title,
-      moduleTitle: module.title,
+      moduleTitle: lessonModule.title,
       chapterTitle: lesson.chapter.title,
       lessonTitle: lesson.title,
-      phaseLevel: (module.phaseLevel as PhaseLevel | null) ?? undefined,
+      phaseLevel: (lessonModule.phaseLevel as PhaseLevel | null) ?? undefined,
     });
   } catch (e) {
-    return { ok: false as const, error: aiError(e) };
+    return { ok: false as const, error: formatAiError(e) };
   }
 
   await prisma.lesson.update({ where: { id: lesson.id }, data: { content: md } });

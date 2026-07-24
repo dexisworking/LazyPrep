@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession, getCurrentProfile } from "@/lib/session";
-import { isValidTz } from "@/lib/day";
+import { isValidTz, dayKey } from "@/lib/day";
 
 /**
  * Persist the signed-in user's IANA timezone (detected client-side). Day
@@ -29,6 +29,38 @@ export async function completeOnboarding() {
     where: { id: profile.id },
     data: { onboardedAt: new Date() },
   });
+}
+
+/**
+ * Claim daily login XP bonus once per day.
+ */
+export async function claimDailyLoginXp() {
+  const profile = await getCurrentProfile();
+  if (!profile) return { claimed: false, xpAwarded: 0 };
+
+  const tz = profile.timezone || "UTC";
+  const now = new Date();
+  const todayKey = dayKey(now, tz);
+  const lastKey = profile.lastLoginXpDate ? dayKey(profile.lastLoginXpDate, tz) : null;
+
+  if (lastKey === todayKey) {
+    return { claimed: false, xpAwarded: 0 };
+  }
+
+  const { XP_REWARDS, getLevelFromXp } = await import("@/lib/xp");
+  const xpBonus = XP_REWARDS.DAILY_LOGIN;
+  const newXp = profile.xp + xpBonus;
+
+  await prisma.profile.update({
+    where: { id: profile.id },
+    data: {
+      xp: newXp,
+      level: getLevelFromXp(newXp),
+      lastLoginXpDate: now,
+    },
+  });
+
+  return { claimed: true, xpAwarded: xpBonus };
 }
 
 /**

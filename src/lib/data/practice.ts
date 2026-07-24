@@ -215,3 +215,41 @@ export async function getWrongAnswers(
     selectedIdx: latest.get(q.id)!.selectedIdx,
   }));
 }
+
+/** Get distinct topics for a course. */
+export async function getTopicsForCourse(courseSlug: string): Promise<string[]> {
+  const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
+  if (!course) return [];
+
+  const questions = await prisma.question.findMany({
+    where: { courseId: course.id },
+    select: { topic: true },
+    distinct: ["topic"],
+  });
+
+  return questions.map((q) => q.topic).filter(Boolean);
+}
+
+/** Get quiz questions for a specific topic. */
+export async function getTopicQuizQuestions(
+  courseSlug: string,
+  topic: string,
+  limit = 10,
+): Promise<QuizQuestion[]> {
+  const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
+  if (!course) return [];
+
+  const questions = await prisma.question.findMany({
+    where: { courseId: course.id, topic },
+    select: { id: true, text: true, options: true, topic: true, difficulty: true },
+    take: limit,
+  });
+
+  return shuffle(questions).map((q) => ({
+    id: q.id,
+    text: q.text,
+    options: q.options as string[],
+    topic: q.topic,
+    difficulty: q.difficulty,
+  }));
+}

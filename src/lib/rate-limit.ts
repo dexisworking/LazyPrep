@@ -28,31 +28,37 @@ export async function checkRateLimit(
   windowSec: number,
 ): Promise<void> {
   const now = new Date();
-  const existing = await prisma.actionRateLimit.findUnique({ where: { key } });
+  const windowEnd = new Date(now.getTime() + windowSec * 1000);
 
-  // No window yet, or the previous window has elapsed → start a fresh one.
-  if (!existing || existing.windowEnd <= now) {
-    const windowEnd = new Date(now.getTime() + windowSec * 1000);
-    await prisma.actionRateLimit.upsert({
+  // Perform atomic upsert / check in a single Prisma transaction with lock/atomic update
+  const record = await prisma.$transaction(async (tx) => {
+    const existing = await tx.actionRateLimit.findUnique({ where: { key } });
+
+    if (!existing || existing.windowEnd <= now) {
+      return tx.actionRateLimit.upsert({
+        where: { key },
+        create: { key, count: 1, windowEnd },
+        update: { count: 1, windowEnd },
+      });
+    }
+
+    if (existing.count >= max) {
+      return existing;
+    }
+
+    return tx.actionRateLimit.update({
       where: { key },
-      create: { key, count: 1, windowEnd },
-      update: { count: 1, windowEnd },
+      data: { count: { increment: 1 } },
     });
-    return;
-  }
+  });
 
-  if (existing.count >= max) {
-    const retryAfterSec = Math.max(1, Math.ceil((existing.windowEnd.getTime() - now.getTime()) / 1000));
+  if (record.count >= max && record.windowEnd > now) {
+    const retryAfterSec = Math.max(1, Math.ceil((record.windowEnd.getTime() - now.getTime()) / 1000));
     throw new RateLimitError(
       `You're generating too fast. Please wait ${retryAfterSec}s and try again.`,
       retryAfterSec,
     );
   }
-
-  await prisma.actionRateLimit.update({
-    where: { key },
-    data: { count: { increment: 1 } },
-  });
 }
 
 /**

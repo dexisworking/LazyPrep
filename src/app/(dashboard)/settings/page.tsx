@@ -5,6 +5,7 @@ import { getAiKeyStatus } from "@/lib/ai/keys";
 import { getRank } from "@/lib/xp";
 import { AiKeyForm } from "@/components/settings/ai-key-form";
 import { AppIconPicker } from "@/components/settings/app-icon-picker";
+import { NotificationSettings } from "@/components/settings/notification-settings";
 import { DeleteAccountSection } from "@/components/settings/delete-account-section";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -97,6 +98,9 @@ export default async function SettingsPage() {
           <ThemeToggle />
         </div>
       </section>
+
+      {/* Notifications */}
+      <NotificationSettings />
 
       {/* App icon */}
       <section className="space-y-4">

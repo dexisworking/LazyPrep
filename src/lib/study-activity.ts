@@ -33,11 +33,12 @@ export function buildActivityUpdates(profile: Profile, deltas: ActivityDeltas) {
 
   const newXp = profile.xp + xpAwarded;
   const newLevel = getLevelFromXp(newXp);
-  const { newStreak, newLongestStreak } = calculateStreak(
+  const { newStreak, newLongestStreak, remainingFreezes } = calculateStreak(
     profile.lastStudyDate,
     profile.currentStreak,
     profile.longestStreak,
     tz,
+    profile.streakFreezes ?? 1,
   );
 
   const zero = {
@@ -54,6 +55,7 @@ export function buildActivityUpdates(profile: Profile, deltas: ActivityDeltas) {
       level: newLevel,
       currentStreak: newStreak,
       longestStreak: newLongestStreak,
+      streakFreezes: remainingFreezes,
       lastStudyDate: now,
     },
   };
