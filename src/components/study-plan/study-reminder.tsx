@@ -20,6 +20,7 @@ export function StudyReminder({ goalMet }: { goalMet: boolean }) {
 
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupported(true);
     setPermission(Notification.permission);
   }, []);

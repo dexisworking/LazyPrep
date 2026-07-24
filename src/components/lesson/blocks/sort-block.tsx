@@ -25,6 +25,7 @@ export function SortBlock({ data }: { data: SortBlockData }) {
   const [verdict, setVerdict] = useState<Verdict>("unchecked");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPool(shuffle(data.items.map((_, i) => i)));
   }, [data.items]);
 

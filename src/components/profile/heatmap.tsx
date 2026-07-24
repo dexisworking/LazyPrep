@@ -2,7 +2,6 @@ import type { HeatmapDay } from "@/lib/data/profile";
 import { dayKey, DEFAULT_TZ } from "@/lib/day";
 
 const WEEKS = 26; // ~6 months, fits mobile
-const DAY_MS = 86_400_000;
 
 /** ISO day key ("YYYY-MM-DD") for a stored session date (UTC-midnight of a local day). */
 function sessionKey(date: Date): string {

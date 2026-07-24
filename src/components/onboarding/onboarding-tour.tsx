@@ -64,6 +64,7 @@ export function OnboardingTour() {
 
   // Render only on the client — the tour's layout depends on window size, so
   // SSR would hydrate-mismatch. Nothing to show server-side anyway.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   const step = STEPS[i];
@@ -89,6 +90,7 @@ export function OnboardingTour() {
   }, [step.target]);
 
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     measure();
   }, [measure]);
 

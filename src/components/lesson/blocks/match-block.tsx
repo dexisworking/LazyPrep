@@ -28,6 +28,7 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
   const indices = data.pairs.map((_, i) => i);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLeftOrder(shuffle(data.pairs.map((_, i) => i)));
     setRightOrder(shuffle(data.pairs.map((_, i) => i)));
   }, [data.pairs]);

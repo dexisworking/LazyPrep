@@ -58,6 +58,7 @@ export function FlashcardDeck({
   // Re-arm the grade guard whenever a new card is shown.
   useEffect(() => {
     gradingRef.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsGrading(false);
     x.set(0);
   }, [index, x]);

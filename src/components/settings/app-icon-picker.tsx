@@ -21,8 +21,8 @@ export function AppIconPicker() {
   const [mounted, setMounted] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
-  // Read the saved choice after mount to avoid a hydration mismatch.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelected(getStoredIcon());
     setMounted(true);
   }, []);
