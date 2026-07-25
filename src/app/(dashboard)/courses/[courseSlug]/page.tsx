@@ -7,6 +7,7 @@ import { getAdaptiveCourse } from "@/lib/data/adaptive";
 import { prisma } from "@/lib/prisma";
 import { StartCourseButton } from "@/components/courses/start-course-button";
 import { DeleteCourseButton } from "@/components/courses/delete-course-button";
+import { ShareCourseButton } from "@/components/courses/share-course-button";
 import { AdaptiveCourse } from "@/components/adaptive/adaptive-course";
 import { ExamPlanCard } from "@/components/study-plan/exam-plan-card";
 
@@ -218,9 +219,14 @@ export default async function CourseDetailPage({
       </div>
       )}
 
-      {/* Danger zone — only for courses you created */}
+      {/* Owner actions — share + delete */}
       {isOwner && (
-        <div className="border-t border-border/40 pt-6">
+        <div className="space-y-4 border-t border-border/40 pt-6">
+          <ShareCourseButton
+            courseId={course.id}
+            initialIsShared={course.isShared}
+            initialShareCode={course.shareCode}
+          />
           <DeleteCourseButton courseId={course.id} />
         </div>
       )}

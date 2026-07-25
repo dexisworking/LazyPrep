@@ -13,6 +13,13 @@
 
 import { dayKey, daysBetweenKeys, DEFAULT_TZ } from "@/lib/day";
 
+export const STREAK_MULTIPLIER_TIERS = [
+  { days: 3, multiplier: 1.5, label: "1.5× XP" },
+  { days: 7, multiplier: 2, label: "2× XP" },
+  { days: 14, multiplier: 2.5, label: "2.5× XP" },
+  { days: 30, multiplier: 3, label: "3× XP" },
+] as const;
+
 /**
  * Check if a streak should be incremented, reset, or unchanged
  */
@@ -106,4 +113,37 @@ export function getStreakStatus(streak: number): "cold" | "warm" | "hot" | "fire
   if (streak >= 7) return "hot";
   if (streak >= 3) return "warm";
   return "cold";
+}
+
+export function getStreakStatusLabel(status: ReturnType<typeof getStreakStatus>): string {
+  switch (status) {
+    case "fire":
+      return "On fire!";
+    case "hot":
+      return "Heating up";
+    case "warm":
+      return "Building momentum";
+    default:
+      return "Just getting started";
+  }
+}
+
+/** True if the user already logged qualifying study activity today. */
+export function hasStudiedToday(lastStudyDate: Date | null, tz: string = DEFAULT_TZ): boolean {
+  if (!lastStudyDate) return false;
+  return dayKey(lastStudyDate, tz) === dayKey(new Date(), tz);
+}
+
+/** True when the user studied yesterday but not yet today — streak resets at midnight. */
+export function isStreakAtRisk(lastStudyDate: Date | null, tz: string = DEFAULT_TZ): boolean {
+  if (!lastStudyDate) return false;
+  const diff = daysBetweenKeys(dayKey(lastStudyDate, tz), dayKey(new Date(), tz));
+  return diff === 1;
+}
+
+/** Next XP multiplier milestone above the current streak (null if max tier reached). */
+export function getNextMultiplierMilestone(
+  streak: number,
+): (typeof STREAK_MULTIPLIER_TIERS)[number] | null {
+  return STREAK_MULTIPLIER_TIERS.find((tier) => streak < tier.days) ?? null;
 }

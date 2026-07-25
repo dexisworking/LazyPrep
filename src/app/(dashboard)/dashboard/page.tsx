@@ -10,6 +10,7 @@ import { computeDailyTarget, daysUntil, formatCountdown } from "@/lib/study-plan
 import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/motion";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { StudyReminder } from "@/components/study-plan/study-reminder";
+import { StreakCard } from "@/components/shared/streak-card";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,6 @@ export default async function DashboardPage() {
     cp?.resumeLessonSlug ? `/courses/${cp.slug}/lessons/${cp.resumeLessonSlug}` : null;
 
   const stats = [
-    { label: "Day Streak", value: profile.currentStreak, suffix: "", icon: Flame, color: "text-np-streak" },
     { label: "Total XP", value: profile.xp, suffix: "", icon: Zap, color: "text-np-xp" },
     { label: "Course Progress", value: coursePct, suffix: "%", icon: BookOpen, color: "text-primary" },
     { label: "MCQ Accuracy", value: data.accuracy, suffix: "%", icon: Target, color: "text-np-red" },
@@ -104,8 +104,17 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Streak card */}
+      <StreakCard
+        currentStreak={profile.currentStreak}
+        longestStreak={profile.longestStreak}
+        streakFreezes={profile.streakFreezes ?? 2}
+        lastStudyDate={profile.lastStudyDate}
+        timezone={profile.timezone}
+      />
+
       {/* Stat cards */}
-      <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <Stagger className="grid grid-cols-3 gap-4">
         {stats.map((s) => (
           <StaggerItem key={s.label} className="rounded-xl border border-border/50 bg-card p-4">
             <div className="flex items-center gap-2 text-muted-foreground">

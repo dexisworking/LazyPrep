@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Flame, Trophy, Zap, BookOpen, Target, Brain, CalendarDays, Award, Settings } from "lucide-react";
+import { Flame, Trophy, Zap, BookOpen, Target, Brain, CalendarDays, Award, Settings, Shield } from "lucide-react";
 import { getSession, getCurrentProfile } from "@/lib/session";
 import { getProfileStats, getHeatmapData } from "@/lib/data/profile";
-import { getLevelProgress, getRank } from "@/lib/xp";
+import { getLevelProgress, getRank, getStreakMultiplier } from "@/lib/xp";
+import { getStreakStatus, getStreakStatusLabel } from "@/lib/streak";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudyHeatmap } from "@/components/profile/heatmap";
 import { AnalyticsExpandable } from "@/components/profile/analytics-expandable";
@@ -23,21 +24,43 @@ export default async function ProfilePage() {
 
   const { level, currentLevelXp, nextLevelXp, progress } = getLevelProgress(profile.xp);
   const rank = getRank(level);
+  const streakStatus = getStreakStatus(profile.currentStreak);
+  const streakStatusLabel = getStreakStatusLabel(streakStatus);
+  const xpMultiplier = getStreakMultiplier(profile.currentStreak);
   const displayName = profile.displayName ?? session.user.name ?? "Explorer";
   const memberSince = new Date(profile.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
+  const streakColor =
+    streakStatus === "fire"
+      ? "border-red-500/30 bg-red-500/5"
+      : streakStatus === "hot"
+        ? "border-orange-400/30 bg-orange-500/5"
+        : streakStatus === "warm"
+          ? "border-amber-400/30 bg-amber-500/5"
+          : "border-border/50";
+  const streakFlame =
+    streakStatus === "fire"
+      ? "text-red-500 animate-pulse"
+      : streakStatus === "hot"
+        ? "text-orange-500"
+        : streakStatus === "warm"
+          ? "text-amber-400"
+          : "text-np-streak";
+
   const statCards = [
-    { label: "Current Streak", value: `${profile.currentStreak}d`, icon: Flame, color: "text-np-streak" },
-    { label: "Longest Streak", value: `${profile.longestStreak}d`, icon: Flame, color: "text-np-orange" },
-    { label: "Total XP", value: profile.xp, icon: Zap, color: "text-np-xp" },
-    { label: "Lessons Done", value: stats.lessonsCompleted, icon: BookOpen, color: "text-primary" },
-    { label: "Questions", value: stats.totalAttempts, icon: Target, color: "text-np-red" },
-    { label: "Accuracy", value: `${stats.accuracy}%`, icon: Award, color: "text-np-success" },
-    { label: "Cards Reviewed", value: stats.flashcardsReviewed, icon: Brain, color: "text-np-success" },
-    { label: "Active Days", value: stats.studyDays, icon: CalendarDays, color: "text-primary" },
+    { label: "Current Streak", value: `${profile.currentStreak}d`, icon: Flame, color: streakFlame, cardClass: streakColor },
+    { label: "Longest Streak", value: `${profile.longestStreak}d`, icon: Flame, color: "text-np-orange", cardClass: "" },
+    { label: "XP Multiplier", value: `${xpMultiplier}×`, icon: Zap, color: "text-np-xp", cardClass: xpMultiplier > 1 ? "border-np-xp/30 bg-np-xp/5" : "" },
+    { label: "Streak Freezes", value: profile.streakFreezes ?? 2, icon: Shield, color: "text-blue-400", cardClass: "" },
+    { label: "Total XP", value: profile.xp, icon: Zap, color: "text-np-xp", cardClass: "" },
+    { label: "Lessons Done", value: stats.lessonsCompleted, icon: BookOpen, color: "text-primary", cardClass: "" },
+    { label: "Questions", value: stats.totalAttempts, icon: Target, color: "text-np-red", cardClass: "" },
+    { label: "Accuracy", value: `${stats.accuracy}%`, icon: Award, color: "text-np-success", cardClass: "" },
+    { label: "Cards Reviewed", value: stats.flashcardsReviewed, icon: Brain, color: "text-np-success", cardClass: "" },
+    { label: "Active Days", value: stats.studyDays, icon: CalendarDays, color: "text-primary", cardClass: "" },
   ];
 
   return (
@@ -96,9 +119,9 @@ export default async function ProfilePage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         {statCards.map((s) => (
-          <div key={s.label} className="rounded-xl border border-border/50 bg-card p-4">
+          <div key={s.label} className={`rounded-xl border bg-card p-4 ${s.cardClass || 'border-border/50'}`}>
             <div className="flex items-center gap-2 text-muted-foreground">
               <s.icon className={`h-4 w-4 ${s.color}`} />
               <span className="text-xs font-medium">{s.label}</span>

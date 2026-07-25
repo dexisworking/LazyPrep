@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRank } from "@/lib/xp";
+import { getStreakStatus } from "@/lib/streak";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { navRoutes, isRouteActive } from "@/lib/nav";
 import { DexForgeCredit } from "@/components/shared/dexforge-credit";
@@ -18,6 +19,15 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
   const displayName = profile.displayName;
   const userLevel = profile.level;
   const userRank = getRank(userLevel);
+  const streakStatus = getStreakStatus(profile.currentStreak);
+  const streakFlame =
+    streakStatus === "fire"
+      ? "text-red-500 animate-pulse"
+      : streakStatus === "hot"
+        ? "text-orange-500"
+        : streakStatus === "warm"
+          ? "text-amber-400"
+          : "text-muted-foreground";
 
   const handleSignOut = async () => {
     await signOut();
@@ -66,6 +76,11 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
             </h4>
             <p className="mt-1 text-xs text-muted-foreground truncate">
               {userRank} (Lvl {userLevel})
+            </p>
+            <p className="mt-0.5 flex items-center gap-1 text-xs">
+              <Flame className={cn("h-3 w-3", streakFlame)} />
+              <span className="font-semibold text-foreground">{profile.currentStreak}</span>
+              <span className="text-muted-foreground">day streak</span>
             </p>
           </div>
         </div>

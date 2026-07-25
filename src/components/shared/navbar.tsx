@@ -1,11 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { Flame, Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getLevelProgress } from "@/lib/xp";
+import { getStreakStatus } from "@/lib/streak";
+import { cn } from "@/lib/utils";
+import { StreakPanel } from "@/components/shared/streak-panel";
 import type { ProfileSummary } from "@/lib/data/dashboard";
+
+const streakFlameColors = {
+  cold: "text-muted-foreground",
+  warm: "text-amber-400",
+  hot: "text-orange-500",
+  fire: "text-red-500 animate-pulse",
+} as const;
 
 interface NavbarProps {
   profile: ProfileSummary;
@@ -13,10 +24,12 @@ interface NavbarProps {
 
 export function Navbar({ profile }: NavbarProps) {
   const pathname = usePathname();
+  const [streakOpen, setStreakOpen] = useState(false);
 
   const userXp = profile.xp;
   const { level, progress, currentLevelXp, nextLevelXp } = getLevelProgress(userXp);
   const currentStreak = profile.currentStreak;
+  const streakStatus = getStreakStatus(currentStreak);
 
   // Get Page Title from Pathname
   const getPageTitle = () => {
@@ -58,14 +71,32 @@ export function Navbar({ profile }: NavbarProps) {
           <span className="text-xs font-bold text-foreground">Lvl&nbsp;{level}</span>
         </div>
 
-        {/* Streak Counter */}
-        <div
-          data-tour="streak"
-          className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 sm:px-3"
-        >
-          <Flame className="h-4 w-4 text-np-streak animate-pulse" />
-          <span className="text-sm font-bold text-foreground">{currentStreak}</span>
-          <span className="hidden text-xs font-medium text-muted-foreground sm:inline">day streak</span>
+        {/* Streak Counter — now clickable with panel */}
+        <div className="relative">
+          <button
+            data-tour="streak"
+            onClick={() => setStreakOpen((prev) => !prev)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 sm:px-3 transition-colors",
+              streakOpen
+                ? "border-primary/40 bg-primary/5"
+                : "border-border/40 bg-card/30 hover:border-border hover:bg-card/50",
+            )}
+          >
+            <Flame className={cn("h-4 w-4", streakFlameColors[streakStatus])} />
+            <span className="text-sm font-bold text-foreground">{currentStreak}</span>
+            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">day streak</span>
+          </button>
+
+          <StreakPanel
+            open={streakOpen}
+            onClose={() => setStreakOpen(false)}
+            currentStreak={profile.currentStreak}
+            longestStreak={profile.longestStreak}
+            streakFreezes={profile.streakFreezes}
+            lastStudyDate={profile.lastStudyDate}
+            timezone={profile.timezone}
+          />
         </div>
 
         {/* Theme & Profile Toggles */}

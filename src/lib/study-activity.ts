@@ -33,13 +33,14 @@ export function buildActivityUpdates(profile: Profile, deltas: ActivityDeltas) {
 
   const newXp = profile.xp + xpAwarded;
   const newLevel = getLevelFromXp(newXp);
-  const { newStreak, newLongestStreak, remainingFreezes } = calculateStreak(
+  const streakResult = calculateStreak(
     profile.lastStudyDate,
     profile.currentStreak,
     profile.longestStreak,
     tz,
     profile.streakFreezes ?? 1,
   );
+  const { newStreak, newLongestStreak, remainingFreezes, freezeUsed, streakBroken } = streakResult;
 
   const zero = {
     lessonsCompleted: deltas.lessonsCompleted ?? 0,
@@ -77,5 +78,16 @@ export function buildActivityUpdates(profile: Profile, deltas: ActivityDeltas) {
     },
   };
 
-  return { profileUpdate, sessionUpsert, xpAwarded, newXp, newLevel, newStreak };
+  return {
+    profileUpdate,
+    sessionUpsert,
+    xpAwarded,
+    newXp,
+    newLevel,
+    newStreak,
+    previousStreak: profile.currentStreak,
+    freezeUsed,
+    streakBroken,
+    remainingFreezes,
+  };
 }

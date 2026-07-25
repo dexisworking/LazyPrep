@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 // Routes that require authentication
-const protectedRoutes = ["/dashboard", "/courses", "/practice", "/flashcards", "/profile", "/settings"];
+const protectedRoutes = ["/dashboard", "/courses", "/practice", "/flashcards", "/bookmarks", "/profile", "/settings"];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ["/sign-in", "/sign-up"];
@@ -46,6 +46,7 @@ export const config = {
     "/courses/:path*",
     "/practice/:path*",
     "/flashcards/:path*",
+    "/bookmarks/:path*",
     "/profile/:path*",
     "/settings/:path*",
     "/sign-in",

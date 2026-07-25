@@ -119,7 +119,7 @@ model Profile {
   currentStreak Int       @default(0)
   longestStreak Int       @default(0)
   lastStudyDate DateTime?
-  streakFreezes   Int       @default(1) // available streak freezes (paywall ready)
+  streakFreezes   Int       @default(2) // available streak freezes; new users get 2 free (paywall ready)
   lastLoginXpDate DateTime? // track daily login XP claim
   onboardedAt   DateTime? // null = hasn't completed the first-run tour yet
   createdAt     DateTime  @default(now())

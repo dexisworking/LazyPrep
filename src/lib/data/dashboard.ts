@@ -9,6 +9,10 @@ export type ProfileSummary = {
   xp: number;
   level: number;
   currentStreak: number;
+  longestStreak: number;
+  streakFreezes: number;
+  lastStudyDate: Date | null;
+  timezone: string;
 };
 
 export function toProfileSummary(profile: Profile): ProfileSummary {
@@ -17,6 +21,10 @@ export function toProfileSummary(profile: Profile): ProfileSummary {
     xp: profile.xp,
     level: profile.level,
     currentStreak: profile.currentStreak,
+    longestStreak: profile.longestStreak,
+    streakFreezes: profile.streakFreezes ?? 2,
+    lastStudyDate: profile.lastStudyDate,
+    timezone: profile.timezone ?? DEFAULT_TZ,
   };
 }
 

@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Bookmark } from "lucide-react";
 import { getCurrentProfile } from "@/lib/session";
 import { getLessonView, canAccessCourse } from "@/lib/data/courses";
 import { recordLessonView } from "@/lib/actions/progress";
+import { getLessonRating } from "@/lib/actions/lesson-rating";
+import { isBookmarked } from "@/lib/actions/bookmarks";
 import { LessonContent } from "@/components/lesson/lesson-content";
 import { LessonGenerator } from "@/components/lesson/lesson-generator";
 import { MarkCompleteButton } from "@/components/lesson/mark-complete-button";
+import { LessonRatingWidget } from "@/components/lesson/lesson-rating";
+import { BookmarkButton } from "@/components/shared/bookmark-button";
 import { TutorPanel } from "@/components/tutor/tutor-panel";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +37,14 @@ export default async function LessonPage({
   const lessonHref = (slug: string) => `${coursePath}/lessons/${slug}`;
   const needsGeneration = lesson.content.trim().length === 0;
 
+  // Fetch lesson rating and bookmark status in parallel
+  const [existingRating, bookmarked] = profile
+    ? await Promise.all([
+        getLessonRating(lesson.id),
+        isBookmarked("lesson", lesson.id),
+      ])
+    : [null, false];
+
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       {/* Breadcrumb */}
@@ -57,6 +69,13 @@ export default async function LessonPage({
           <span>
             Lesson {position} of {total}
           </span>
+          {profile && (
+            <BookmarkButton
+              targetType="lesson"
+              targetId={lesson.id}
+              initialBookmarked={bookmarked}
+            />
+          )}
         </div>
       </div>
 
@@ -76,6 +95,16 @@ export default async function LessonPage({
               nextHref={next ? lessonHref(next.slug) : null}
             />
           </div>
+
+          {/* Lesson quality rating */}
+          {profile && (
+            <div className="pt-4">
+              <LessonRatingWidget
+                lessonId={lesson.id}
+                initialRating={existingRating?.rating}
+              />
+            </div>
+          )}
         </>
       )}
 
