@@ -45,7 +45,7 @@ export function PlayerCard({
           thickness={11}
           tone="xp"
           glow
-          label={`Level ${level}, ${progress}% to level ${level + 1}`}
+          label={`Level ${level}, ${Math.round(progress)}% to level ${level + 1}`}
         >
           <span className="text-3xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
             Level

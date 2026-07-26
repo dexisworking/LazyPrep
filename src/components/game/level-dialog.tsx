@@ -38,6 +38,9 @@ export function LevelDialog({
   const tier = getRankTier(level);
   const rank = getRank(level);
   const nextTier = RANK_TIERS[tier + 1];
+  // `getLevelProgress` returns an unrounded float. The ring stroke keeps the
+  // precise value for a smooth fill; anything read by a human gets rounded.
+  const pct = Math.round(progress);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,10 +64,10 @@ export function LevelDialog({
               size={92}
               thickness={9}
               tone="xp"
-              label={`${progress}% to level ${level + 1}`}
+              label={`${pct}% to level ${level + 1}`}
             >
               <span className="text-lg font-extrabold tabular-nums text-foreground">
-                {progress}%
+                {pct}%
               </span>
             </ProgressRing>
             <div className="min-w-0 flex-1 space-y-1.5 text-sm">
