@@ -95,8 +95,9 @@ const FEATURES: Feature[] = [
     color: "text-streak-hot",
     bg: "bg-streak-hot/10",
     span: "lg:col-span-4",
+    // No `visualClass`: this illustration lays itself out edge to edge. Making
+    // the panel a flex row here is what collapsed its bars.
     visual: <StreakChartIllustration />,
-    visualClass: "flex items-end",
   },
 ];
 

@@ -10,6 +10,13 @@
 import { Sparkles } from "lucide-react";
 
 import { ActivityHeatmap, type HeatLevel, type HeatmapDayCell } from "@/components/ui/activity-heatmap";
+import { FlameVector } from "@/components/game/vectors";
+import {
+  getNextMultiplierMilestone,
+  getStreakStatus,
+  getStreakStatusLabel,
+} from "@/lib/streak";
+import { getStreakMultiplier } from "@/lib/xp";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────
@@ -223,34 +230,96 @@ export function AccuracyIllustration({
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Streaks — daily XP bars
+   Streaks — daily XP against the goal, plus the live multiplier
    ───────────────────────────────────────────────────────────── */
 
-const XP_BARS = [28, 41, 16, 52, 44, 12, 35, 58, 47, 66, 39, 71, 62, 84];
+/** Fourteen days of XP. */
+const XP_BARS = [22, 34, 11, 46, 38, 9, 41, 52, 44, 61, 48, 70, 58, 84];
+/** The line a day has to clear to count. */
+const DAILY_GOAL = 30;
+
+/** Trailing run of days that cleared the goal — i.e. the streak, from the data. */
+function trailingStreak(bars: number[], goal: number): number {
+  let n = 0;
+  for (let i = bars.length - 1; i >= 0 && bars[i] >= goal; i--) n++;
+  return n;
+}
 
 export function StreakChartIllustration({ className }: { className?: string }) {
   const max = Math.max(...XP_BARS);
+  const goalPct = (DAILY_GOAL / max) * 100;
+
+  // Everything below is *derived*, never hard-coded: the streak count comes out
+  // of the bars, and the multiplier and next milestone come from the same
+  // helpers the real app uses. A tweak to the sample data or to the tier table
+  // can't leave the marketing tile claiming something the product doesn't do.
+  const streak = trailingStreak(XP_BARS, DAILY_GOAL);
+  const status = getStreakStatus(streak);
+  const multiplier = getStreakMultiplier(streak);
+  const next = getNextMultiplierMilestone(streak);
+  const firstHot = XP_BARS.length - streak;
 
   return (
-    <div aria-hidden className={cn("space-y-2", className)}>
-      <div className="flex h-24 items-end gap-1.5">
-        {XP_BARS.map((v, i) => {
-          const isRecent = i >= XP_BARS.length - 4;
-          return (
-            <div
-              key={i}
-              className={cn(
-                "flex-1 rounded-t-[3px]",
-                isRecent ? "bg-streak-hot" : "bg-primary/45",
-              )}
-              style={{ height: `${(v / max) * 100}%` }}
-            />
-          );
-        })}
+    // `h-full w-full`: this is a flex child of the bento's visual panel, so
+    // without an explicit width the `flex-1` bars resolve to a 0 basis and the
+    // whole chart collapses to the width of the caption underneath it.
+    <div aria-hidden className={cn("flex h-full w-full flex-col justify-end gap-2.5", className)}>
+      {/* Streak headline + the mechanic it unlocks */}
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <FlameVector status={status} size={30} />
+          <div className="leading-none">
+            <p className="text-xl font-extrabold tabular-nums text-foreground">{streak}</p>
+            <p className="mt-0.5 text-3xs font-bold uppercase tracking-wider text-muted-foreground">
+              day streak
+            </p>
+          </div>
+        </div>
+        <div className="text-right leading-none">
+          <span className="inline-block rounded-full bg-game-xp/15 px-2 py-0.5 text-2xs font-bold text-game-xp">
+            {multiplier}× XP
+          </span>
+          <p className="mt-1 text-3xs text-muted-foreground">
+            {next ? `${next.label} at ${next.days}d` : "Max tier"}
+          </p>
+        </div>
       </div>
-      <div className="flex items-center justify-between text-3xs text-muted-foreground">
-        <span>14 days ago</span>
-        <span className="font-semibold text-streak-hot">today · 84 XP</span>
+
+      {/* Daily XP against the goal line */}
+      <div>
+        <div className="relative h-14">
+          {/* Goal line, drawn behind the bars so tall days visibly clear it. */}
+          <div
+            className="absolute inset-x-0 border-t border-dashed border-muted-foreground/40"
+            style={{ bottom: `${goalPct}%` }}
+          />
+          <div className="relative flex h-full items-end gap-1">
+            {XP_BARS.map((v, i) => {
+              const hot = i >= firstHot;
+              const today = i === XP_BARS.length - 1;
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    "min-w-0 flex-1 rounded-t-[3px]",
+                    hot
+                      ? "bg-gradient-to-t from-streak-warm to-streak-hot"
+                      : "bg-primary/30",
+                    today && "shadow-[0_0_12px_-2px_var(--streak-hot)]",
+                  )}
+                  style={{ height: `${(v / max) * 100}%` }}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-1.5 flex items-center justify-between text-3xs text-muted-foreground">
+          <span>14 days ago</span>
+          <span className="font-semibold text-streak-hot">
+            {getStreakStatusLabel(status)} · today {XP_BARS[XP_BARS.length - 1]} XP
+          </span>
+        </div>
       </div>
     </div>
   );
