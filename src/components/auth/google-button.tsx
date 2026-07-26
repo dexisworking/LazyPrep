@@ -8,14 +8,19 @@ export function GoogleButton({
   callbackUrl,
   label,
   onError,
+  /** Set on sign-up until the terms checkbox is ticked — social sign-in creates
+      an account too, so it has to sit behind the same consent gate. */
+  disabled = false,
 }: {
   callbackUrl: string;
   label: string;
   onError: (msg: string) => void;
+  disabled?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
+    if (disabled) return;
     setLoading(true);
     onError("");
     try {
@@ -31,7 +36,7 @@ export function GoogleButton({
     <button
       type="button"
       onClick={handleClick}
-      disabled={loading}
+      disabled={loading || disabled}
       className="flex w-full items-center justify-center gap-3 rounded-control border border-border bg-card px-4 py-2.5 text-sm font-medium text-card-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-secondary hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {loading ? (

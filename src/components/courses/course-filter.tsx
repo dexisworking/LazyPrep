@@ -50,6 +50,13 @@ function CourseCard({ course }: { course: CourseOverview }) {
           )}
         </div>
         <div className="flex flex-wrap items-center justify-end gap-1.5">
+          {/* Enrollment is opt-in, so it needs to be visible at a glance which
+              courses you've actually joined. */}
+          {course.enrolled && (
+            <Pill tone="primary" size="sm" icon={CheckCircle2} uppercase>
+              Enrolled
+            </Pill>
+          )}
           {course.adaptive ? (
             <Pill tone="primary" size="sm" icon={Sparkles} uppercase>
               Mastery path
@@ -88,7 +95,7 @@ function CourseCard({ course }: { course: CourseOverview }) {
             )}
           </span>
           <span className="flex items-center gap-1 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-            {course.enrolled ? "Continue" : "Start"}
+            {course.enrolled ? "Continue" : "View"}
             <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>

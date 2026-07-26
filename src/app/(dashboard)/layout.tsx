@@ -1,6 +1,6 @@
 import type { Viewport } from "next";
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/session";
+import { getCurrentProfile, getSession } from "@/lib/session";
 import { toProfileSummary } from "@/lib/data/dashboard";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { TimezoneSync } from "@/components/shared/timezone-sync";
@@ -33,9 +33,11 @@ export default async function DashboardLayout({
 }) {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/sign-in");
+  // Both are React-cached per request, so this is not a second round trip.
+  const session = await getSession();
 
   return (
-    <DashboardShell profile={toProfileSummary(profile)}>
+    <DashboardShell profile={toProfileSummary(profile, session?.user)}>
       <TimezoneSync current={profile.timezone} />
       <StudyTimer />
       <DailyLoginBonus />

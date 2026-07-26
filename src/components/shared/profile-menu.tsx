@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StreakFlame } from "@/components/shared/streak-flame";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
@@ -49,11 +50,23 @@ export function ProfileMenu({
   const streakStatus = getStreakStatus(profile.currentStreak);
   const initials = profile.displayName.slice(0, 2).toUpperCase();
 
+  // Gradient ring wraps the photo; `AvatarFallback` covers a missing or
+  // failed-to-load image with initials, so there's never an empty circle.
   const avatar = (
     <span className="relative block shrink-0 rounded-full bg-gradient-to-br from-primary via-game-epic to-accent p-0.5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-xs font-bold uppercase text-primary">
-        {initials}
-      </span>
+      <Avatar className="h-9 w-9 bg-card after:border-0">
+        {profile.avatarUrl && (
+          <AvatarImage
+            src={profile.avatarUrl}
+            alt=""
+            // Google's CDN 403s the request when a referrer is attached.
+            referrerPolicy="no-referrer"
+          />
+        )}
+        <AvatarFallback className="bg-card text-xs font-bold uppercase text-primary">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
     </span>
   );
 

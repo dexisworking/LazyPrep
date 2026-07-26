@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { saveAiKey, deleteAiKey } from "@/lib/actions/ai-keys";
+import { OpenRouterGuide } from "@/components/settings/openrouter-guide";
 import type { AiKeyStatus } from "@/lib/ai/keys";
 
 const MODEL_SUGGESTIONS = [
@@ -112,6 +113,10 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
       {/* Edit form */}
       {editing && (
         <div className="space-y-4">
+          {/* Setup walkthrough — only while there's no working key on file.
+              Once connected, re-opening this form is an update, not a first run. */}
+          {!status.configured && <OpenRouterGuide />}
+
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">API Key</label>
             <div className="relative">

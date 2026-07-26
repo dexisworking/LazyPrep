@@ -6,6 +6,8 @@ import { dayDate, DEFAULT_TZ } from "@/lib/day";
 /** Minimal profile shape passed to the nav chrome (sidebar/navbar/mobile nav). */
 export type ProfileSummary = {
   displayName: string;
+  /** Google/OAuth profile picture, or null to fall back to initials. */
+  avatarUrl: string | null;
   xp: number;
   level: number;
   currentStreak: number;
@@ -15,9 +17,19 @@ export type ProfileSummary = {
   timezone: string;
 };
 
-export function toProfileSummary(profile: Profile): ProfileSummary {
+/**
+ * `user` carries the auth-side avatar. Better Auth stores the social provider's
+ * picture on `user.image`, and nothing copies it onto `Profile` — so the shell
+ * has to be handed the session user, or the sidebar can only ever show initials.
+ * `Profile.avatarUrl` wins when set, for a future in-app upload.
+ */
+export function toProfileSummary(
+  profile: Profile,
+  user?: { image?: string | null } | null,
+): ProfileSummary {
   return {
     displayName: profile.displayName ?? "Explorer",
+    avatarUrl: profile.avatarUrl ?? user?.image ?? null,
     xp: profile.xp,
     level: profile.level,
     currentStreak: profile.currentStreak,
@@ -28,20 +40,21 @@ export function toProfileSummary(profile: Profile): ProfileSummary {
   };
 }
 
-/** Everything the dashboard home page needs, in one call. */
+/**
+ * Everything the dashboard home page needs, in one call.
+ *
+ * `courseProgress` is populated **only** from a real enrollment. This used to
+ * fall back to the oldest curated course when the user had none, which the
+ * dashboard then rendered as "Continue learning" — so every new account looked
+ * enrolled in a course it had never opted into. The fallback now comes back
+ * separately as `suggestedCourse`, which the page presents as an invitation.
+ */
 export async function getDashboardData(profile: Profile) {
   const enrollment = await prisma.enrollment.findFirst({
     where: { profileId: profile.id },
     include: { course: true },
     orderBy: { enrolledAt: "desc" },
   });
-
-  const course =
-    enrollment?.course ??
-    (await prisma.course.findFirst({
-      where: courseVisibility(profile.id),
-      orderBy: { createdAt: "asc" },
-    }));
 
   let courseProgress: {
     slug: string;
@@ -50,22 +63,27 @@ export async function getDashboardData(profile: Profile) {
     completedLessons: number;
     resumeLessonSlug: string | null;
     resumeLessonTitle: string | null;
-    enrolled: boolean;
   } | null = null;
+  let suggestedCourse: { slug: string; title: string } | null = null;
 
-  if (course) {
-    const tree = await getCourseTree(course.slug, profile.id);
+  if (enrollment) {
+    const tree = await getCourseTree(enrollment.course.slug, profile.id);
     if (tree) {
       courseProgress = {
-        slug: course.slug,
-        title: course.title,
+        slug: enrollment.course.slug,
+        title: enrollment.course.title,
         totalLessons: tree.totalLessons,
         completedLessons: tree.completedLessons,
         resumeLessonSlug: tree.resumeLesson?.slug ?? null,
         resumeLessonTitle: tree.resumeLesson?.title ?? null,
-        enrolled: Boolean(enrollment),
       };
     }
+  } else {
+    suggestedCourse = await prisma.course.findFirst({
+      where: courseVisibility(profile.id),
+      orderBy: { createdAt: "asc" },
+      select: { slug: true, title: true },
+    });
   }
 
   const today = dayDate(new Date(), profile.timezone || DEFAULT_TZ);
@@ -82,6 +100,7 @@ export async function getDashboardData(profile: Profile) {
 
   return {
     courseProgress,
+    suggestedCourse,
     todaySession,
     totalAttempts,
     correctAttempts,

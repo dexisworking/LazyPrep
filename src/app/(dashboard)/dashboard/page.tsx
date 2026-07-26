@@ -249,6 +249,45 @@ export default async function DashboardPage() {
         </GameCard>
       )}
 
+      {/*
+        Not enrolled in anything yet. This slot used to render the oldest
+        curated course as "Continue learning", which presented a course the user
+        had never chosen as one they were already taking. It's an invitation
+        now, and enrolling is an explicit action on the course page.
+      */}
+      {!cp && (
+        <GameCard tone="gem">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0 space-y-2">
+              <span className="text-2xs font-extrabold uppercase tracking-[0.14em] text-primary">
+                Get started
+              </span>
+              <h2 className="text-xl font-extrabold tracking-tight text-balance text-foreground">
+                You&apos;re not enrolled in a course yet
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {data.suggestedCourse ? (
+                  <>
+                    Browse the curated library —{" "}
+                    <span className="font-semibold text-foreground">
+                      {data.suggestedCourse.title}
+                    </span>{" "}
+                    is a good place to start — or generate your own with an AI key.
+                  </>
+                ) : (
+                  <>Generate a course for any subject with your own AI key.</>
+                )}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <GameButton tone="primary" size="lg" href="/courses" icon={BookOpen}>
+                Browse courses
+              </GameButton>
+            </div>
+          </div>
+        </GameCard>
+      )}
+
       {/* Jump back in */}
       <Stagger className="grid grid-cols-1 gap-4 xs:grid-cols-2 lg:grid-cols-4">
         {[

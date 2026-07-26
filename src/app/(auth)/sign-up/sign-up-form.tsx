@@ -24,6 +24,7 @@ export function SignUpForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
@@ -32,6 +33,12 @@ export function SignUpForm({
     e.preventDefault();
     setError("");
 
+    // Belt and braces: the input is `required`, but the guard means a bypassed
+    // or scripted submit still can't create an account without consent.
+    if (!agreed) {
+      setError("Please accept the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -75,9 +82,44 @@ export function SignUpForm({
         <p className="text-sm text-muted-foreground">Start your preparation journey today</p>
       </div>
 
+      {/*
+        Consent gate, above both sign-up paths. Google sign-in creates an
+        account just like the email form does, so it can't sit below a checkbox
+        that only guards the form.
+      */}
+      <label
+        htmlFor="terms"
+        className="flex cursor-pointer items-start gap-2.5 rounded-control border border-border-subtle bg-card/50 p-3"
+      >
+        <input
+          id="terms"
+          name="terms"
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        />
+        <span className="text-xs leading-relaxed text-muted-foreground">
+          I agree to the{" "}
+          <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </span>
+      </label>
+
       {googleEnabled && (
         <>
-          <GoogleButton callbackUrl="/dashboard" label="Continue with Google" onError={setError} />
+          <GoogleButton
+            callbackUrl="/dashboard"
+            label="Continue with Google"
+            onError={setError}
+            disabled={!agreed}
+          />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />
@@ -188,7 +230,7 @@ export function SignUpForm({
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !agreed}
           className="flex w-full items-center justify-center gap-2 rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
