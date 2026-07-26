@@ -21,7 +21,7 @@ type Step = {
 const STEPS: Step[] = [
   {
     icon: Sparkles,
-    title: "Welcome to LazyPrep 👋",
+    title: "Welcome to LazyPrep",
     body: "Your preparation OS for any exam. Here's a 20-second tour of what's inside.",
   },
   {

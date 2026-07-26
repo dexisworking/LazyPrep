@@ -87,7 +87,7 @@ export async function sendResetPasswordEmail(to: string, name: string, url: stri
 /** Where in-app feedback notifications are delivered (the operator's inbox). */
 const FEEDBACK_TO = process.env.FEEDBACK_EMAIL;
 
-const TYPE_LABEL: Record<string, string> = { bug: "🐛 Bug", idea: "💡 Idea", other: "💬 Feedback" };
+const TYPE_LABEL: Record<string, string> = { bug: "Bug", idea: "Idea", other: "Feedback" };
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

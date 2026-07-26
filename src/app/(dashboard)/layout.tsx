@@ -9,17 +9,20 @@ import { DailyLoginBonus } from "@/components/shared/daily-login-bonus";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 /**
- * `viewportFit: "cover"` lets the shell paint into the safe-area insets.
+ * Lock the viewport inside the app shell so the installed PWA/TWA behaves like
+ * a native app — no pinch or double-tap zoom, no rubber-banding of the frame
+ * while studying. Nearest-wins viewport merging means the public landing and
+ * legal pages keep the root viewport and stay zoomable.
  *
- * This previously also set `maximumScale: 1` / `userScalable: false` to stop
- * accidental pinch-zoom in the installed PWA. That is a WCAG 1.4.4 failure and
- * it is not needed for the stated goal: `touch-action: manipulation` on
- * interactive elements (see globals.css) already suppresses the accidental
- * double-tap zoom, without taking real zoom away from users who need it.
+ * Accessibility note: this trades off WCAG 1.4.4. It is a deliberate product
+ * decision for the app UI; the content itself is sized off the type scale, and
+ * OS-level display scaling still applies.
  */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 

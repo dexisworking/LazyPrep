@@ -42,7 +42,7 @@ export default async function SharedCoursePage({
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <header className="border-b border-border-subtle bg-card/50 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
           <Link href="/" className="text-xl font-bold tracking-tight">

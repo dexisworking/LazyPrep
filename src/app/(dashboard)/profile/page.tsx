@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Flame, Trophy, Zap, BookOpen, Target, Brain, CalendarDays, Award, Settings, Shield } from "lucide-react";
+import { Flame, Trophy, Zap, BookOpen, Bookmark, Target, Brain, CalendarDays, Award, Settings, Shield } from "lucide-react";
 import { getSession, getCurrentProfile } from "@/lib/session";
 import { getProfileStats, getHeatmapData } from "@/lib/data/profile";
 import { getLevelProgress, getRank, getStreakMultiplier } from "@/lib/xp";
@@ -82,9 +82,20 @@ export default async function ProfilePage() {
               </div>
             </div>
           </div>
-          {/* Settings lives in the sidebar on desktop; on mobile (no sidebar) it
-              lives here in the profile section. */}
-          <div className="flex items-center gap-2">
+          {/*
+            The desktop sidebar carries every route. On mobile the bottom tab
+            bar only holds five, and there is deliberately no drawer — so the
+            two routes it can't fit (Bookmarks, Settings) live here, on a tab
+            that IS in the bar. This is their only mobile entry point.
+          */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/bookmarks"
+              className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:hidden"
+            >
+              <Bookmark className="h-4 w-4 text-streak-warm" />
+              Bookmarks
+            </Link>
             <Link
               href="/settings"
               className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:hidden"

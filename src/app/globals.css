@@ -81,6 +81,26 @@
   --color-terminal-dot-amber: oklch(0.76 0.14 58);
   --color-terminal-dot-green: oklch(0.72 0.13 158);
 
+  /* ─── Game layer ───
+     Deliberately more saturated than the UI tokens above. The calm set governs
+     chrome and reading surfaces; this set governs the surfaces that are meant
+     to feel like a game — XP, streaks, quests, ranks, level-ups. Keeping them
+     separate is what lets lesson content stay quiet while the dashboard sings.
+     Do NOT use these for body text or borders on content. */
+  --color-game-xp: var(--game-xp);
+  --color-game-flame: var(--game-flame);
+  --color-game-gem: var(--game-gem);
+  --color-game-win: var(--game-win);
+  --color-game-loss: var(--game-loss);
+  --color-game-epic: var(--game-epic);
+  --color-game-on-solid: var(--game-on-solid);
+  /* Deep variants = the "underside" of a chunky 3D control. */
+  --color-game-xp-deep: var(--game-xp-deep);
+  --color-game-flame-deep: var(--game-flame-deep);
+  --color-game-gem-deep: var(--game-gem-deep);
+  --color-game-win-deep: var(--game-win-deep);
+  --color-game-epic-deep: var(--game-epic-deep);
+
   /* ─── Streak ramp ───
      The one source of truth for flame colouring. */
   --color-streak-cold: var(--streak-cold);
@@ -164,6 +184,99 @@
       transform: translateX(300%);
     }
   }
+
+  /* ─── Game motion ───
+     Perpetual, low-amplitude loops that keep the HUD feeling alive. All are
+     transform/opacity only, and all are killed by the reduced-motion reset. */
+
+  /* Flame: irregular flicker, so it reads as fire rather than a pulse. */
+  --animate-flame: flame 2.6s ease-in-out infinite;
+  @keyframes flame {
+    0%,
+    100% {
+      transform: scale(1) rotate(-1deg);
+    }
+    25% {
+      transform: scale(1.06) rotate(1.5deg);
+    }
+    50% {
+      transform: scale(0.98) rotate(-0.5deg);
+    }
+    75% {
+      transform: scale(1.04) rotate(1deg);
+    }
+  }
+
+  /* Gentle vertical drift for badges and orbs. */
+  --animate-float: float 4s ease-in-out infinite;
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  /* Diagonal gloss sweep across a filled bar or badge. */
+  --animate-shine: shine 3.2s var(--ease-standard) infinite;
+  @keyframes shine {
+    0% {
+      transform: translateX(-130%) skewX(-18deg);
+    }
+    55%,
+    100% {
+      transform: translateX(320%) skewX(-18deg);
+    }
+  }
+
+  /* One-shot celebratory overshoot, for values that just changed. */
+  --animate-pop: pop 0.45s var(--ease-emphasized) 1;
+  @keyframes pop {
+    0% {
+      transform: scale(0.8);
+    }
+    60% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Attention nudge for an unclaimed reward. */
+  --animate-wiggle: wiggle 2.8s ease-in-out infinite;
+  @keyframes wiggle {
+    0%,
+    88%,
+    100% {
+      transform: rotate(0deg);
+    }
+    91% {
+      transform: rotate(-7deg);
+    }
+    94% {
+      transform: rotate(7deg);
+    }
+    97% {
+      transform: rotate(-4deg);
+    }
+  }
+
+  /* Slow halo breath behind a lit streak or a level-up. */
+  --animate-halo: halo 3s ease-in-out infinite;
+  @keyframes halo {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.12);
+    }
+  }
 }
 
 /*
@@ -190,6 +303,25 @@
 
   --border-subtle: oklch(0.925 0.005 75);
   --border-strong: oklch(0.82 0.008 75);
+
+  /* ─── Game palette (light) ───
+     Vivid, but lightness is solved so each tone clears 4.5:1 twice over: as
+     text on --surface-1, and as a solid button face under --game-on-solid.
+     `*-deep` is the pressed underside of a 3D control and never carries text,
+     so it is free to go darker. */
+  --game-xp: oklch(0.565 0.15 78);
+  --game-xp-deep: oklch(0.42 0.13 78);
+  --game-flame: oklch(0.58 0.19 42);
+  --game-flame-deep: oklch(0.43 0.16 42);
+  --game-gem: oklch(0.54 0.16 232);
+  --game-gem-deep: oklch(0.39 0.14 232);
+  --game-win: oklch(0.54 0.17 148);
+  --game-win-deep: oklch(0.39 0.14 148);
+  --game-loss: oklch(0.585 0.2 25);
+  --game-epic: oklch(0.58 0.19 300);
+  --game-epic-deep: oklch(0.42 0.17 300);
+  /* Label colour on a solid game face. Light faces are dark, so this is light. */
+  --game-on-solid: oklch(0.99 0 0);
 
   /* ─── Streak ramp (light) ───
      Lightness solved so each tone clears 4.5:1 as text on --surface-1. */
@@ -274,6 +406,21 @@
 
   --border-subtle: oklch(0.205 0.007 60);
   --border-strong: oklch(0.32 0.01 60);
+
+  /* ─── Game palette (dark) ─── */
+  --game-xp: oklch(0.82 0.16 85);
+  --game-xp-deep: oklch(0.58 0.14 85);
+  --game-flame: oklch(0.72 0.19 42);
+  --game-flame-deep: oklch(0.5 0.16 42);
+  --game-gem: oklch(0.75 0.15 232);
+  --game-gem-deep: oklch(0.5 0.13 232);
+  --game-win: oklch(0.76 0.19 148);
+  --game-win-deep: oklch(0.52 0.16 148);
+  --game-loss: oklch(0.68 0.2 25);
+  --game-epic: oklch(0.72 0.17 300);
+  --game-epic-deep: oklch(0.48 0.15 300);
+  /* Dark faces are bright, so the label on them is near-black. */
+  --game-on-solid: oklch(0.14 0.006 250);
 
   /* ─── Streak ramp (dark) ─── */
   --streak-cold: oklch(0.6 0.015 260);

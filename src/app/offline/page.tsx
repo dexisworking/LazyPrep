@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function OfflinePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 text-center">
       <div className="flex items-center gap-2">
         <LogoMark className="h-8 w-8" />
         <Wordmark className="text-xl" />

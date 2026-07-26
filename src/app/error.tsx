@@ -15,7 +15,7 @@ export default function RootError({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 text-center">
       <p className="text-6xl font-black tracking-tighter text-foreground/10">500</p>
       <h1 className="mt-4 text-xl font-bold text-foreground">Something went wrong</h1>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">

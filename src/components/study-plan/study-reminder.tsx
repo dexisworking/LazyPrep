@@ -31,7 +31,7 @@ export function StudyReminder({ goalMet }: { goalMet: boolean }) {
     const today = new Date().toISOString().slice(0, 10);
     if (localStorage.getItem(STORAGE_KEY) === today) return;
     try {
-      new Notification("Keep your streak alive 🔥", {
+      new Notification("Keep your streak alive", {
         body: "You haven't studied yet today. A few minutes keeps the momentum going.",
         icon: "/icons/icon-192.png",
       });

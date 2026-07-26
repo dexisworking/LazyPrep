@@ -150,7 +150,7 @@ export default async function CourseDetailPage({
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
-          <h3 className="text-lg font-bold text-foreground">Course mastered! 🎉</h3>
+          <h3 className="text-lg font-bold text-foreground">Course mastered</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
             Want to go deeper? Pick a key concept from this course and LazyPrep will build a whole
             new from-basics-to-advanced course dedicated to mastering it.

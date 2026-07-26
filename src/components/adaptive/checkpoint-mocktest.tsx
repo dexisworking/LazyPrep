@@ -110,7 +110,7 @@ export function CheckpointMocktest({
           {result.passed ? (
             <div className="mt-4 space-y-3">
               <p className="font-semibold text-np-success">
-                {phaseTitle} mastered! 🎉{" "}
+                {phaseTitle} mastered.{" "}
                 {result.hasNextPhase ? "The next phase is unlocked." : "You've completed the course!"}
               </p>
               <Link

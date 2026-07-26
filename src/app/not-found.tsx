@@ -4,7 +4,7 @@ import { LogoMark } from "@/components/brand/logo";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 text-center">
       <LogoMark className="h-10 w-10 opacity-60" />
       <p className="mt-6 text-7xl font-black tracking-tighter text-foreground/10">404</p>
       <h1 className="mt-2 text-xl font-bold text-foreground">Page not found</h1>
