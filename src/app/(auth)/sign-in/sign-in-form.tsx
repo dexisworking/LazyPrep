@@ -8,6 +8,7 @@ import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { GoogleButton } from "@/components/auth/google-button";
 import { VerifyNotice } from "@/components/auth/verify-notice";
+import { AuthErrorNotice } from "@/components/auth/auth-error-notice";
 
 export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
@@ -72,9 +73,17 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
         </div>
       )}
 
+      {/* Failure bounced back from an OAuth callback. */}
+      <AuthErrorNotice />
+
       {googleEnabled && (
         <>
-          <GoogleButton callbackUrl={callbackUrl} label="Continue with Google" onError={setError} />
+          <GoogleButton
+            callbackUrl={callbackUrl}
+            label="Continue with Google"
+            onError={setError}
+            errorCallbackUrl="/sign-in"
+          />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />

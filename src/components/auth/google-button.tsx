@@ -11,11 +11,19 @@ export function GoogleButton({
   /** Set on sign-up until the terms checkbox is ticked — social sign-in creates
       an account too, so it has to sit behind the same consent gate. */
   disabled = false,
+  /**
+   * Where the provider sends the user when the callback is rejected. Without
+   * it Better Auth falls back to the site root, so a failure looked exactly
+   * like landing on the marketing page — the `?error=` code was there, but on a
+   * page that never reads it.
+   */
+  errorCallbackUrl = "/sign-in",
 }: {
   callbackUrl: string;
   label: string;
   onError: (msg: string) => void;
   disabled?: boolean;
+  errorCallbackUrl?: string;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +32,11 @@ export function GoogleButton({
     setLoading(true);
     onError("");
     try {
-      await signIn.social({ provider: "google", callbackURL: callbackUrl });
+      await signIn.social({
+        provider: "google",
+        callbackURL: callbackUrl,
+        errorCallbackURL: errorCallbackUrl,
+      });
       // On success the browser is redirected to Google, so no further code runs.
     } catch {
       onError("Google sign-in failed. Please try again.");

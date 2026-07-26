@@ -79,6 +79,29 @@ export const auth = betterAuth({
       }
     : {},
 
+  account: {
+    /*
+     * Link a Google sign-in to an existing account with the same email.
+     *
+     * Without this, Better Auth refuses the callback and bounces to
+     * `/?error=account_not_linked` whenever someone who already registered with
+     * email + password tries "Continue with Google" using that same address —
+     * which is the overwhelmingly common case, and leaves them with no way in
+     * except remembering which method they originally used.
+     *
+     * Safe to trust Google specifically: it asserts a verified email, matching
+     * requires an exact address match (`allowDifferentEmails` stays off), and
+     * production refuses to boot without transactional email configured, so the
+     * password side of any match is a verified address too. Do NOT add a
+     * provider here that doesn't verify email ownership — that would turn this
+     * into an account-takeover path.
+     */
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+    },
+  },
+
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24,     // Update session every 24 hours

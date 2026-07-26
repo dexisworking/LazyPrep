@@ -8,6 +8,7 @@ import { Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { GoogleButton } from "@/components/auth/google-button";
 import { VerifyNotice } from "@/components/auth/verify-notice";
+import { AuthErrorNotice } from "@/components/auth/auth-error-notice";
 import { PasswordStrengthMeter } from "@/components/ui/password-strength-meter";
 
 export function SignUpForm({
@@ -112,6 +113,9 @@ export function SignUpForm({
         </span>
       </label>
 
+      {/* Failure bounced back from an OAuth callback. */}
+      <AuthErrorNotice />
+
       {googleEnabled && (
         <>
           <GoogleButton
@@ -119,6 +123,7 @@ export function SignUpForm({
             label="Continue with Google"
             onError={setError}
             disabled={!agreed}
+            errorCallbackUrl="/sign-up"
           />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
