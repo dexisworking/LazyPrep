@@ -14,7 +14,7 @@ export default function OfflinePage() {
         <LogoMark className="h-8 w-8" />
         <Wordmark className="text-xl" />
       </div>
-      <div className="mt-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-border/50 bg-card">
+      <div className="mt-10 flex h-16 w-16 items-center justify-center rounded-card border border-border-subtle bg-card">
         <WifiOff className="h-7 w-7 text-muted-foreground" />
       </div>
       <h1 className="mt-6 text-xl font-bold text-foreground">You&apos;re offline</h1>

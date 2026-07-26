@@ -37,7 +37,7 @@ export function ResetPasswordForm() {
         </div>
         <Link
           href="/forgot-password"
-          className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className="inline-flex items-center justify-center rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
         >
           Request a new link
         </Link>
@@ -80,7 +80,7 @@ export function ResetPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div className="rounded-control border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         )}
@@ -99,12 +99,16 @@ export function ResetPasswordForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="flex h-10 w-full rounded-lg border border-input bg-card pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+              className="flex h-10 w-full rounded-control border border-input bg-card pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              // Padded to a 40px hit area — the bare 16px icon was well under
+              // the touch-target minimum.
+              className="absolute right-1 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-control text-muted-foreground transition-colors hover:text-foreground"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -125,7 +129,7 @@ export function ResetPasswordForm() {
               onChange={(e) => setConfirm(e.target.value)}
               required
               minLength={8}
-              className="flex h-10 w-full rounded-lg border border-input bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+              className="flex h-10 w-full rounded-control border border-input bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
             />
           </div>
         </div>
@@ -133,7 +137,7 @@ export function ResetPasswordForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-center gap-2 rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           Reset password

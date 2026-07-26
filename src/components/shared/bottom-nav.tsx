@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { SPRING } from "@/lib/motion";
 import { navRoutes, isRouteActive } from "@/lib/nav";
 
 /**
@@ -18,7 +19,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/50 bg-background/85 backdrop-blur-lg md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-background/85 backdrop-blur-lg md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Primary"
     >
@@ -30,8 +31,10 @@ export function BottomNav() {
               key={route.href}
               href={route.href}
               data-tour={`nav-${route.href.slice(1)}`}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors active:scale-95",
+                "relative flex flex-1 flex-col items-center justify-center gap-1 text-3xs font-medium transition-colors active:scale-95",
+                "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none",
                 active ? "text-foreground" : "text-muted-foreground",
               )}
             >
@@ -40,11 +43,7 @@ export function BottomNav() {
                   <motion.span
                     layoutId="bottom-nav-active"
                     className="absolute inset-0 rounded-full bg-primary/15"
-                    transition={
-                      reduced
-                        ? { duration: 0 }
-                        : { type: "spring", stiffness: 400, damping: 32 }
-                    }
+                    transition={reduced ? { duration: 0 } : SPRING.snappy}
                   />
                 )}
                 <route.icon

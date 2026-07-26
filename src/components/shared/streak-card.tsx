@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Shield, Zap, TrendingUp } from "lucide-react";
+import { AlertTriangle, Check, Shield, Zap, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getStreakStatus,
@@ -12,13 +12,9 @@ import {
 } from "@/lib/streak";
 import { getStreakMultiplier } from "@/lib/xp";
 import { AnimatedNumber, SlideUp } from "@/components/motion/motion";
-
-const statusConfig = {
-  cold: { flame: "text-muted-foreground", bg: "bg-muted/50", ring: "border-border/50" },
-  warm: { flame: "text-amber-400", bg: "bg-amber-500/5", ring: "border-amber-400/30" },
-  hot: { flame: "text-orange-500", bg: "bg-orange-500/5", ring: "border-orange-400/30" },
-  fire: { flame: "text-red-500 animate-pulse", bg: "bg-red-500/5", ring: "border-red-500/30" },
-} as const;
+import { Pill } from "@/components/shared/pill";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { STREAK_TONE, StreakFlame } from "@/components/shared/streak-flame";
 
 interface StreakCardProps {
   currentStreak: number;
@@ -41,7 +37,7 @@ export function StreakCard({
   const atRisk = !studied && isStreakAtRisk(lastStudyDate, timezone);
   const multiplier = getStreakMultiplier(currentStreak);
   const nextMilestone = getNextMultiplierMilestone(currentStreak);
-  const cfg = statusConfig[status];
+  const cfg = STREAK_TONE[status];
 
   // Progress toward next multiplier tier
   const prevTierDays =
@@ -57,23 +53,19 @@ export function StreakCard({
 
   return (
     <SlideUp
-      className={cn(
-        "relative overflow-hidden rounded-xl border p-5",
-        cfg.ring,
-        cfg.bg,
-      )}
+      className={cn("relative overflow-hidden rounded-card border p-card", cfg.ring, cfg.bg)}
     >
       {/* Top row: flame + count */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-lg border",
+              "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-control border",
               cfg.ring,
-              status === "fire" ? "bg-red-500/10" : "bg-card/60",
+              cfg.tileBg,
             )}
           >
-            <Flame className={cn("h-6 w-6", cfg.flame)} />
+            <StreakFlame status={status} className="h-6 w-6" />
           </div>
           <div>
             <p className="text-2xl font-bold text-foreground leading-none">
@@ -88,18 +80,17 @@ export function StreakCard({
           </div>
         </div>
 
-        {/* Status badge */}
-        <div className="text-right space-y-1">
-          {studied ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-np-success/10 border border-np-success/20 px-2.5 py-0.5 text-[10px] font-semibold text-np-success">
-              ✓ Studied today
-            </span>
-          ) : atRisk ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-500 animate-pulse">
-              ⚠ Streak at risk
-            </span>
-          ) : null}
-        </div>
+        {/* Status badge. Glyphs are lucide icons now, not literal ✓/⚠ text, and
+            the at-risk pill no longer pulses alongside a lit flame. */}
+        {studied ? (
+          <Pill tone="success" size="sm" icon={Check}>
+            Studied today
+          </Pill>
+        ) : atRisk ? (
+          <Pill tone="streak-warm" size="sm" icon={AlertTriangle}>
+            Streak at risk
+          </Pill>
+        ) : null}
       </div>
 
       {/* XP multiplier bar */}
@@ -117,12 +108,11 @@ export function StreakCard({
             <span className="font-semibold text-np-xp">Max tier!</span>
           )}
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div
-            className="h-full rounded-full bg-np-xp transition-all duration-500"
-            style={{ width: `${tierProgress}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={tierProgress}
+          tone="xp"
+          aria-label="Progress to next XP multiplier tier"
+        />
       </div>
 
       {/* Bottom row: longest streak + freezes */}
@@ -132,7 +122,7 @@ export function StreakCard({
           Best: {longestStreak}d
         </span>
         <span className="flex items-center gap-1">
-          <Shield className="h-3.5 w-3.5 text-blue-400" />
+          <Shield className="h-3.5 w-3.5 text-primary" />
           {streakFreezes} freeze{streakFreezes !== 1 ? "s" : ""} left
         </span>
       </div>

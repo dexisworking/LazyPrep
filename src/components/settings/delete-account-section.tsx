@@ -44,9 +44,9 @@ export function DeleteAccountSection({ email }: { email: string }) {
   };
 
   return (
-    <section className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
+    <section className="space-y-4 rounded-card border border-destructive/30 bg-destructive/5 p-5">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control border border-destructive/30 bg-destructive/10">
           <AlertTriangle className="h-4 w-4 text-destructive" />
         </div>
         <div>
@@ -65,7 +65,7 @@ export function DeleteAccountSection({ email }: { email: string }) {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger
             render={
-              <button className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20 active:scale-[0.98]" />
+              <button className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-control border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20 active:scale-[0.98]" />
             }
           >
             <Trash2 className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function DeleteAccountSection({ email }: { email: string }) {
             <DialogFooter>
               <DialogClose
                 render={
-                  <button className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
+                  <button className="inline-flex items-center justify-center rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
                 }
               >
                 Cancel
@@ -102,7 +102,7 @@ export function DeleteAccountSection({ email }: { email: string }) {
               <button
                 onClick={handleDelete}
                 disabled={!matches || loading}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-control bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Delete forever

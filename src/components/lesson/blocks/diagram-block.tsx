@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { DURATION, EASE, STAGGER } from "@/lib/motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,9 +35,9 @@ const ACCENTS = [
 
 function Frame({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="np-block my-6 overflow-hidden rounded-xl border border-border/60 bg-card">
+    <div className="np-block my-6 overflow-hidden rounded-card border border-border bg-card">
       {title && (
-        <div className="border-b border-border/50 bg-secondary/50 px-4 py-2.5 text-sm font-semibold text-foreground">
+        <div className="border-b border-border-subtle bg-secondary/50 px-4 py-2.5 text-sm font-semibold text-foreground">
           {title}
         </div>
       )}
@@ -56,7 +57,7 @@ export function DiagramBlock({ data }: { data: DiagramBlockData }) {
           initial: { opacity: 0, y: 10 },
           whileInView: { opacity: 1, y: 0 },
           viewport: { once: true, margin: "-30px" },
-          transition: { duration: 0.25, delay: i * 0.05, ease: "easeOut" as const },
+          transition: { duration: DURATION.base, delay: i * STAGGER.tight, ease: EASE.out },
         };
 
   if (data.type === "layers") {
@@ -70,7 +71,7 @@ export function DiagramBlock({ data }: { data: DiagramBlockData }) {
                 key={i}
                 {...reveal(i)}
                 className={cn(
-                  "group flex items-stretch gap-0 overflow-hidden rounded-lg border transition-colors",
+                  "group flex items-stretch gap-0 overflow-hidden rounded-control border transition-colors",
                   accent.border,
                   "hover:shadow-sm",
                 )}
@@ -125,7 +126,7 @@ export function DiagramBlock({ data }: { data: DiagramBlockData }) {
                 <motion.div
                   {...reveal(i)}
                   className={cn(
-                    "flex-1 rounded-lg border px-3.5 py-3",
+                    "flex-1 rounded-control border px-3.5 py-3",
                     accent.border,
                     accent.soft,
                   )}
@@ -133,7 +134,7 @@ export function DiagramBlock({ data }: { data: DiagramBlockData }) {
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
-                        "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-background",
+                        "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-3xs font-bold text-background",
                         accent.bar,
                       )}
                     >
@@ -170,7 +171,7 @@ export function DiagramBlock({ data }: { data: DiagramBlockData }) {
             <motion.div
               key={i}
               {...reveal(i)}
-              className={cn("rounded-lg border p-4", accent.border, accent.soft)}
+              className={cn("rounded-control border p-4", accent.border, accent.soft)}
             >
               <p className={cn("mb-2.5 text-sm font-bold", accent.text)}>{side.title}</p>
               <ul className="space-y-1.5">

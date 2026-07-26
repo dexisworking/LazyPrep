@@ -35,7 +35,7 @@ export function AppIconPicker() {
   };
 
   return (
-    <div className="space-y-4 rounded-xl border border-border/50 bg-card p-5">
+    <div className="space-y-4 rounded-card border border-border-subtle bg-card p-5">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {ICON_VARIANTS.map((v) => {
           const active = mounted && selected === v.key;
@@ -46,10 +46,10 @@ export function AppIconPicker() {
               onClick={() => choose(v.key)}
               aria-pressed={active}
               className={cn(
-                "group flex flex-col items-center gap-2 rounded-xl border p-3 transition-all active:scale-[0.98]",
+                "group flex flex-col items-center gap-2 rounded-card border p-3 transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.98]",
                 active
                   ? "border-primary bg-primary/5 ring-2 ring-primary/40"
-                  : "border-border/60 hover:border-primary/40 hover:bg-secondary/40",
+                  : "border-border hover:border-primary/40 hover:bg-secondary/40",
               )}
             >
               <span className="relative">
@@ -91,7 +91,7 @@ export function AppIconPicker() {
         Saved — your browser tab icon updated; it applies to your home-screen icon at install.
       </p>
 
-      <p className="flex items-start gap-2 rounded-lg border border-border/40 bg-secondary/40 p-3 text-xs text-muted-foreground">
+      <p className="flex items-start gap-2 rounded-control border border-border-subtle bg-secondary/40 p-3 text-xs text-muted-foreground">
         <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
         <span>
           Your pick applies when you <b className="text-foreground">add LazyPrep to your home

@@ -1,91 +1,96 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { ThemeToggle } from "./theme-toggle";
-import { Flame, Trophy } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Trophy } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { getLevelProgress } from "@/lib/xp";
 import { getStreakStatus } from "@/lib/streak";
-import { cn } from "@/lib/utils";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { StreakFlame } from "@/components/shared/streak-flame";
 import { StreakPanel } from "@/components/shared/streak-panel";
+import { MobileNavSheet } from "@/components/shared/mobile-nav-sheet";
+import { LogoMark } from "@/components/brand/logo";
+import { ThemeToggle } from "./theme-toggle";
 import type { ProfileSummary } from "@/lib/data/dashboard";
-
-const streakFlameColors = {
-  cold: "text-muted-foreground",
-  warm: "text-amber-400",
-  hot: "text-orange-500",
-  fire: "text-red-500 animate-pulse",
-} as const;
 
 interface NavbarProps {
   profile: ProfileSummary;
 }
 
 export function Navbar({ profile }: NavbarProps) {
-  const pathname = usePathname();
   const [streakOpen, setStreakOpen] = useState(false);
 
-  const userXp = profile.xp;
-  const { level, progress, currentLevelXp, nextLevelXp } = getLevelProgress(userXp);
+  const { level, progress, currentLevelXp, nextLevelXp } = getLevelProgress(profile.xp);
   const currentStreak = profile.currentStreak;
   const streakStatus = getStreakStatus(currentStreak);
 
-  // Get Page Title from Pathname
-  const getPageTitle = () => {
-    if (!pathname) return "Dashboard";
-    const segment = pathname.split("/")[1];
-    if (!segment) return "Dashboard";
-    return segment.charAt(0).toUpperCase() + segment.slice(1);
-  };
-
   return (
-    <header
-      className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-md sm:px-6"
-      style={{ paddingTop: "env(safe-area-inset-top)" }}
-    >
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          {getPageTitle()}
-        </h2>
+    /*
+     * Height is 4rem *plus* the safe-area inset rather than a flat h-16 with
+     * inset padding — border-box meant the notch was eating into the bar and
+     * squashing its contents on iOS standalone.
+     *
+     * No `sticky`: the scroll container is the sibling <main>, so it was a no-op.
+     */
+    <header className="flex h-[calc(4rem+env(safe-area-inset-top))] w-full flex-shrink-0 items-center justify-between border-b border-border-subtle bg-background/80 px-3 pt-[env(safe-area-inset-top)] backdrop-blur-md sm:px-6">
+      {/*
+       * Left slot. The page title used to live here as an <h2> derived from the
+       * first path segment — which put an h2 before every page's h1 in DOM
+       * order, and rendered "Courses" for a lesson three levels deep. Pages own
+       * their own heading now.
+       */}
+      <div className="flex items-center gap-1 md:hidden">
+        <MobileNavSheet profile={profile} />
+        <LogoMark className="size-7" />
       </div>
+      <div className="hidden md:block" />
 
-      {/* Quick Status Stats & Theme Toggle */}
-      <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
-        {/* Level & XP — full widget on md+, compact chip on mobile */}
-        <div className="hidden items-center gap-3 rounded-xl border border-border/40 bg-card/30 px-3 py-1.5 md:flex">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Level & XP — full widget on md+, compact chip below */}
+        <div className="hidden items-center gap-3 rounded-control border border-border-subtle bg-card/40 px-3 py-1.5 md:flex">
           <div className="flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-np-orange" />
+            <Trophy className="h-4 w-4 text-np-orange" aria-hidden />
             <span className="text-xs font-semibold text-muted-foreground">Lvl {level}</span>
           </div>
-          <div className="w-24">
-            <Progress value={progress} className="h-1.5 bg-secondary" />
-          </div>
-          <span className="text-[10px] font-medium text-muted-foreground">
+          <ProgressBar
+            value={progress}
+            size="xs"
+            className="w-24"
+            aria-label={`Level ${level} progress`}
+          />
+          <span className="text-2xs font-medium tabular-nums text-muted-foreground">
             {currentLevelXp} / {nextLevelXp} XP
           </span>
         </div>
-        <div className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-border/40 bg-card/30 px-2.5 py-1.5 md:hidden">
-          <Trophy className="h-3.5 w-3.5 flex-shrink-0 text-np-orange" />
+        <div className="flex items-center gap-1.5 whitespace-nowrap rounded-control border border-border-subtle bg-card/40 px-2.5 py-1.5 md:hidden">
+          <Trophy className="h-3.5 w-3.5 flex-shrink-0 text-np-orange" aria-hidden />
           <span className="text-xs font-bold text-foreground">Lvl&nbsp;{level}</span>
         </div>
 
-        {/* Streak Counter — now clickable with panel */}
+        {/* Streak */}
         <div className="relative">
           <button
+            type="button"
             data-tour="streak"
             onClick={() => setStreakOpen((prev) => !prev)}
+            aria-expanded={streakOpen}
+            aria-haspopup="dialog"
+            aria-label={`${currentStreak} day streak. Show streak details.`}
             className={cn(
-              "flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 sm:px-3 transition-colors",
+              "flex h-9 items-center gap-1.5 rounded-control border px-2.5 transition-colors duration-(--dur-fast) sm:px-3",
               streakOpen
                 ? "border-primary/40 bg-primary/5"
-                : "border-border/40 bg-card/30 hover:border-border hover:bg-card/50",
+                : "border-border-subtle bg-card/40 hover:border-border hover:bg-card/70",
             )}
           >
-            <Flame className={cn("h-4 w-4", streakFlameColors[streakStatus])} />
-            <span className="text-sm font-bold text-foreground">{currentStreak}</span>
-            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">day streak</span>
+            <StreakFlame status={streakStatus} className="h-4 w-4" />
+            <span className="text-sm font-bold tabular-nums text-foreground">
+              {currentStreak}
+            </span>
+            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+              day streak
+            </span>
           </button>
 
           <StreakPanel
@@ -99,10 +104,7 @@ export function Navbar({ profile }: NavbarProps) {
           />
         </div>
 
-        {/* Theme & Profile Toggles */}
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </div>
     </header>
   );

@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 
+import { DURATION, tr } from "@/lib/motion";
+
 /**
  * Re-mounts on every dashboard navigation, giving each page a subtle
  * fade + rise entrance. Reduced motion → instant render.
@@ -12,7 +14,7 @@ export default function DashboardTemplate({ children }: { children: React.ReactN
     <motion.div
       initial={reduced ? false : { opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
+      transition={tr(DURATION.fast)}
     >
       {children}
     </motion.div>

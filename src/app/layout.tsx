@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Poppins } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SwRegister } from "@/components/shared/sw-register";
@@ -8,6 +8,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+// Code faces in lessons, the terminal block and the tutor chat.
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 // Wordmark-only face: rounded geometric bold matching the LazyPrep reference.
 const poppins = Poppins({ weight: ["600", "700"], subsets: ["latin"], variable: "--font-wordmark" });
 
@@ -75,8 +77,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
+    // Kept in sync with --surface-0 in globals.css.
+    { media: "(prefers-color-scheme: light)", color: "#fcfbf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#100f0d" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -89,8 +92,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, poppins.variable)}>
-      <body className={`${geist.variable} ${poppins.variable} font-sans antialiased`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", geist.variable, geistMono.variable, poppins.variable)}
+    >
+      <body className="font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

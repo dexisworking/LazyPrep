@@ -20,7 +20,7 @@ export default async function FlashcardsPage() {
       </div>
 
       {courses.length === 0 ? (
-        <div className="rounded-xl border border-border/50 bg-card p-10 text-center text-muted-foreground">
+        <div className="rounded-card border border-border-subtle bg-card p-10 text-center text-muted-foreground">
           No flashcard decks available yet.
         </div>
       ) : (
@@ -30,14 +30,14 @@ export default async function FlashcardsPage() {
             <Link
               href={course.totalCards > 0 ? `/flashcards/${course.slug}` : "#"}
               className={
-                "group flex w-full items-center justify-between gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all active:scale-[0.99] " +
+                "group flex w-full items-center justify-between gap-4 rounded-card border border-border-subtle bg-card p-5 transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.99] " +
                 (course.totalCards > 0
                   ? "hover:border-np-success/40 hover:shadow-lg hover:shadow-np-success/5"
                   : "pointer-events-none opacity-60")
               }
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-np-success/20 bg-np-success/10">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-control border border-np-success/20 bg-np-success/10">
                   <Brain className="h-5 w-5 text-np-success" />
                 </div>
                 <div className="space-y-1">
@@ -50,17 +50,17 @@ export default async function FlashcardsPage() {
                   </p>
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     {course.due > 0 && (
-                      <span className="rounded-full border border-np-orange/30 bg-np-orange/10 px-2 py-0.5 text-[11px] font-medium text-np-orange">
+                      <span className="rounded-full border border-np-orange/30 bg-np-orange/10 px-2 py-0.5 text-2xs font-medium text-np-orange">
                         {course.due} due
                       </span>
                     )}
                     {course.newCount > 0 && (
-                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-2xs font-medium text-primary">
                         {course.newCount} new
                       </span>
                     )}
                     {course.due === 0 && course.newCount === 0 && course.totalCards > 0 && (
-                      <span className="rounded-full border border-np-success/30 bg-np-success/10 px-2 py-0.5 text-[11px] font-medium text-np-success">
+                      <span className="rounded-full border border-np-success/30 bg-np-success/10 px-2 py-0.5 text-2xs font-medium text-np-success">
                         All caught up
                       </span>
                     )}

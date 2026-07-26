@@ -61,9 +61,9 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
   };
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-6">
+    <div className="rounded-card border border-border-subtle bg-card p-6">
       <div className="mb-4 flex items-start gap-3">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
           <KeyRound className="h-5 w-5 text-primary" />
         </div>
         <div>
@@ -78,7 +78,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
       {/* Connected state */}
       {status.configured && !editing && (
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-np-success/30 bg-np-success/5 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-np-success/30 bg-np-success/5 p-4">
             <div className="space-y-1">
               <p className="flex items-center gap-2 text-sm font-medium text-np-success">
                 <CheckCircle2 className="h-4 w-4" />
@@ -92,14 +92,14 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
             <div className="flex gap-2">
               <button
                 onClick={() => setEditing(true)}
-                className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                className="rounded-control border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
               >
                 Update
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                className="inline-flex items-center gap-1.5 rounded-control border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Remove
@@ -121,7 +121,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-or-v1-…"
                 autoComplete="off"
-                className="h-10 w-full rounded-lg border border-input bg-background pl-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 w-full rounded-control border border-input bg-background pl-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
               <button
                 type="button"
@@ -140,7 +140,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
               placeholder="https://openrouter.ai/api/v1"
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
             />
           </div>
 
@@ -151,7 +151,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
               value={model}
               onChange={(e) => setModel(e.target.value)}
               placeholder="openai/gpt-4o-mini"
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
             />
             <div className="flex flex-wrap gap-1.5 pt-1">
               {MODEL_SUGGESTIONS.map((m) => (
@@ -159,7 +159,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
                   key={m}
                   type="button"
                   onClick={() => setModel(m)}
-                  className="rounded-full border border-border/60 bg-secondary px-2.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                  className="rounded-full border border-border bg-secondary px-2.5 py-0.5 text-2xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 >
                   {m}
                 </button>
@@ -168,7 +168,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
           </div>
 
           {error && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div className="rounded-control border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -177,7 +177,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
             <button
               onClick={handleSave}
               disabled={isPending || !apiKey}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               Validate & Save
@@ -188,7 +188,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
                   setEditing(false);
                   setError("");
                 }}
-                className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                className="rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
               >
                 Cancel
               </button>
@@ -204,7 +204,7 @@ export function AiKeyForm({ status }: { status: AiKeyStatus }) {
         </p>
       )}
 
-      <div className="mt-5 flex items-start gap-2 border-t border-border/40 pt-4 text-xs text-muted-foreground">
+      <div className="mt-5 flex items-start gap-2 border-t border-border-subtle pt-4 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-np-success" />
         <span>
           Your key is encrypted (AES-256-GCM) before it&apos;s stored, decrypted only on our

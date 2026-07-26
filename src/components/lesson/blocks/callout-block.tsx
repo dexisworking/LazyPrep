@@ -39,10 +39,10 @@ export function CalloutBlock({ data }: { data: CalloutBlockData }) {
   const variant = VARIANTS[data.type ?? "info"] ?? VARIANTS.info;
   const Icon = variant.icon;
   return (
-    <div className={cn("np-block my-6 flex gap-3 rounded-xl border p-4", variant.cls)}>
+    <div className={cn("np-block my-6 flex gap-3 rounded-card border p-4", variant.cls)}>
       <Icon className={cn("mt-0.5 h-5 w-5 flex-shrink-0", variant.iconCls)} />
       <div className="min-w-0 space-y-1">
-        <p className={cn("text-[11px] font-semibold uppercase tracking-wider", variant.iconCls)}>
+        <p className={cn("text-2xs font-semibold uppercase tracking-wider", variant.iconCls)}>
           {data.title ?? variant.label}
         </p>
         <p className="text-sm leading-relaxed text-foreground/90">{data.body}</p>

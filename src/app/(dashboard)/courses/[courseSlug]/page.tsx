@@ -80,17 +80,17 @@ export default async function CourseDetailPage({
       </Link>
 
       {/* Header */}
-      <div className="rounded-2xl border border-border/40 bg-card p-6 md:p-8">
+      <div className="rounded-card border border-border-subtle bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {course.adaptive && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
                   <Sparkles className="h-3 w-3" />
                   Mastery path
                 </span>
               )}
-              <span className="inline-block rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="inline-block rounded-full border border-border-subtle bg-secondary px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-muted-foreground">
                 {course.category}
               </span>
             </div>
@@ -128,7 +128,7 @@ export default async function CourseDetailPage({
         </div>
         <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-secondary">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="h-full rounded-full bg-primary transition-[background-color,border-color,color,box-shadow,opacity,transform]"
             style={{ width: `${course.adaptive ? Math.round((phasesMastered / 3) * 100) : pct}%` }}
           />
         </div>
@@ -146,7 +146,7 @@ export default async function CourseDetailPage({
 
       {/* Deep-dive CTA when the whole course is mastered */}
       {mastered && (
-        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
+        <div className="relative overflow-hidden rounded-card border border-primary/30 bg-primary/5 p-6 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
@@ -157,7 +157,7 @@ export default async function CourseDetailPage({
           </p>
           <Link
             href={`/courses/${course.slug}/deep-dive`}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+            className="mt-4 inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
           >
             <Sparkles className="h-4 w-4" />
             Explore deep-dive topics
@@ -179,9 +179,9 @@ export default async function CourseDetailPage({
                   <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                     {chapter.title}
                   </h3>
-                  <ul className="overflow-hidden rounded-xl border border-border/50 bg-card">
+                  <ul className="overflow-hidden rounded-card border border-border-subtle bg-card">
                     {chapter.lessons.map((lesson) => (
-                      <li key={lesson.id} className="border-b border-border/40 last:border-0">
+                      <li key={lesson.id} className="border-b border-border-subtle last:border-0">
                         <Link
                           href={`/courses/${course.slug}/lessons/${lesson.slug}`}
                           className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/60"
@@ -221,7 +221,7 @@ export default async function CourseDetailPage({
 
       {/* Owner actions — share + delete */}
       {isOwner && (
-        <div className="space-y-4 border-t border-border/40 pt-6">
+        <div className="space-y-4 border-t border-border-subtle pt-6">
           <ShareCourseButton
             courseId={course.id}
             initialIsShared={course.isShared}

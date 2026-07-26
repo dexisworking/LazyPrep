@@ -10,31 +10,10 @@ import { DeleteAccountSection } from "@/components/settings/delete-account-secti
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { SectionHeader } from "@/components/shared/section-header";
 import { SignOutButton } from "@/components/profile/sign-out-button";
 
 export const dynamic = "force-dynamic";
-
-function SectionHeader({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border/50 bg-secondary/50">
-        <Icon className="h-4 w-4 text-primary" />
-      </div>
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
 
 export default async function SettingsPage() {
   const session = await getSession();
@@ -59,8 +38,9 @@ export default async function SettingsPage() {
       </div>
 
       {/* Account */}
-      <section className="space-y-4 rounded-xl border border-border/50 bg-card p-5">
+      <section className="space-y-4 rounded-card border border-border-subtle bg-card p-card">
         <SectionHeader
+          size="sm"
           icon={User}
           title="Account"
           description="Your identity on LazyPrep."
@@ -86,8 +66,9 @@ export default async function SettingsPage() {
       </section>
 
       {/* Appearance */}
-      <section className="space-y-4 rounded-xl border border-border/50 bg-card p-5">
+      <section className="space-y-4 rounded-card border border-border-subtle bg-card p-card">
         <SectionHeader
+          size="sm"
           icon={Palette}
           title="Appearance"
           description="Switch between dark and light mode."
@@ -105,6 +86,7 @@ export default async function SettingsPage() {
       {/* App icon */}
       <section className="space-y-4">
         <SectionHeader
+          size="sm"
           icon={Smartphone}
           title="App Icon"
           description="Choose the icon used when you add LazyPrep to your home screen."
@@ -115,6 +97,7 @@ export default async function SettingsPage() {
       {/* AI configuration */}
       <section className="space-y-4">
         <SectionHeader
+          size="sm"
           icon={KeyRound}
           title="AI Configuration"
           description="Bring your own key to generate custom courses. Stored encrypted — never shown again."

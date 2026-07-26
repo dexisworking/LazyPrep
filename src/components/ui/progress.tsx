@@ -4,12 +4,28 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Note on `className`: it styles the Root, which is the flex *wrapper* around
+ * the optional label/value row and the track — not the bar itself. Passing
+ * `h-1.5 bg-secondary` here silently does nothing, which is what the navbar
+ * was doing. Use `trackClassName` / `indicatorClassName`, or the `size` and
+ * `tone` props, to style the bar.
+ */
 function Progress({
   className,
+  trackClassName,
+  indicatorClassName,
   children,
   value,
+  size = "sm",
+  tone = "primary",
   ...props
-}: ProgressPrimitive.Root.Props) {
+}: ProgressPrimitive.Root.Props & {
+  trackClassName?: string
+  indicatorClassName?: string
+  size?: "xs" | "sm" | "md"
+  tone?: "primary" | "success" | "xp" | "streak" | "destructive"
+}) {
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -18,12 +34,26 @@ function Progress({
       {...props}
     >
       {children}
-      <ProgressTrack>
-        <ProgressIndicator />
+      <ProgressTrack className={cn(trackSizes[size], trackClassName)}>
+        <ProgressIndicator className={cn(toneFills[tone], indicatorClassName)} />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   )
 }
+
+const trackSizes = {
+  xs: "h-1",
+  sm: "h-1.5",
+  md: "h-2",
+} as const
+
+const toneFills = {
+  primary: "bg-primary",
+  success: "bg-np-success",
+  xp: "bg-np-xp",
+  streak: "bg-streak-hot",
+  destructive: "bg-destructive",
+} as const
 
 function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   return (
@@ -45,7 +75,10 @@ function ProgressIndicator({
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn("h-full bg-primary transition-all", className)}
+      className={cn(
+        "h-full rounded-full bg-primary transition-[width] duration-(--dur-slow) ease-emphasized",
+        className
+      )}
       {...props}
     />
   )

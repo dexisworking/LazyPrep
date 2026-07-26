@@ -104,7 +104,7 @@ export function StudyHeatmap({ days, tz = DEFAULT_TZ }: { days: HeatmapDay[]; tz
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between text-2xs text-muted-foreground">
         <span>{monthLabel(utcToKey(start))} – {monthLabel(todayKey)}</span>
         <div className="flex items-center gap-1">
           <span>Less</span>

@@ -3,10 +3,13 @@
 /**
  * LazyPrep motion primitives — thin framer-motion wrappers used across the app.
  *
- * Rules of the system:
- * - UI motion stays ≤ 250ms; springs are reserved for celebratory moments.
- * - Every primitive respects `prefers-reduced-motion`: transforms are dropped
- *   and reveals become instant (opacity snaps to 1).
+ * Durations, easings and springs all come from `@/lib/motion`; nothing in here
+ * declares its own numbers. See that module for the rules of the system.
+ *
+ * Every primitive respects `prefers-reduced-motion`: transforms are dropped and
+ * reveals become instant (opacity snaps to 1). Components that hand-roll their
+ * own framer markup should use `useMotionSafe()` rather than re-deriving the
+ * same `reduced ? … : …` ternary.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -18,6 +21,31 @@ import {
   useTransform,
   type HTMLMotionProps,
 } from "framer-motion";
+
+import { DURATION, SCALE_IN, SLIDE_UP, SPRING, STAGGER, tr } from "@/lib/motion";
+
+/**
+ * Reduced-motion-aware transition helpers for components that build their own
+ * framer markup.
+ *
+ * `t()` collapses a tween to zero duration and `s()` swaps a spring for an
+ * instant tween, so callers can pass them unconditionally instead of branching
+ * at every call site.
+ */
+export function useMotionSafe() {
+  const reduced = useReducedMotion() ?? false;
+  return {
+    reduced,
+    /** Tween, or an instant snap under reduced motion. */
+    t: (duration: number = DURATION.base, ease?: Parameters<typeof tr>[1]) =>
+      reduced ? { duration: 0 } : tr(duration, ease),
+    /** Spring, or an instant snap under reduced motion. */
+    s: (spring: (typeof SPRING)[keyof typeof SPRING] = SPRING.snappy) =>
+      reduced ? { duration: 0 } : spring,
+    /** `initial` value that disables mount animation under reduced motion. */
+    initial: <T,>(value: T) => (reduced ? (false as const) : value),
+  };
+}
 
 type RevealProps = HTMLMotionProps<"div"> & {
   /** Extra delay in seconds (used to hand-stagger small sets). */
@@ -37,7 +65,7 @@ export function FadeIn({ delay = 0, inView = false, ...props }: RevealProps) {
       {...(inView
         ? { whileInView: anim, viewport: { once: true, margin: "-40px" } }
         : { animate: anim })}
-      transition={{ duration: 0.25, delay, ease: "easeOut" }}
+      transition={{ ...tr(), delay }}
       {...props}
     />
   );
@@ -46,15 +74,32 @@ export function FadeIn({ delay = 0, inView = false, ...props }: RevealProps) {
 /** Fade + rise in (optionally on scroll into view). */
 export function SlideUp({ delay = 0, inView = false, ...props }: RevealProps) {
   const reduced = useReducedMotion();
-  const initial = reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 };
-  const anim = { opacity: 1, y: 0 };
+  const initial = reduced ? SLIDE_UP.visible : SLIDE_UP.hidden;
+  const anim = SLIDE_UP.visible;
   return (
     <motion.div
       initial={initial}
       {...(inView
         ? { whileInView: anim, viewport: { once: true, margin: "-40px" } }
         : { animate: anim })}
-      transition={{ duration: 0.25, delay, ease: "easeOut" }}
+      transition={{ ...tr(), delay }}
+      {...props}
+    />
+  );
+}
+
+/** Fade + scale in. For panels, dialogs and celebratory cards. */
+export function ScaleIn({ delay = 0, inView = false, ...props }: RevealProps) {
+  const reduced = useReducedMotion();
+  const initial = reduced ? SCALE_IN.visible : SCALE_IN.hidden;
+  const anim = SCALE_IN.visible;
+  return (
+    <motion.div
+      initial={initial}
+      {...(inView
+        ? { whileInView: anim, viewport: { once: true, margin: "-40px" } }
+        : { animate: anim })}
+      transition={{ ...SPRING.smooth, delay }}
       {...props}
     />
   );
@@ -66,7 +111,7 @@ export function SlideUp({ delay = 0, inView = false, ...props }: RevealProps) {
  */
 export function Stagger({
   inView = false,
-  staggerDelay = 0.06,
+  staggerDelay = STAGGER.base,
   ...props
 }: HTMLMotionProps<"div"> & { inView?: boolean; staggerDelay?: number }) {
   const reduced = useReducedMotion();
@@ -90,12 +135,8 @@ export function StaggerItem(props: HTMLMotionProps<"div">) {
   return (
     <motion.div
       variants={{
-        hidden: reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.25, ease: "easeOut" },
-        },
+        hidden: reduced ? SLIDE_UP.visible : { opacity: 0, y: 14 },
+        visible: { opacity: 1, y: 0, transition: tr() },
       }}
       {...props}
     />
@@ -120,7 +161,7 @@ export function AnimatedNumber({
   const reduced = useReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-20px" });
-  const spring = useSpring(0, { stiffness: 90, damping: 24 });
+  const spring = useSpring(0, SPRING.counter);
   const rounded = useTransform(spring, (v) => Math.round(v));
   const [display, setDisplay] = useState(reduced ? value : 0);
 

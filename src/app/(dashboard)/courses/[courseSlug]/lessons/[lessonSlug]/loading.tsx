@@ -12,14 +12,14 @@ export default function LessonLoading() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
-        <Skeleton className="h-32 w-full rounded-lg" />
+        <Skeleton className="h-32 w-full rounded-control" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-4/5" />
       </div>
       <div className="flex justify-center pt-4">
-        <Skeleton className="h-11 w-48 rounded-lg" />
+        <Skeleton className="h-11 w-48 rounded-control" />
       </div>
     </div>
   );

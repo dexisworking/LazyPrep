@@ -21,7 +21,7 @@ export default async function PracticePage() {
       </div>
 
       {courses.length === 0 ? (
-        <div className="rounded-xl border border-border/50 bg-card p-10 text-center text-muted-foreground">
+        <div className="rounded-card border border-border-subtle bg-card p-10 text-center text-muted-foreground">
           No practice questions available yet.
         </div>
       ) : (
@@ -29,11 +29,11 @@ export default async function PracticePage() {
           {courses.map((course) => (
             <StaggerItem
               key={course.id}
-              className="rounded-xl border border-border/50 bg-card p-5"
+              className="rounded-card border border-border-subtle bg-card p-5"
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-np-red/20 bg-np-red/10">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-control border border-np-red/20 bg-np-red/10">
                     <Target className="h-5 w-5 text-np-red" />
                   </div>
                   <div className="space-y-1">
@@ -49,7 +49,7 @@ export default async function PracticePage() {
                   {course.dueReviews > 0 && (
                     <Link
                       href={`/practice/${course.slug}/review`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-np-orange/40 bg-np-orange/10 px-4 py-2.5 text-sm font-semibold text-np-orange transition-all hover:bg-np-orange/20"
+                      className="inline-flex items-center gap-2 rounded-control border border-np-orange/40 bg-np-orange/10 px-4 py-2.5 text-sm font-semibold text-np-orange transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-np-orange/20"
                     >
                       <RotateCcw className="h-4 w-4" />
                       Review ({course.dueReviews})
@@ -58,7 +58,7 @@ export default async function PracticePage() {
                   {course.wrong > 0 && (
                     <Link
                       href={`/practice/${course.slug}/notebook`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                      className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
                     >
                       <BookOpenCheck className="h-4 w-4 text-np-red" />
                       Notebook ({course.wrong})
@@ -66,7 +66,7 @@ export default async function PracticePage() {
                   )}
                   <Link
                     href={`/practice/${course.slug}/mocks`}
-                    className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/20"
+                    className="inline-flex items-center gap-2 rounded-control border border-primary/40 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-primary/20"
                   >
                     <AlarmClock className="h-4 w-4" />
                     Mock Tests
@@ -74,7 +74,7 @@ export default async function PracticePage() {
                   {course.totalQuestions > 0 && (
                     <Link
                       href={`/practice/${course.slug}`}
-                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+                      className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
                     >
                       Start Practice
                       <ArrowRight className="h-4 w-4" />
@@ -84,7 +84,7 @@ export default async function PracticePage() {
               </div>
 
               {course.attempts > 0 && (
-                <div className="mt-4 flex items-center gap-4 border-t border-border/40 pt-4 text-sm">
+                <div className="mt-4 flex items-center gap-4 border-t border-border-subtle pt-4 text-sm">
                   <span className="flex items-center gap-1.5 text-np-success">
                     <CheckCircle2 className="h-4 w-4" />
                     {course.correct} correct

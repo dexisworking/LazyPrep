@@ -53,6 +53,41 @@
   --color-np-xp: var(--np-xp);
   --color-np-streak: var(--np-streak);
 
+  /* ─── Surface elevation ramp ───
+     0 = page, 1 = card, 2 = recessed/hover, 3 = overlay (menus, tooltips).
+     Always move *up* the ramp for raised UI; never invert. */
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  /* ─── Border weights ───
+     subtle = internal dividers, default = card edges, strong = emphasis. */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  /* ─── Terminal chrome ───
+     Deliberately identical in both themes: a CLI window reads as a dark
+     appliance regardless of page theme, the same way an embedded editor does.
+     Tokenised so the values are controllable rather than magic literals
+     duplicated from the dark palette. */
+  --color-terminal-bg: oklch(0.15 0.008 60);
+  --color-terminal-chrome: oklch(1 0 0 / 0.04);
+  --color-terminal-border: oklch(1 0 0 / 0.08);
+  --color-terminal-fg: oklch(1 0 0 / 0.72);
+  --color-terminal-fg-strong: oklch(1 0 0 / 0.88);
+  --color-terminal-fg-dim: oklch(1 0 0 / 0.38);
+  --color-terminal-prompt: oklch(0.78 0.14 58);
+  --color-terminal-dot-red: oklch(0.65 0.17 25);
+  --color-terminal-dot-amber: oklch(0.76 0.14 58);
+  --color-terminal-dot-green: oklch(0.72 0.13 158);
+
+  /* ─── Streak ramp ───
+     The one source of truth for flame colouring. */
+  --color-streak-cold: var(--streak-cold);
+  --color-streak-warm: var(--streak-warm);
+  --color-streak-hot: var(--streak-hot);
+  --color-streak-fire: var(--streak-fire);
+
   /* ─── Border Radius ─── */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -61,6 +96,74 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Two semantic radii. Every card is `rounded-card`, every control
+     `rounded-control`. Values match the existing rounded-xl / rounded-lg so
+     the majority of the app is already pixel-correct. */
+  --radius-card: 14px;
+  --radius-control: 10px;
+
+  /* Extra-small breakpoint. 360–400px phones are the app's floor, and several
+     two-up grids need a stacking point below Tailwind's 40rem `sm`. */
+  --breakpoint-xs: 26rem;
+
+  /* ─── Card rhythm ─── (p-card, px-card, gap-card…) */
+  --spacing-card: 1.25rem;
+  --spacing-card-sm: 0.875rem;
+  --spacing-gutter: 1rem;
+
+  /* ─── Type scale ───
+     Two legitimate sub-xs steps so nothing needs text-[10px] again.
+     2xs = dense metadata, 3xs = tab labels and numeric chips only. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.35;
+  --text-3xs: 0.625rem;
+  --text-3xs--line-height: 1.3;
+
+  /* ─── Fonts ─── */
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* ─── Elevation ─── (theme-aware; values live in :root/.dark) */
+  --shadow-card: var(--elevation-card);
+  --shadow-raised: var(--elevation-raised);
+  --shadow-overlay: var(--elevation-overlay);
+  --shadow-fab: var(--elevation-fab);
+
+  /* ─── Easing ─── */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ─── Named animations ───
+     A slow scale/opacity breath for the lit streak flame. Replaces
+     `animate-pulse`, which blinked the icon to 50% twice a second and read as
+     a broken loading state. Globally gated by the reduced-motion reset. */
+  --animate-streak-breathe: streak-breathe 2.4s var(--ease-standard) infinite;
+
+  @keyframes streak-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 0.85;
+    }
+  }
+
+  /* Indeterminate sweep for long AI generations, where a bare spinner reads
+     as stalled. Paired with a 1/3-width bar. */
+  --animate-generator-sweep: generator-sweep 1.4s var(--ease-standard) infinite;
+
+  @keyframes generator-sweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
 }
 
 /*
@@ -69,62 +172,92 @@
 :root {
   --radius: 0.625rem;
 
-  --background: oklch(0.98 0.005 260);
-  --foreground: oklch(0.12 0.02 260);
+  /* ─── Motion durations ───
+     CSS side of the scale. The JS side lives in src/lib/motion.ts and must be
+     kept in sync by hand — Tailwind v4 has no --duration-* theme namespace, so
+     these are consumed as `duration-(--dur-base)`. */
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 350ms;
+  --dur-celebrate: 600ms;
 
-  --card: oklch(1.00 0.00 0);
-  --card-foreground: oklch(0.12 0.02 260);
-  --popover: oklch(1.00 0.00 0);
-  --popover-foreground: oklch(0.12 0.02 260);
+  /* ─── Surface ramp (light) ─── */
+  --surface-0: oklch(0.985 0.004 75);
+  --surface-1: oklch(1 0 0);
+  --surface-2: oklch(0.962 0.005 75);
+  --surface-3: oklch(0.93 0.006 75);
 
-  /* Primary: Deep Blue */
-  --primary: oklch(0.55 0.22 250);
-  --primary-foreground: oklch(0.98 0.005 250);
+  --border-subtle: oklch(0.925 0.005 75);
+  --border-strong: oklch(0.82 0.008 75);
 
-  /* Secondary: Light Blue-Grey */
-  --secondary: oklch(0.94 0.01 260);
-  --secondary-foreground: oklch(0.25 0.02 260);
+  /* ─── Streak ramp (light) ───
+     Lightness solved so each tone clears 4.5:1 as text on --surface-1. */
+  --streak-cold: oklch(0.45 0.015 260);
+  --streak-warm: oklch(0.57 0.14 78);
+  --streak-hot: oklch(0.585 0.17 45);
+  --streak-fire: oklch(0.59 0.2 28);
 
-  /* Muted */
-  --muted: oklch(0.94 0.01 260);
-  --muted-foreground: oklch(0.45 0.015 260);
+  /* ─── Elevation (light) ─── */
+  --elevation-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 1px 3px oklch(0 0 0 / 0.06);
+  --elevation-raised: 0 4px 12px -2px oklch(0 0 0 / 0.1);
+  --elevation-overlay: 0 16px 40px -12px oklch(0 0 0 / 0.22);
+  --elevation-fab: 0 8px 24px -6px color-mix(in oklch, var(--primary) 35%, transparent);
 
-  /* Accent: Orange */
-  --accent: oklch(0.65 0.20 55);
-  --accent-foreground: oklch(0.15 0.02 55);
+  --background: var(--surface-0);
+  --foreground: oklch(0.17 0.012 70);
 
-  /* Destructive: Red Accents */
-  --destructive: oklch(0.55 0.24 25);
-  --destructive-foreground: oklch(0.98 0.005 25);
+  --card: var(--surface-1);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-1);
+  --popover-foreground: var(--foreground);
 
-  --border: oklch(0.88 0.01 260);
-  --input: oklch(0.88 0.01 260);
-  --ring: oklch(0.55 0.22 250);
+  /* Primary: confident blue — the single lead colour */
+  --primary: oklch(0.52 0.155 252);
+  --primary-foreground: oklch(0.99 0.002 250);
 
-  /* Charts */
-  --chart-1: oklch(0.55 0.22 250);
-  --chart-2: oklch(0.65 0.20 55);
-  --chart-3: oklch(0.55 0.24 25);
-  --chart-4: oklch(0.60 0.20 155);
-  --chart-5: oklch(0.58 0.18 300);
+  --secondary: var(--surface-2);
+  --secondary-foreground: oklch(0.3 0.012 70);
+
+  --muted: var(--surface-2);
+  --muted-foreground: oklch(0.5 0.012 70);
+
+  /* Accent: warm orange — the one supporting hue */
+  --accent: oklch(0.56 0.155 58);
+  --accent-foreground: oklch(0.99 0.002 60);
+
+  --destructive: oklch(0.55 0.19 25);
+  --destructive-foreground: oklch(0.99 0.002 25);
+
+  --border: oklch(0.885 0.006 75);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Charts — the only place the fifth (purple) hue is allowed */
+  --chart-1: var(--primary);
+  --chart-2: var(--accent);
+  --chart-3: var(--destructive);
+  --chart-4: var(--np-success);
+  --chart-5: oklch(0.58 0.14 300);
 
   /* Sidebar */
-  --sidebar: oklch(0.96 0.005 260);
-  --sidebar-foreground: oklch(0.25 0.02 260);
-  --sidebar-primary: oklch(0.55 0.22 250);
-  --sidebar-primary-foreground: oklch(0.98 0.005 250);
-  --sidebar-accent: oklch(0.94 0.01 260);
-  --sidebar-accent-foreground: oklch(0.25 0.02 260);
-  --sidebar-border: oklch(0.88 0.01 260);
-  --sidebar-ring: oklch(0.55 0.22 250);
+  --sidebar: oklch(0.968 0.004 75);
+  --sidebar-foreground: oklch(0.3 0.012 70);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: oklch(0.3 0.012 70);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
 
-  /* Custom LazyPrep Tokens */
-  --np-blue: oklch(0.55 0.22 250);
-  --np-orange: oklch(0.65 0.20 55);
-  --np-red: oklch(0.55 0.24 25);
-  --np-success: oklch(0.60 0.20 155);
-  --np-xp: oklch(0.65 0.20 55);
-  --np-streak: oklch(0.62 0.22 40);
+  /* Custom LazyPrep tokens — kept as names, now aliases of the core set so
+     there is exactly one blue, one orange and one red in the system. */
+  --np-blue: var(--primary);
+  --np-orange: var(--accent);
+  --np-red: var(--destructive);
+  --np-success: oklch(0.545 0.14 158);
+  --np-xp: var(--accent);
+  --np-streak: var(--streak-hot);
 }
 
 /*
@@ -132,69 +265,88 @@
  * Premium dark mode with pure black base, electric blue, electric orange, red accents
  */
 .dark {
-  /* True dark background (AMOLED friendly) */
-  --background: oklch(0.08 0.005 260);
-  --foreground: oklch(0.98 0.005 260);
+  /* ─── Surface ramp (dark) ───
+     Warm near-black rather than cool AMOLED black — reads as ink, not void. */
+  --surface-0: oklch(0.115 0.006 60);
+  --surface-1: oklch(0.155 0.007 60);
+  --surface-2: oklch(0.195 0.008 60);
+  --surface-3: oklch(0.24 0.009 60);
 
-  --card: oklch(0.12 0.008 260);
-  --card-foreground: oklch(0.98 0.005 260);
-  --popover: oklch(0.12 0.008 260);
-  --popover-foreground: oklch(0.98 0.005 260);
+  --border-subtle: oklch(0.205 0.007 60);
+  --border-strong: oklch(0.32 0.01 60);
 
-  /* Primary: Electric Blue */
-  --primary: oklch(0.65 0.19 250);
-  --primary-foreground: oklch(0.98 0.005 250);
+  /* ─── Streak ramp (dark) ─── */
+  --streak-cold: oklch(0.6 0.015 260);
+  --streak-warm: oklch(0.8 0.13 82);
+  --streak-hot: oklch(0.73 0.155 48);
+  --streak-fire: oklch(0.66 0.185 30);
 
-  /* Secondary: Dark Grey-Blue */
-  --secondary: oklch(0.18 0.01 260);
-  --secondary-foreground: oklch(0.88 0.01 260);
+  /* ─── Elevation (dark) ─── shadows need more alpha to read on dark ground */
+  --elevation-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 3px oklch(0 0 0 / 0.4);
+  --elevation-raised: 0 4px 14px -2px oklch(0 0 0 / 0.5);
+  --elevation-overlay: 0 18px 44px -12px oklch(0 0 0 / 0.65);
+  --elevation-fab: 0 8px 24px -6px color-mix(in oklch, var(--primary) 45%, transparent);
 
-  /* Muted */
-  --muted: oklch(0.16 0.008 260);
-  --muted-foreground: oklch(0.60 0.015 260);
+  --background: var(--surface-0);
+  --foreground: oklch(0.97 0.003 75);
 
-  /* Accent: Vibrant Orange */
-  --accent: oklch(0.72 0.17 55);
-  --accent-foreground: oklch(0.08 0.005 55);
+  --card: var(--surface-1);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-1);
+  --popover-foreground: var(--foreground);
 
-  /* Destructive: Electric Red */
-  --destructive: oklch(0.60 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 25);
+  /* Primary: confident blue — the single lead colour */
+  --primary: oklch(0.66 0.145 252);
+  --primary-foreground: oklch(0.14 0.006 250);
 
-  --border: oklch(0.20 0.012 260);
-  --input: oklch(0.20 0.012 260);
-  --ring: oklch(0.65 0.19 250);
+  --secondary: var(--surface-2);
+  --secondary-foreground: oklch(0.9 0.006 75);
 
-  /* Charts */
-  --chart-1: oklch(0.65 0.19 250);
-  --chart-2: oklch(0.72 0.17 55);
-  --chart-3: oklch(0.60 0.22 25);
-  --chart-4: oklch(0.70 0.18 155);
-  --chart-5: oklch(0.68 0.16 300);
+  --muted: var(--surface-2);
+  --muted-foreground: oklch(0.66 0.011 75);
+
+  /* Accent: warm orange — the one supporting hue */
+  --accent: oklch(0.74 0.145 58);
+  --accent-foreground: oklch(0.16 0.008 60);
+
+  --destructive: oklch(0.63 0.175 25);
+  --destructive-foreground: oklch(0.98 0.004 25);
+
+  --border: oklch(0.255 0.008 60);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Charts — the only place the fifth (purple) hue is allowed */
+  --chart-1: var(--primary);
+  --chart-2: var(--accent);
+  --chart-3: var(--destructive);
+  --chart-4: var(--np-success);
+  --chart-5: oklch(0.68 0.13 300);
 
   /* Sidebar */
-  --sidebar: oklch(0.10 0.006 260);
-  --sidebar-foreground: oklch(0.88 0.01 260);
-  --sidebar-primary: oklch(0.65 0.19 250);
-  --sidebar-primary-foreground: oklch(0.98 0.005 250);
-  --sidebar-accent: oklch(0.18 0.01 260);
-  --sidebar-accent-foreground: oklch(0.88 0.01 260);
-  --sidebar-border: oklch(0.16 0.008 260);
-  --sidebar-ring: oklch(0.65 0.19 250);
+  --sidebar: oklch(0.135 0.006 60);
+  --sidebar-foreground: oklch(0.9 0.006 75);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: oklch(0.95 0.004 75);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--primary);
 
-  /* Custom LazyPrep Tokens */
-  --np-blue: oklch(0.65 0.19 250);
-  --np-orange: oklch(0.72 0.17 55);
-  --np-red: oklch(0.60 0.22 25);
-  --np-success: oklch(0.70 0.18 155);
-  --np-xp: oklch(0.72 0.17 55);
-  --np-streak: oklch(0.70 0.19 40);
+  /* Custom LazyPrep tokens — kept as names, now aliases of the core set so
+     there is exactly one blue, one orange and one red in the system. */
+  --np-blue: var(--primary);
+  --np-orange: var(--accent);
+  --np-red: var(--destructive);
+  --np-success: oklch(0.7 0.135 158);
+  --np-xp: var(--accent);
+  --np-streak: var(--streak-hot);
 }
 
 /* ─── Base Styles ─── */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
@@ -202,9 +354,25 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /*
+   * Global keyboard focus.
+   * This previously read `outline-ring/50` on `*`, which sets an outline
+   * *colour* and nothing else — so it rendered no ring at all and keyboard
+   * navigation was invisible everywhere outside components/ui. Components may
+   * still opt into a ring-based treatment; this is the floor, not the ceiling.
+   */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Components that paint their own focus treatment opt out here. */
+  [data-focus-custom]:focus-visible {
+    outline: none;
+  }
 }
 
-/* ─── Scrollbar (AMOLED-friendly) ─── */
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -215,18 +383,55 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.30 0.01 260);
+  background: color-mix(in oklch, var(--foreground) 22%, transparent);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.40 0.01 260);
+  background: color-mix(in oklch, var(--foreground) 32%, transparent);
 }
 
 /* ─── Selection ─── */
 ::selection {
-  background: oklch(0.65 0.19 250 / 0.3);
+  background: color-mix(in oklch, var(--primary) 28%, transparent);
   color: inherit;
+}
+
+/* ─── Skip link ───
+   First focusable element in the dashboard shell. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: var(--radius-control);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.5rem 1rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: transform var(--dur-fast) var(--ease-emphasized);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/*
+ * ─── Reduced motion ───
+ * Blanket kill-switch. The framer primitives already branch on
+ * `useReducedMotion()`, but the tw-animate-css enter/exit keyframes used by
+ * components/ui and every CSS `animate-*` had no gate at all.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ─── Lesson markdown content ─── */
@@ -247,18 +452,19 @@
   color: var(--foreground);
   scroll-margin-top: 5rem;
 }
+/* Sizes come from the app type scale — not a parallel rem scale. */
 .md-content h1 {
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   margin: 2rem 0 1rem;
 }
 .md-content h2 {
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   margin: 1.8rem 0 0.8rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
 }
 .md-content h3 {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   margin: 1.4rem 0 0.6rem;
 }
 .md-content p {
@@ -301,21 +507,21 @@
   padding: 0.15rem 0.4rem;
   border-radius: 0.3rem;
   font-size: 0.85em;
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
 }
 .md-content pre {
   margin: 1rem 0;
   padding: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border);
-  background: oklch(0.16 0.008 260);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
   overflow-x: auto;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 .md-content pre code {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  color: oklch(0.9 0.01 260);
+  font-family: var(--font-mono);
+  color: var(--foreground);
 }
 .md-content table {
   width: 100%;
@@ -346,20 +552,21 @@
   margin: 1rem 0;
 }
 
-/* Minimal highlight.js token colors (rehype-highlight) */
+/* Minimal highlight.js token colors (rehype-highlight) — token-driven so the
+   same rules read correctly in both themes. */
 .md-content .hljs-keyword,
 .md-content .hljs-selector-tag,
-.md-content .hljs-built_in { color: oklch(0.72 0.17 300); }
+.md-content .hljs-built_in { color: var(--chart-5); }
 .md-content .hljs-string,
-.md-content .hljs-attr { color: oklch(0.72 0.15 155); }
+.md-content .hljs-attr { color: var(--np-success); }
 .md-content .hljs-number,
-.md-content .hljs-literal { color: oklch(0.72 0.17 55); }
-.md-content .hljs-comment { color: oklch(0.55 0.02 260); font-style: italic; }
+.md-content .hljs-literal { color: var(--np-orange); }
+.md-content .hljs-comment { color: var(--muted-foreground); font-style: italic; }
 .md-content .hljs-title,
 .md-content .hljs-name,
-.md-content .hljs-function { color: oklch(0.7 0.15 235); }
+.md-content .hljs-function { color: var(--primary); }
 .md-content .hljs-variable,
-.md-content .hljs-params { color: oklch(0.85 0.02 260); }
+.md-content .hljs-params { color: var(--foreground); }
 /* ═══════════════════════════════════════════
    TOUCH QUALITY (mobile / PWA)
    ═══════════════════════════════════════════ */
@@ -467,7 +674,7 @@ button,
   padding: 0.1rem 0.3rem;
   border-radius: 0.25rem;
   font-size: 0.85em;
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
 }
 .tutor-md pre {
   margin: 0.5rem 0;

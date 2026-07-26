@@ -2,14 +2,8 @@
 
 import { useRef, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import {
-  Flame,
-  Shield,
-  ShieldPlus,
-  Zap,
-  TrendingUp,
-  X,
-} from "lucide-react";
+import { DURATION, tr } from "@/lib/motion";
+import { Check, Shield, ShieldPlus, Zap, TrendingUp, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getStreakStatus,
@@ -20,13 +14,9 @@ import {
   STREAK_MULTIPLIER_TIERS,
 } from "@/lib/streak";
 import { getStreakMultiplier } from "@/lib/xp";
-
-const statusConfig = {
-  cold: { flame: "text-muted-foreground", accent: "border-border/50" },
-  warm: { flame: "text-amber-400", accent: "border-amber-400/40" },
-  hot: { flame: "text-orange-500", accent: "border-orange-400/40" },
-  fire: { flame: "text-red-500 animate-pulse", accent: "border-red-500/40" },
-} as const;
+import { InlineAlert } from "@/components/shared/inline-alert";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { STREAK_TONE, StreakFlame } from "@/components/shared/streak-flame";
 
 interface StreakPanelProps {
   open: boolean;
@@ -78,7 +68,7 @@ export function StreakPanel({
   const atRisk = !studied && isStreakAtRisk(lastStudyDate, timezone);
   const multiplier = getStreakMultiplier(currentStreak);
   const nextMilestone = getNextMultiplierMilestone(currentStreak);
-  const cfg = statusConfig[status];
+  const cfg = STREAK_TONE[status];
 
   const prevTierDays =
     [...STREAK_MULTIPLIER_TIERS].reverse().find((t) => currentStreak >= t.days)?.days ?? 0;
@@ -99,21 +89,22 @@ export function StreakPanel({
           initial={reduced ? { opacity: 1 } : { opacity: 0, y: -8, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.96 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
+          transition={tr(DURATION.fast)}
           className={cn(
-            "absolute right-0 top-full mt-2 z-50 w-80 rounded-xl border bg-card shadow-xl shadow-black/10",
-            cfg.accent,
+            "absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-card border bg-popover shadow-overlay",
+            cfg.ring,
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border/40 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
             <div className="flex items-center gap-2">
-              <Flame className={cn("h-5 w-5", cfg.flame)} />
+              <StreakFlame status={status} className="h-5 w-5" />
               <span className="text-sm font-bold text-foreground">Your Streak</span>
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              aria-label="Close streak details"
+              className="rounded-control p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
@@ -124,12 +115,12 @@ export function StreakPanel({
             <div className="flex items-center gap-4">
               <div
                 className={cn(
-                  "flex h-14 w-14 items-center justify-center rounded-xl border",
-                  cfg.accent,
-                  status === "fire" ? "bg-red-500/10" : "bg-secondary/60",
+                  "flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-card border",
+                  cfg.ring,
+                  cfg.tileBg,
                 )}
               >
-                <Flame className={cn("h-7 w-7", cfg.flame)} />
+                <StreakFlame status={status} className="h-7 w-7" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-foreground leading-none">
@@ -146,13 +137,13 @@ export function StreakPanel({
 
             {/* Status indicator */}
             {studied ? (
-              <div className="rounded-lg border border-np-success/20 bg-np-success/5 px-3 py-2 text-xs font-medium text-np-success">
-                ✓ You&apos;ve studied today — streak is safe!
-              </div>
+              <InlineAlert tone="success" icon={Check}>
+                You&apos;ve studied today — streak is safe.
+              </InlineAlert>
             ) : atRisk ? (
-              <div className="rounded-lg border border-amber-400/20 bg-amber-500/5 px-3 py-2 text-xs font-medium text-amber-500">
-                ⚠ Study today to keep your streak alive!
-              </div>
+              <InlineAlert tone="warning">
+                Study today to keep your streak alive.
+              </InlineAlert>
             ) : null}
 
             {/* XP multiplier */}
@@ -167,17 +158,17 @@ export function StreakPanel({
                     Next: {nextMilestone.label} at {nextMilestone.days}d
                   </span>
                 ) : (
-                  <span className="font-semibold text-np-xp">Max tier! 🔥</span>
+                  <span className="font-semibold text-np-xp">Max tier</span>
                 )}
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-np-xp transition-all duration-500"
-                  style={{ width: `${tierProgress}%` }}
-                />
-              </div>
+              <ProgressBar
+                value={tierProgress}
+                size="md"
+                tone="xp"
+                aria-label="Progress to next XP multiplier tier"
+              />
               {/* Tier labels */}
-              <div className="flex justify-between text-[10px] text-muted-foreground/70">
+              <div className="flex justify-between text-2xs text-muted-foreground/70">
                 {STREAK_MULTIPLIER_TIERS.map((tier) => (
                   <span
                     key={tier.days}
@@ -193,20 +184,20 @@ export function StreakPanel({
 
             {/* Stats row */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-border/40 bg-secondary/30 p-3 text-center">
+              <div className="rounded-control border border-border-subtle bg-secondary/30 p-3 text-center">
                 <div className="flex items-center justify-center gap-1 text-muted-foreground">
                   <TrendingUp className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-medium">Best Streak</span>
+                  <span className="text-2xs font-medium">Best Streak</span>
                 </div>
                 <p className="mt-1 text-lg font-bold text-foreground">
                   {longestStreak}
                   <span className="text-xs font-normal text-muted-foreground">d</span>
                 </p>
               </div>
-              <div className="rounded-lg border border-border/40 bg-secondary/30 p-3 text-center">
+              <div className="rounded-control border border-border-subtle bg-secondary/30 p-3 text-center">
                 <div className="flex items-center justify-center gap-1 text-muted-foreground">
-                  <Shield className="h-3.5 w-3.5 text-blue-400" />
-                  <span className="text-[10px] font-medium">Freezes Left</span>
+                  <Shield className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-2xs font-medium">Freezes Left</span>
                 </div>
                 <p className="mt-1 text-lg font-bold text-foreground">
                   {streakFreezes}
@@ -216,14 +207,13 @@ export function StreakPanel({
 
             {/* Buy freezes CTA (paywall placeholder) */}
             {streakFreezes < 3 && (
-              <button
-                disabled
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-400/20 bg-blue-500/5 px-3 py-2.5 text-xs font-semibold text-blue-400 transition-colors hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
-                title="Coming soon"
-              >
-                <ShieldPlus className="h-4 w-4" />
-                Buy More Freezes — Coming Soon
-              </button>
+              // Placeholder for a future paywall. Rendered as a quiet note
+              // rather than a permanently-disabled button, which read as broken
+              // and carried a hover style that could never fire.
+              <p className="flex items-center justify-center gap-2 rounded-control border border-dashed border-border-subtle px-3 py-2.5 text-2xs font-medium text-muted-foreground">
+                <ShieldPlus className="h-3.5 w-3.5" />
+                More freezes coming soon
+              </p>
             )}
           </div>
         </motion.div>

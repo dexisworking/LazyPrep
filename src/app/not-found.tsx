@@ -14,14 +14,14 @@ export default function NotFound() {
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
         >
           <LayoutDashboard className="h-4 w-4" />
           Dashboard
         </Link>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
         >
           <Home className="h-4 w-4" />
           Home

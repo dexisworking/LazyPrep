@@ -5,6 +5,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { SPRING } from "@/lib/motion";
 import {
   Sparkles,
   Send,
@@ -83,12 +84,29 @@ export function TutorPanel({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  // Escape closes, and focus returns to whatever opened the dock. This is a
+  // hand-rolled dock rather than a Dialog (it is non-modal on desktop, where
+  // the lesson behind it stays readable and interactive), so the dismissal
+  // affordances have to be provided explicitly.
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      opener?.focus?.();
+    };
+  }, [open]);
+
   return (
     <>
       {trigger === "floating" ? (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95 md:bottom-6 md:right-6"
+          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-fab transition-[background-color,transform] duration-(--dur-fast) hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] active:scale-95 md:bottom-6 md:right-6"
         >
           <Sparkles className="h-4 w-4" />
           {label}
@@ -96,7 +114,7 @@ export function TutorPanel({
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          className="inline-flex items-center gap-1.5 rounded-control border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
         >
           <HelpCircle className="h-3.5 w-3.5" />
           {label}
@@ -112,17 +130,19 @@ export function TutorPanel({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-40 bg-black/40 md:bg-transparent"
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:bg-transparent md:backdrop-blur-none"
             />
             <motion.div
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
-              transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              className="fixed inset-x-0 bottom-0 z-50 flex h-[80vh] flex-col rounded-t-2xl border border-border/60 bg-card shadow-2xl md:inset-x-auto md:bottom-6 md:right-6 md:h-[32rem] md:w-[26rem] md:rounded-2xl"
+              transition={SPRING.snappy}
+              role="dialog"
+              aria-label="AI tutor"
+              className="fixed inset-x-0 bottom-0 z-50 flex h-[80dvh] flex-col rounded-t-card border border-border-subtle bg-card shadow-overlay md:inset-x-auto md:bottom-6 md:right-6 md:h-[32rem] md:w-[26rem] md:rounded-card"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
+              <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15">
                     <GraduationCap className="h-4 w-4 text-primary" />
@@ -132,7 +152,7 @@ export function TutorPanel({
                 <button
                   onClick={() => setOpen(false)}
                   aria-label="Close tutor"
-                  className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  className="rounded-control p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -148,7 +168,7 @@ export function TutorPanel({
                   </p>
                   <Link
                     href="/settings"
-                    className="mt-1 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                    className="mt-1 inline-flex items-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
                   >
                     Go to Settings
                   </Link>
@@ -157,7 +177,7 @@ export function TutorPanel({
                 <>
                   <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
                     {messages.length === 0 && !loading && (
-                      <div className="rounded-xl border border-border/50 bg-secondary/40 p-4 text-sm text-muted-foreground">
+                      <div className="rounded-card border border-border-subtle bg-secondary/40 p-4 text-sm text-muted-foreground">
                         Ask me anything about this {questionId ? "question" : "lesson"} — for a
                         simpler explanation, another example, or a quick quiz.
                       </div>
@@ -169,10 +189,10 @@ export function TutorPanel({
                       >
                         <div
                           className={cn(
-                            "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm",
+                            "max-w-[85%] rounded-card px-3.5 py-2.5 text-sm",
                             m.role === "user"
                               ? "bg-primary text-primary-foreground"
-                              : "border border-border/50 bg-background text-foreground",
+                              : "border border-border-subtle bg-background text-foreground",
                           )}
                         >
                           {m.role === "assistant" ? (
@@ -187,7 +207,7 @@ export function TutorPanel({
                     ))}
                     {loading && (
                       <div className="flex justify-start">
-                        <div className="inline-flex items-center gap-2 rounded-2xl border border-border/50 bg-background px-3.5 py-2.5 text-sm text-muted-foreground">
+                        <div className="inline-flex items-center gap-2 rounded-card border border-border-subtle bg-background px-3.5 py-2.5 text-sm text-muted-foreground">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Thinking…
                         </div>
@@ -203,7 +223,7 @@ export function TutorPanel({
                         <button
                           key={q}
                           onClick={() => send(q)}
-                          className="rounded-full border border-border/60 bg-background px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                          className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                         >
                           {q}
                         </button>
@@ -217,18 +237,18 @@ export function TutorPanel({
                       e.preventDefault();
                       void send(input);
                     }}
-                    className="flex items-center gap-2 border-t border-border/50 p-3"
+                    className="flex items-center gap-2 border-t border-border-subtle p-3"
                   >
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Ask the tutor…"
-                      className="h-10 flex-1 rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="h-10 flex-1 rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                     />
                     <button
                       type="submit"
                       disabled={loading || !input.trim()}
-                      className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40"
+                      className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control bg-primary text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-40"
                     >
                       <Send className="h-4 w-4" />
                     </button>

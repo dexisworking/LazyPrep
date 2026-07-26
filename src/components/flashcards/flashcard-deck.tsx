@@ -11,6 +11,7 @@ import {
   useTransform,
   type PanInfo,
 } from "framer-motion";
+import { DURATION, SPRING, tr } from "@/lib/motion";
 import { RotateCcw, Sparkles, Zap, MousePointerClick, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { reviewCard } from "@/lib/actions/flashcards";
@@ -65,7 +66,7 @@ export function FlashcardDeck({
 
   if (cards.length === 0) {
     return (
-      <div className="rounded-2xl border border-border/40 bg-card p-10 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-np-success/10">
           <Sparkles className="h-7 w-7 text-np-success" />
         </div>
@@ -75,7 +76,7 @@ export function FlashcardDeck({
         </p>
         <Link
           href={backHref}
-          className="mt-4 inline-flex rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+          className="mt-4 inline-flex rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
         >
           Back
         </Link>
@@ -91,8 +92,8 @@ export function FlashcardDeck({
       <motion.div
         initial={reduced ? false : { opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 24 }}
-        className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center"
+        transition={SPRING.smooth}
+        className="mx-auto max-w-lg space-y-6 rounded-card border border-border-subtle bg-card p-8 text-center"
       >
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <Sparkles className="h-8 w-8 text-np-orange" />
@@ -111,14 +112,14 @@ export function FlashcardDeck({
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={() => router.refresh()}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
           >
             <RotateCcw className="h-4 w-4" />
             Study more
           </button>
           <Link
             href={backHref}
-            className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
+            className="inline-flex items-center justify-center rounded-control border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
           >
             Done
           </Link>
@@ -167,18 +168,18 @@ export function FlashcardDeck({
           </span>
           <span className="flex items-center gap-1.5">
             {card.isNew ? (
-              <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase text-primary">
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-3xs font-medium uppercase text-primary">
                 New
               </span>
             ) : (
-              <span className="rounded-full border border-np-orange/20 bg-np-orange/10 px-2 py-0.5 text-[10px] font-medium uppercase text-np-orange">
+              <span className="rounded-full border border-np-orange/20 bg-np-orange/10 px-2 py-0.5 text-3xs font-medium uppercase text-np-orange">
                 Review
               </span>
             )}
           </span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          <div className="h-full rounded-full bg-primary transition-[background-color,border-color,color,box-shadow,opacity,transform]" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
@@ -197,9 +198,9 @@ export function FlashcardDeck({
             exit={
               reduced
                 ? { opacity: 0 }
-                : { x: exitX, opacity: 0, rotate: exitX / 30, transition: { duration: 0.2 } }
+                : { x: exitX, opacity: 0, rotate: exitX / 30, transition: { duration: DURATION.base } }
             }
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={tr()}
             className={cn(canSwipe && "cursor-grab active:cursor-grabbing")}
           >
             <button
@@ -213,8 +214,8 @@ export function FlashcardDeck({
                   flipped && "[transform:rotateY(180deg)]",
                 )}
               >
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-border/60 bg-card p-8 text-center [backface-visibility:hidden]">
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-card border border-border bg-card p-8 text-center [backface-visibility:hidden]">
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
                     {card.topic}
                   </span>
                   <p className="text-xl font-semibold text-foreground">{card.front}</p>
@@ -223,8 +224,8 @@ export function FlashcardDeck({
                     Tap to flip
                   </span>
                 </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <span className="text-[10px] font-medium uppercase tracking-wide text-primary">Answer</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-card border border-primary/40 bg-primary/5 p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <span className="text-3xs font-medium uppercase tracking-wide text-primary">Answer</span>
                   <p className="text-lg font-medium leading-relaxed text-foreground">{card.back}</p>
                 </div>
               </div>
@@ -263,18 +264,18 @@ export function FlashcardDeck({
                   disabled={isGrading}
                   onClick={() => handleGrade(grade)}
                   className={cn(
-                    "flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-lg border py-3 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50",
+                    "flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-control border py-3 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.97] disabled:opacity-50",
                     cls,
                   )}
                 >
                   {label}
-                  <span className="text-[10px] font-normal opacity-80">{formatInterval(projected)}</span>
+                  <span className="text-3xs font-normal opacity-80">{formatInterval(projected)}</span>
                 </button>
               );
             })}
           </div>
           {!reduced && (
-            <p className="flex items-center justify-center gap-3 text-[11px] text-muted-foreground sm:hidden">
+            <p className="flex items-center justify-center gap-3 text-2xs text-muted-foreground sm:hidden">
               <span className="inline-flex items-center gap-1">
                 <ChevronsLeft className="h-3.5 w-3.5" /> Swipe left: Again
               </span>
@@ -287,7 +288,7 @@ export function FlashcardDeck({
       ) : (
         <button
           onClick={() => setFlipped(true)}
-          className="min-h-[3rem] w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.99]"
+          className="min-h-[3rem] w-full rounded-control bg-primary py-3 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.99]"
         >
           Show answer
         </button>

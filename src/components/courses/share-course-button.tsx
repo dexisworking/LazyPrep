@@ -61,7 +61,7 @@ export function ShareCourseButton({
         onClick={handleToggle}
         disabled={isPending}
         className={cn(
-          "inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
+          "inline-flex items-center gap-2 rounded-control border px-4 py-2 text-sm font-medium transition-colors",
           isShared
             ? "border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
             : "border-border bg-card text-foreground hover:bg-muted",
@@ -82,13 +82,14 @@ export function ShareCourseButton({
       </button>
 
       {isShared && shareUrl && (
-        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3">
+        <div className="flex items-center gap-2 rounded-control border border-primary/20 bg-primary/5 p-3">
           <Link className="h-4 w-4 flex-shrink-0 text-primary" />
           <input
             type="text"
             readOnly
+            aria-label="Public share link"
             value={shareUrl}
-            className="flex-1 bg-transparent text-xs font-medium text-foreground focus:outline-none"
+            className="flex-1 rounded-sm bg-transparent text-xs font-medium text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
           />
           <button
             onClick={handleCopy}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { SHAKE, SPRING } from "@/lib/motion";
 import { Link2, PartyPopper, RotateCcw } from "lucide-react";
 import { cn, shuffle } from "@/lib/utils";
 
@@ -78,29 +79,29 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
     const picked = side === "L" ? pickedLeft === i : pickedRight === i;
     const isWrong = wrongPair !== null && (side === "L" ? wrongPair[0] === i : wrongPair[1] === i);
     return cn(
-      "w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all",
+      "w-full rounded-control border px-3 py-2.5 text-left text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform]",
       matched.has(i)
         ? "border-np-success/60 bg-np-success/10 text-muted-foreground opacity-70"
         : isWrong
           ? "border-destructive bg-destructive/10"
           : picked
             ? "border-primary bg-primary/10"
-            : "border-border/70 bg-card hover:border-primary/50 hover:bg-primary/5 active:scale-[0.98]",
+            : "border-border bg-card hover:border-primary/50 hover:bg-primary/5 active:scale-[0.98]",
     );
   };
 
   const shakeAnim = (i: number, side: "L" | "R") =>
     !reduced && wrongPair !== null && (side === "L" ? wrongPair[0] === i : wrongPair[1] === i)
-      ? { x: [0, -6, 6, -4, 4, 0] }
+      ? { x: SHAKE.x }
       : {};
 
   return (
-    <div className="np-block my-6 rounded-xl border border-np-success/25 bg-np-success/[0.04] p-4 sm:p-5">
+    <div className="np-block my-6 rounded-card border border-np-success/25 bg-np-success/[0.04] p-4 sm:p-5">
       <div className="mb-3 flex items-center gap-2">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-np-success/15">
           <Link2 className="h-3.5 w-3.5 text-np-success" />
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-np-success">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-np-success">
           Match the pairs
         </span>
       </div>
@@ -116,7 +117,7 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
               key={`L${i}`}
               type="button"
               animate={shakeAnim(i, "L")}
-              transition={{ duration: 0.35 }}
+              transition={SHAKE.transition}
               onClick={() => pickLeft(i)}
               disabled={matched.has(i) || leftOrder === null}
               className={chipCls(i, "L")}
@@ -131,7 +132,7 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
               key={`R${i}`}
               type="button"
               animate={shakeAnim(i, "R")}
-              transition={{ duration: 0.35 }}
+              transition={SHAKE.transition}
               onClick={() => pickRight(i)}
               disabled={matched.has(i) || rightOrder === null}
               className={chipCls(i, "R")}
@@ -146,8 +147,8 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 8, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", stiffness: 350, damping: 22 }}
-          className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-np-success/30 bg-np-success/10 px-4 py-3"
+          transition={SPRING.smooth}
+          className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-control border border-np-success/30 bg-np-success/10 px-4 py-3"
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold text-np-success">
             <PartyPopper className="h-4 w-4" />
@@ -156,7 +157,7 @@ export function MatchBlock({ data }: { data: MatchBlockData }) {
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
           >
             <RotateCcw className="h-3 w-3" />
             Shuffle & replay

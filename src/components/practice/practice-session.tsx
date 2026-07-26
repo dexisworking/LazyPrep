@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { DURATION, SPRING, tr } from "@/lib/motion";
 import {
   CheckCircle2,
   XCircle,
@@ -54,7 +55,7 @@ export function PracticeSession({
 
   if (deck.length === 0) {
     return (
-      <div className="rounded-xl border border-border/50 bg-card p-10 text-center text-muted-foreground">
+      <div className="rounded-card border border-border-subtle bg-card p-10 text-center text-muted-foreground">
         No practice questions available for this course yet.
       </div>
     );
@@ -76,7 +77,7 @@ export function PracticeSession({
   if (finished) {
     const pct = Math.round((correctCount / deck.length) * 100);
     return (
-      <div className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center">
+      <div className="mx-auto max-w-lg space-y-6 rounded-card border border-border-subtle bg-card p-8 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <Trophy className="h-8 w-8 text-np-orange" />
         </div>
@@ -93,14 +94,14 @@ export function PracticeSession({
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={handleRestart}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+            className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
           >
             <RotateCcw className="h-4 w-4" />
             Practice again
           </button>
           <Link
             href={notebookHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            className="inline-flex items-center justify-center gap-2 rounded-control border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
           >
             <BookOpenCheck className="h-4 w-4" />
             Review mistakes
@@ -145,7 +146,7 @@ export function PracticeSession({
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="h-full rounded-full bg-primary transition-[background-color,border-color,color,box-shadow,opacity,transform]"
             style={{ width: `${((index + (feedback ? 1 : 0)) / deck.length) * 100}%` }}
           />
         </div>
@@ -158,14 +159,14 @@ export function PracticeSession({
         initial={reduced ? false : { opacity: 0, x: 24 }}
         animate={{ opacity: 1, x: 0 }}
         exit={reduced ? { opacity: 0 } : { opacity: 0, x: -24 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        className="space-y-5 rounded-2xl border border-border/40 bg-card p-6"
+        transition={tr()}
+        className="space-y-5 rounded-card border border-border-subtle bg-card p-6"
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+          <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
             {question.topic}
           </span>
-          <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="rounded-full border border-border-subtle bg-secondary px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-muted-foreground">
             {question.difficulty}
           </span>
         </div>
@@ -184,12 +185,12 @@ export function PracticeSession({
                 disabled={!!feedback || isPending}
                 onClick={() => setSelected(i)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm transition-all",
+                  "flex w-full items-center gap-3 rounded-control border px-4 py-3 text-left text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                   !feedback && isSelected && "border-primary bg-primary/10",
-                  !feedback && !isSelected && "border-border/60 bg-background hover:border-primary/40 hover:bg-secondary/50",
+                  !feedback && !isSelected && "border-border bg-background hover:border-primary/40 hover:bg-secondary/50",
                   isCorrect && "border-np-success bg-np-success/10 text-foreground",
                   isWrongPick && "border-destructive bg-destructive/10 text-foreground",
-                  feedback && !isCorrect && !isWrongPick && "border-border/40 opacity-60",
+                  feedback && !isCorrect && !isWrongPick && "border-border-subtle opacity-60",
                 )}
               >
                 <span
@@ -220,9 +221,9 @@ export function PracticeSession({
           <motion.div
             initial={reduced ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            transition={SPRING.snappy}
             className={cn(
-              "rounded-lg border p-4 text-sm",
+              "rounded-control border p-4 text-sm",
               feedback.correct
                 ? "border-np-success/30 bg-np-success/5"
                 : "border-destructive/30 bg-destructive/5",
@@ -253,7 +254,7 @@ export function PracticeSession({
         {feedback ? (
           <button
             onClick={handleNext}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
           >
             {isLast ? "See results" : "Next question"}
             <ArrowRight className="h-4 w-4" />
@@ -262,7 +263,7 @@ export function PracticeSession({
           <button
             onClick={handleSubmit}
             disabled={selected === null || isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Submit answer

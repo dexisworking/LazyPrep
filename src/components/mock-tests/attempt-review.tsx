@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { DURATION, EASE, STAGGER, tr } from "@/lib/motion";
 import { CheckCircle2, XCircle, MinusCircle, Zap, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,12 +54,12 @@ function ScoreRing({ score }: { score: number }) {
           strokeDasharray={c}
           initial={{ strokeDashoffset: reduced ? c * (1 - score / 100) : c }}
           animate={{ strokeDashoffset: c * (1 - score / 100) }}
-          transition={{ duration: reduced ? 0 : 1, ease: "easeOut", delay: 0.15 }}
+          transition={{ duration: reduced ? 0 : DURATION.celebrate, ease: EASE.out, delay: 0.15 }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={cn("text-3xl font-bold", tone.text)}>{score}%</span>
-        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
           score
         </span>
       </div>
@@ -79,8 +80,8 @@ export function AttemptReview({ data }: { data: ReviewData }) {
       <motion.div
         initial={reduced ? false : { opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="flex flex-col items-center gap-5 rounded-2xl border border-border/40 bg-card p-6 sm:flex-row sm:justify-center sm:gap-10 sm:p-8"
+        transition={tr()}
+        className="flex flex-col items-center gap-5 rounded-card border border-border-subtle bg-card p-6 sm:flex-row sm:justify-center sm:gap-10 sm:p-8"
       >
         <ScoreRing score={data.score} />
         <div className="space-y-2.5 text-center sm:text-left">
@@ -111,7 +112,7 @@ export function AttemptReview({ data }: { data: ReviewData }) {
 
       {/* Topic breakdown */}
       {data.topics.length > 1 && (
-        <div className="rounded-2xl border border-border/40 bg-card p-5 sm:p-6">
+        <div className="rounded-card border border-border-subtle bg-card p-5 sm:p-6">
           <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-muted-foreground">
             Topic breakdown
           </h3>
@@ -134,7 +135,7 @@ export function AttemptReview({ data }: { data: ReviewData }) {
                       <motion.div
                         initial={{ width: reduced ? `${pct}%` : 0 }}
                         animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.6, delay: 0.1 + i * 0.05, ease: "easeOut" }}
+                        transition={{ duration: DURATION.celebrate, delay: 0.1 + i * STAGGER.tight, ease: EASE.out }}
                         className={cn("h-full rounded-full", barTone)}
                       />
                     </div>
@@ -158,11 +159,11 @@ export function AttemptReview({ data }: { data: ReviewData }) {
             <div
               key={q.order}
               className={cn(
-                "overflow-hidden rounded-xl border bg-card transition-colors",
+                "overflow-hidden rounded-card border bg-card transition-colors",
                 isCorrect
                   ? "border-np-success/25"
                   : isSkipped
-                    ? "border-border/50"
+                    ? "border-border-subtle"
                     : "border-destructive/25",
               )}
             >
@@ -207,7 +208,7 @@ export function AttemptReview({ data }: { data: ReviewData }) {
                 />
               </button>
               {isOpen && (
-                <div className="space-y-2 border-t border-border/40 p-4">
+                <div className="space-y-2 border-t border-border-subtle p-4">
                   {q.options.map((option, i) => {
                     const correctOpt = i === q.correctIdx;
                     const picked = i === q.selectedIdx;
@@ -215,13 +216,13 @@ export function AttemptReview({ data }: { data: ReviewData }) {
                       <div
                         key={i}
                         className={cn(
-                          "flex items-center gap-2.5 rounded-lg border px-3 py-2 text-sm",
+                          "flex items-center gap-2.5 rounded-control border px-3 py-2 text-sm",
                           correctOpt && "border-np-success/50 bg-np-success/10",
                           picked && !correctOpt && "border-destructive/50 bg-destructive/10",
-                          !correctOpt && !picked && "border-border/40 opacity-70",
+                          !correctOpt && !picked && "border-border-subtle opacity-70",
                         )}
                       >
-                        <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-current/30 text-[10px] font-semibold text-muted-foreground">
+                        <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-current/30 text-3xs font-semibold text-muted-foreground">
                           {String.fromCharCode(65 + i)}
                         </span>
                         <span className="flex-1 text-foreground">{option}</span>
@@ -231,7 +232,7 @@ export function AttemptReview({ data }: { data: ReviewData }) {
                     );
                   })}
                   {q.explanation && (
-                    <p className="rounded-lg bg-secondary/60 p-3 text-sm leading-relaxed text-muted-foreground">
+                    <p className="rounded-control bg-secondary/60 p-3 text-sm leading-relaxed text-muted-foreground">
                       {q.explanation}
                     </p>
                   )}

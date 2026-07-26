@@ -24,7 +24,7 @@ export function DeleteMockButton({ testId }: { testId: string }) {
         <button
           onClick={handleDelete}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-2.5 py-2 text-xs font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-control bg-destructive px-2.5 py-2 text-xs font-semibold text-destructive-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
           Delete
@@ -32,7 +32,7 @@ export function DeleteMockButton({ testId }: { testId: string }) {
         <button
           onClick={() => setConfirming(false)}
           disabled={isPending}
-          className="rounded-lg border border-border bg-card px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+          className="rounded-control border border-border bg-card px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
         >
           Keep
         </button>
@@ -44,7 +44,7 @@ export function DeleteMockButton({ testId }: { testId: string }) {
     <button
       onClick={() => setConfirming(true)}
       aria-label="Delete mock test"
-      className="rounded-lg border border-border/60 p-2 text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
+      className="rounded-control border border-border p-2 text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
     >
       <Trash2 className="h-4 w-4" />
     </button>

@@ -43,7 +43,7 @@ export default async function SharedCoursePage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-border-subtle bg-card/50 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
           <Link href="/" className="text-xl font-bold tracking-tight">
             Lazy<span className="text-primary">Prep</span>
@@ -57,7 +57,7 @@ export default async function SharedCoursePage({
       </header>
 
       <main className="mx-auto max-w-4xl space-y-8 p-6 py-10">
-        <div className="space-y-4 rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+        <div className="space-y-4 rounded-card border border-border-subtle bg-card p-6 shadow-sm">
           <div className="flex items-center gap-2">
             <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary uppercase">
               {course.category}
@@ -72,7 +72,7 @@ export default async function SharedCoursePage({
           {course.description && (
             <p className="text-muted-foreground">{course.description}</p>
           )}
-          <div className="text-xs text-muted-foreground font-medium pt-2 border-t border-border/40">
+          <div className="text-xs text-muted-foreground font-medium pt-2 border-t border-border-subtle">
             {course.modules.length} Modules · {totalLessons} Lessons total
           </div>
         </div>
@@ -81,8 +81,8 @@ export default async function SharedCoursePage({
         <div className="space-y-6">
           <h2 className="text-xl font-bold">Course Syllabus</h2>
           {course.modules.map((m, mIdx) => (
-            <div key={m.id} className="rounded-xl border border-border/50 bg-card p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-border/40 pb-3">
+            <div key={m.id} className="rounded-card border border-border-subtle bg-card p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-3">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                     {mIdx + 1}
@@ -100,7 +100,7 @@ export default async function SharedCoursePage({
                       {c.lessons.map((l) => (
                         <li
                           key={l.id}
-                          className="flex items-center justify-between rounded-lg bg-secondary/40 px-3 py-2 text-sm"
+                          className="flex items-center justify-between rounded-control bg-secondary/40 px-3 py-2 text-sm"
                         >
                           <span className="font-medium text-foreground">{l.title}</span>
                           <span className="text-xs text-muted-foreground">{l.estimatedMinutes} min</span>

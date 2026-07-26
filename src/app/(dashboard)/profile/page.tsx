@@ -5,10 +5,18 @@ import { getSession, getCurrentProfile } from "@/lib/session";
 import { getProfileStats, getHeatmapData } from "@/lib/data/profile";
 import { getLevelProgress, getRank, getStreakMultiplier } from "@/lib/xp";
 import { getStreakStatus, getStreakStatusLabel } from "@/lib/streak";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { StudyHeatmap } from "@/components/profile/heatmap";
 import { AnalyticsExpandable } from "@/components/profile/analytics-expandable";
 import { SignOutButton } from "@/components/profile/sign-out-button";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
+import { Pill } from "@/components/shared/pill";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { SectionHeader } from "@/components/shared/section-header";
+import { StatTile } from "@/components/shared/stat-tile";
+import { STREAK_TONE } from "@/components/shared/streak-flame";
 
 export const dynamic = "force-dynamic";
 
@@ -33,40 +41,27 @@ export default async function ProfilePage() {
     year: "numeric",
   });
 
-  const streakColor =
-    streakStatus === "fire"
-      ? "border-red-500/30 bg-red-500/5"
-      : streakStatus === "hot"
-        ? "border-orange-400/30 bg-orange-500/5"
-        : streakStatus === "warm"
-          ? "border-amber-400/30 bg-amber-500/5"
-          : "border-border/50";
-  const streakFlame =
-    streakStatus === "fire"
-      ? "text-red-500 animate-pulse"
-      : streakStatus === "hot"
-        ? "text-orange-500"
-        : streakStatus === "warm"
-          ? "text-amber-400"
-          : "text-np-streak";
+  // Tone for the current-streak tile comes from the shared ramp, not a fifth
+  // hand-maintained copy of the amber/orange/red ladder.
+  const streakTone = STREAK_TONE[streakStatus];
 
   const statCards = [
-    { label: "Current Streak", value: `${profile.currentStreak}d`, icon: Flame, color: streakFlame, cardClass: streakColor },
-    { label: "Longest Streak", value: `${profile.longestStreak}d`, icon: Flame, color: "text-np-orange", cardClass: "" },
-    { label: "XP Multiplier", value: `${xpMultiplier}×`, icon: Zap, color: "text-np-xp", cardClass: xpMultiplier > 1 ? "border-np-xp/30 bg-np-xp/5" : "" },
-    { label: "Streak Freezes", value: profile.streakFreezes ?? 2, icon: Shield, color: "text-blue-400", cardClass: "" },
-    { label: "Total XP", value: profile.xp, icon: Zap, color: "text-np-xp", cardClass: "" },
-    { label: "Lessons Done", value: stats.lessonsCompleted, icon: BookOpen, color: "text-primary", cardClass: "" },
-    { label: "Questions", value: stats.totalAttempts, icon: Target, color: "text-np-red", cardClass: "" },
-    { label: "Accuracy", value: `${stats.accuracy}%`, icon: Award, color: "text-np-success", cardClass: "" },
-    { label: "Cards Reviewed", value: stats.flashcardsReviewed, icon: Brain, color: "text-np-success", cardClass: "" },
-    { label: "Active Days", value: stats.studyDays, icon: CalendarDays, color: "text-primary", cardClass: "" },
+    { label: "Current Streak", value: `${profile.currentStreak}d`, icon: Flame, tone: "streak" as const, cardClass: cn(streakTone.ring, streakTone.bg) },
+    { label: "Longest Streak", value: `${profile.longestStreak}d`, icon: Flame, tone: "orange" as const, cardClass: "" },
+    { label: "XP Multiplier", value: `${xpMultiplier}×`, icon: Zap, tone: "xp" as const, cardClass: xpMultiplier > 1 ? "border-np-xp/30 bg-np-xp/5" : "" },
+    { label: "Streak Freezes", value: profile.streakFreezes ?? 2, icon: Shield, tone: "primary" as const, cardClass: "" },
+    { label: "Total XP", value: profile.xp, icon: Zap, tone: "xp" as const, cardClass: "" },
+    { label: "Lessons Done", value: stats.lessonsCompleted, icon: BookOpen, tone: "primary" as const, cardClass: "" },
+    { label: "Questions", value: stats.totalAttempts, icon: Target, tone: "red" as const, cardClass: "" },
+    { label: "Accuracy", value: `${stats.accuracy}%`, icon: Award, tone: "success" as const, cardClass: "" },
+    { label: "Cards Reviewed", value: stats.flashcardsReviewed, icon: Brain, tone: "success" as const, cardClass: "" },
+    { label: "Active Days", value: stats.studyDays, icon: CalendarDays, tone: "primary" as const, cardClass: "" },
   ];
 
   return (
     <div className="space-y-6">
       {/* Identity */}
-      <div className="rounded-2xl border border-border/40 bg-card p-6 md:p-8">
+      <div className="rounded-card border border-border-subtle bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 border border-border">
@@ -79,13 +74,10 @@ export default async function ProfilePage() {
               <h1 className="text-2xl font-bold tracking-tight text-foreground">{displayName}</h1>
               <p className="text-sm text-muted-foreground">{session.user.email}</p>
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  <Trophy className="h-3 w-3" />
+                <Pill tone="primary" icon={Trophy}>
                   {rank}
-                </span>
-                <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">
-                  Level {level}
-                </span>
+                </Pill>
+                <Pill tone="muted">Level {level}</Pill>
                 <span className="text-xs text-muted-foreground">Member since {memberSince}</span>
               </div>
             </div>
@@ -95,7 +87,7 @@ export default async function ProfilePage() {
           <div className="flex items-center gap-2">
             <Link
               href="/settings"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:hidden"
+              className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:hidden"
             >
               <Settings className="h-4 w-4" />
               Settings
@@ -105,38 +97,39 @@ export default async function ProfilePage() {
         </div>
 
         {/* Level progress */}
-        <div className="mt-6 space-y-1.5">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Level {level}</span>
-            <span>
+        <ProgressBar
+          value={progress}
+          size="md"
+          className="mt-6"
+          aria-label={`Level ${level} progress`}
+          label={<span>Level {level}</span>}
+          hint={
+            <span className="tabular-nums">
               {currentLevelXp} / {nextLevelXp} XP to Level {level + 1}
             </span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <Stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {statCards.map((s) => (
-          <div key={s.label} className={`rounded-xl border bg-card p-4 ${s.cardClass || 'border-border/50'}`}>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <s.icon className={`h-4 w-4 ${s.color}`} />
-              <span className="text-xs font-medium">{s.label}</span>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-foreground">{s.value}</p>
-          </div>
+          <StaggerItem key={s.label}>
+            <StatTile
+              label={s.label}
+              value={s.value}
+              icon={s.icon}
+              tone={s.tone}
+              size="sm"
+              className={s.cardClass || undefined}
+            />
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       {/* Heatmap */}
-      <div className="rounded-xl border border-border/50 bg-card p-6">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <CalendarDays className="h-4 w-4 text-primary" />
-          Study Activity
-        </h2>
+      <div className="rounded-card border border-border-subtle bg-card p-6">
+        <SectionHeader as="h2" size="sm" icon={CalendarDays} title="Study Activity" className="mb-4" />
         <StudyHeatmap days={heatmap} tz={profile.timezone} />
       </div>
 

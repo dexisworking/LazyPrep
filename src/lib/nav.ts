@@ -20,15 +20,19 @@ export type NavRoute = {
 };
 
 /**
- * Single source of truth for app navigation — consumed by the desktop
- * sidebar, the mobile sheet drawer, and the mobile bottom tab bar.
+ * Single source of truth for app navigation — consumed by the desktop sidebar,
+ * the mobile drawer (`components/shared/mobile-nav-sheet.tsx`), and the mobile
+ * bottom tab bar.
+ *
+ * `mobilePrimary` selects the (max 5) bottom-bar tabs; everything else is
+ * reachable from the drawer.
  */
 export const navRoutes: NavRoute[] = [
   { label: "Dashboard", icon: Zap, href: "/dashboard", color: "text-primary", mobilePrimary: true },
   { label: "Courses", icon: BookOpen, href: "/courses", color: "text-accent", mobilePrimary: true },
   { label: "Practice", icon: Target, href: "/practice", color: "text-np-red", mobilePrimary: true },
   { label: "Flashcards", icon: Brain, href: "/flashcards", color: "text-np-success", mobilePrimary: true },
-  { label: "Bookmarks", icon: Bookmark, href: "/bookmarks", color: "text-amber-400", mobilePrimary: false },
+  { label: "Bookmarks", icon: Bookmark, href: "/bookmarks", color: "text-streak-warm", mobilePrimary: false },
   { label: "Profile", icon: User, href: "/profile", color: "text-primary", mobilePrimary: true },
   { label: "Settings", icon: Settings, href: "/settings", color: "text-muted-foreground", mobilePrimary: false },
 ];

@@ -60,12 +60,17 @@ export function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating trigger — sits above the mobile bottom-nav, bottom-right on desktop. */}
+      {/*
+       * Floating trigger. Stacked *above* the tutor FAB — the two used to share
+       * identical coordinates at both breakpoints, so on lesson and notebook
+       * pages this button sat directly on top of "Ask tutor".
+       * Secondary action, so it takes the higher (less reachable) slot.
+       */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Send feedback"
-        className="fixed bottom-20 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
+        className="fixed bottom-[calc(8.5rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-card text-muted-foreground shadow-raised transition-[transform,color] duration-(--dur-fast) hover:scale-105 hover:text-foreground active:scale-95 md:bottom-[5.5rem] md:right-6"
       >
         <MessageSquarePlus className="h-5 w-5" />
       </button>
@@ -103,7 +108,7 @@ export function FeedbackWidget() {
                       type="button"
                       onClick={() => setType(value)}
                       className={cn(
-                        "flex flex-col items-center gap-1 rounded-lg border px-2 py-3 text-xs font-medium transition-colors",
+                        "flex flex-col items-center gap-1 rounded-control border px-2 py-3 text-xs font-medium transition-colors",
                         type === value
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-border text-muted-foreground hover:bg-muted",
@@ -128,7 +133,7 @@ export function FeedbackWidget() {
                         ? "What would make LazyPrep better?"
                         : "What's on your mind?"
                   }
-                  className="w-full resize-none rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full resize-none rounded-control border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                 />
 
                 {error && (

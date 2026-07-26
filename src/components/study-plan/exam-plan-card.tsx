@@ -40,9 +40,9 @@ export function ExamPlanCard({
   // No date set yet (and not editing) → compact prompt.
   if (!examDateIso && !editing) {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-border/40 bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-card border border-border-subtle bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
             <CalendarDays className="h-5 w-5 text-primary" />
           </div>
           <div>
@@ -54,7 +54,7 @@ export function ExamPlanCard({
         </div>
         <button
           onClick={() => setEditing(true)}
-          className="inline-flex flex-shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+          className="inline-flex flex-shrink-0 items-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
         >
           <CalendarDays className="h-4 w-4" />
           Set date
@@ -65,7 +65,7 @@ export function ExamPlanCard({
 
   if (editing) {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-3 rounded-card border border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-end">
         <div className="flex-1 space-y-1.5">
           <label className="text-sm font-medium text-foreground">Exam date</label>
           <input
@@ -73,14 +73,14 @@ export function ExamPlanCard({
             min={today}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:max-w-xs"
+            className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:max-w-xs"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => save(value || null)}
             disabled={isPending || !value}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Save
@@ -91,7 +91,7 @@ export function ExamPlanCard({
               setEditing(false);
             }}
             disabled={isPending}
-            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+            className="rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
           >
             Cancel
           </button>
@@ -106,10 +106,10 @@ export function ExamPlanCard({
   const target = computeDailyTarget(remainingLessons, dueReviews, left);
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border/40 bg-card p-5">
+    <div className="space-y-4 rounded-card border border-border-subtle bg-card p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
             <CalendarDays className="h-5 w-5 text-primary" />
           </div>
           <div>
@@ -131,7 +131,7 @@ export function ExamPlanCard({
           <button
             onClick={() => setEditing(true)}
             aria-label="Change exam date"
-            className="rounded-lg border border-border/60 p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="rounded-control border border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <CalendarDays className="h-4 w-4" />
           </button>
@@ -139,7 +139,7 @@ export function ExamPlanCard({
             onClick={() => save(null)}
             disabled={isPending}
             aria-label="Clear exam date"
-            className="rounded-lg border border-border/60 p-2 text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
+            className="rounded-control border border-border p-2 text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
           >
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
           </button>
@@ -147,19 +147,19 @@ export function ExamPlanCard({
       </div>
 
       {remainingLessons === 0 && dueReviews === 0 ? (
-        <p className="rounded-lg border border-np-success/30 bg-np-success/10 px-4 py-2.5 text-sm font-medium text-np-success">
+        <p className="rounded-control border border-np-success/30 bg-np-success/10 px-4 py-2.5 text-sm font-medium text-np-success">
           You&apos;re all caught up — keep reviewing to stay sharp before the day.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg border border-border/50 bg-background/40 px-4 py-3">
+        <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
+          <div className="rounded-control border border-border-subtle bg-background/40 px-4 py-3">
             <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5 text-primary" />
               Lessons today
             </p>
             <p className="mt-1 text-2xl font-bold text-foreground">{target.lessonsPerDay}</p>
           </div>
-          <div className="rounded-lg border border-border/50 bg-background/40 px-4 py-3">
+          <div className="rounded-control border border-border-subtle bg-background/40 px-4 py-3">
             <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <RotateCcw className="h-3.5 w-3.5 text-np-orange" />
               Reviews due

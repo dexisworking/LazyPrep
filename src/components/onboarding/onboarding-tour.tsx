@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, BookOpen, Brain, Flame, Sparkles, Target, X } from "lucide-react";
+import { DURATION, SPRING, tr } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import { completeOnboarding } from "@/lib/actions/profile";
+
+/** One scrim value for both the spotlight cutout and the no-target fallback. */
+const SCRIM = "oklch(0 0 0 / 0.72)";
 
 type Step = {
   /** `data-tour` value of the element to spotlight; omit for a centered card. */
@@ -111,6 +116,17 @@ export function OnboardingTour() {
     void completeOnboarding();
   }, []);
 
+  // Escape dismisses. The tour covers the whole viewport with a click-blocking
+  // scrim, so without this a keyboard user had no way out of it.
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") finish();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [active, finish]);
+
   if (!mounted || !active) return null;
 
   // Tooltip placement: below the target if it's in the upper half, else above;
@@ -134,10 +150,15 @@ export function OnboardingTour() {
   const Icon = step.icon;
   const spring = reduced
     ? { duration: 0 }
-    : ({ type: "spring", stiffness: 320, damping: 32 } as const);
+    : SPRING.snappy;
 
   return (
-    <div className="fixed inset-0 z-[80]" role="region" aria-label="Onboarding tour">
+    <div
+      className="fixed inset-0 z-[80]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Onboarding tour"
+    >
       {/* Click-blocking layer + dimming spotlight */}
       <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
         {rect ? (
@@ -145,11 +166,11 @@ export function OnboardingTour() {
             initial={false}
             animate={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
             transition={spring}
-            className="pointer-events-none absolute rounded-xl ring-2 ring-primary/70"
-            style={{ boxShadow: "0 0 0 9999px rgba(0,0,0,0.72)" }}
+            className="pointer-events-none absolute rounded-card ring-2 ring-primary/70"
+            style={{ boxShadow: `0 0 0 9999px ${SCRIM}` }}
           />
         ) : (
-          <div className="absolute inset-0 bg-black/72" />
+          <div className="absolute inset-0" style={{ background: SCRIM }} />
         )}
       </div>
 
@@ -162,8 +183,8 @@ export function OnboardingTour() {
           initial={reduced ? false : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.18 }}
-          className="w-full rounded-2xl border border-border/60 bg-card p-5 shadow-2xl"
+          transition={{ duration: DURATION.fast }}
+          className="w-full rounded-card border border-border bg-card p-5 shadow-overlay"
         >
           <button
             onClick={finish}
@@ -173,7 +194,7 @@ export function OnboardingTour() {
             <X className="h-4 w-4" />
           </button>
 
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
             <Icon className="h-4 w-4 text-primary" />
           </div>
           <h3 className="mt-3 text-base font-semibold text-foreground">{step.title}</h3>
@@ -184,9 +205,11 @@ export function OnboardingTour() {
               {STEPS.map((_, idx) => (
                 <span
                   key={idx}
-                  className={`h-1.5 rounded-full transition-all ${
-                    idx === i ? "w-4 bg-primary" : "w-1.5 bg-border"
-                  }`}
+                  className={cn(
+                    // width is animated here, so it has to be in the list
+                    "h-1.5 rounded-full transition-[width,background-color] duration-(--dur-base) ease-emphasized",
+                    idx === i ? "w-4 bg-primary" : "w-1.5 bg-border",
+                  )}
                 />
               ))}
             </div>
@@ -194,7 +217,7 @@ export function OnboardingTour() {
               {i > 0 && (
                 <button
                   onClick={() => setI((n) => n - 1)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.97]"
+                  className="inline-flex items-center gap-1 rounded-control border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.97]"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Back
@@ -202,7 +225,7 @@ export function OnboardingTour() {
               )}
               <button
                 onClick={() => (isLast ? finish() : setI((n) => n + 1))}
-                className="inline-flex items-center gap-1 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.97]"
+                className="inline-flex items-center gap-1 rounded-control bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.97]"
               >
                 {isLast ? "Start learning" : "Next"}
                 {!isLast && <ArrowRight className="h-3.5 w-3.5" />}
@@ -213,7 +236,7 @@ export function OnboardingTour() {
           {!isLast && (
             <button
               onClick={finish}
-              className="mt-3 w-full text-center text-[11px] font-medium text-muted-foreground/70 transition-colors hover:text-muted-foreground"
+              className="mt-3 w-full text-center text-2xs font-medium text-muted-foreground/70 transition-colors hover:text-muted-foreground"
             >
               Skip tour
             </button>

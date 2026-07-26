@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <nav className="fixed top-0 z-50 w-full border-b border-border-subtle bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <LogoMark className="h-7 w-7" />
@@ -18,13 +18,13 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/sign-in"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-control px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Sign In
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+              className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
             >
               Get Started
             </Link>
@@ -68,14 +68,14 @@ export default function HomePage() {
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/sign-up"
-              className="group flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:gap-3"
+              className="group flex items-center gap-2 rounded-card bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 hover:gap-3"
             >
               Start Preparing — Free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/sign-in"
-              className="rounded-xl border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
+              className="rounded-card border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
             >
               I have an account
             </Link>
@@ -98,7 +98,7 @@ export default function HomePage() {
             ].map((s) => (
               <span
                 key={s}
-                className="rounded-full border border-border/50 bg-card/40 px-3 py-1 text-xs text-muted-foreground"
+                className="rounded-full border border-border-subtle bg-card/40 px-3 py-1 text-xs text-muted-foreground"
               >
                 {s}
               </span>
@@ -172,10 +172,10 @@ export default function HomePage() {
           ].map((feature) => (
             <StaggerItem
               key={feature.title}
-              className="group rounded-xl border border-border/50 bg-card/50 p-6 transition-all hover:border-primary/30 hover:bg-card"
+              className="group rounded-card border border-border-subtle bg-card/50 p-6 transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:border-primary/30 hover:bg-card"
             >
               <div
-                className={`mb-4 flex h-10 w-10 items-center justify-center rounded-lg ${feature.bg}`}
+                className={`mb-4 flex h-10 w-10 items-center justify-center rounded-control ${feature.bg}`}
               >
                 <feature.icon className={`h-5 w-5 ${feature.color}`} />
               </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
       </section>
 
       {/* Mobile App / Download — desktop only (hidden below lg) */}
-      <section className="hidden border-t border-border/50 bg-card/20 lg:block">
+      <section className="hidden border-t border-border-subtle bg-card/20 lg:block">
         <div className="mx-auto max-w-6xl px-4 py-24">
           <div className="grid grid-cols-2 items-center gap-12">
             {/* Copy + download options */}
@@ -212,22 +212,22 @@ export default function HomePage() {
                   aria-disabled="true"
                   role="button"
                   aria-label="Android app coming soon to Google Play"
-                  className="relative inline-flex cursor-not-allowed select-none items-center gap-3 rounded-xl border border-border bg-card/60 px-5 py-3 opacity-70"
+                  className="relative inline-flex cursor-not-allowed select-none items-center gap-3 rounded-card border border-border bg-card/60 px-5 py-3 opacity-70"
                 >
                   <Play className="h-6 w-6 fill-foreground text-foreground" />
                   <span className="text-left leading-tight">
-                    <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <span className="block text-3xs uppercase tracking-wide text-muted-foreground">
                       Coming soon to
                     </span>
                     <span className="block text-sm font-semibold text-foreground">Google Play</span>
                   </span>
-                  <span className="absolute -right-2 -top-2 rounded-full bg-np-streak px-2 py-0.5 text-[10px] font-semibold text-white shadow-lg">
+                  <span className="absolute -right-2 -top-2 rounded-full bg-np-streak px-2 py-0.5 text-3xs font-semibold text-background shadow-lg">
                     Coming Soon
                   </span>
                 </div>
 
                 {/* PWA suggestion — available today */}
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <div className="rounded-card border border-primary/20 bg-primary/5 p-4">
                   <div className="flex items-start gap-3">
                     <Globe className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div className="space-y-2.5">
@@ -239,7 +239,7 @@ export default function HomePage() {
                       <div className="flex items-center gap-3">
                         <Link
                           href="/sign-up"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+                          className="inline-flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
                         >
                           Open the web app
                           <ArrowRight className="h-3.5 w-3.5" />
@@ -262,7 +262,7 @@ export default function HomePage() {
                 loading="lazy"
                 width={480}
                 height={860}
-                className="absolute left-[8%] top-1/2 w-[42%] -translate-y-1/2 -rotate-6 rounded-[1.75rem] border border-border/40 shadow-2xl"
+                className="absolute left-[8%] top-1/2 w-[42%] -translate-y-1/2 -rotate-6 rounded-[1.75rem] border border-border-subtle shadow-2xl"
               />
               <img
                 src="/mockups/flashcards.webp"
@@ -270,7 +270,7 @@ export default function HomePage() {
                 loading="lazy"
                 width={480}
                 height={860}
-                className="absolute right-[8%] top-1/2 w-[42%] -translate-y-1/2 rotate-6 rounded-[1.75rem] border border-border/40 shadow-2xl"
+                className="absolute right-[8%] top-1/2 w-[42%] -translate-y-1/2 rotate-6 rounded-[1.75rem] border border-border-subtle shadow-2xl"
               />
               <img
                 src="/mockups/hero.webp"
@@ -278,7 +278,7 @@ export default function HomePage() {
                 loading="lazy"
                 width={480}
                 height={860}
-                className="relative z-10 w-[46%] rounded-[1.75rem] border border-border/40 shadow-2xl"
+                className="relative z-10 w-[46%] rounded-[1.75rem] border border-border-subtle shadow-2xl"
               />
             </SlideUp>
           </div>
@@ -286,7 +286,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border/50 bg-card/30">
+      <section className="border-t border-border-subtle bg-card/30">
         <SlideUp inView className="mx-auto max-w-3xl px-4 py-24 text-center">
           <h2 className="text-3xl font-bold tracking-tight">
             Ready to ace your{" "}
@@ -297,7 +297,7 @@ export default function HomePage() {
           </p>
           <Link
             href="/sign-up"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+            className="mt-8 inline-flex items-center gap-2 rounded-card bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
           >
             Create Free Account
             <ArrowRight className="h-4 w-4" />

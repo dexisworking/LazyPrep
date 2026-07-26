@@ -17,7 +17,7 @@ export function AnalyticsExpandable({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-6 transition-all">
+    <div className="rounded-card border border-border-subtle bg-card p-6 transition-[background-color,border-color,color,box-shadow,opacity,transform]">
       <div
         className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setExpanded(!expanded)}
@@ -36,9 +36,9 @@ export function AnalyticsExpandable({
       </div>
 
       {expanded && (
-        <div className="mt-6 space-y-6 pt-4 border-t border-border/40">
+        <div className="mt-6 space-y-6 pt-4 border-t border-border-subtle">
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg bg-secondary/40 p-4 border border-border/30">
+            <div className="rounded-control bg-secondary/40 p-4 border border-border-subtle">
               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <PieChart className="h-4 w-4 text-np-success" /> Accuracy Split
               </div>
@@ -53,7 +53,7 @@ export function AnalyticsExpandable({
               </div>
             </div>
 
-            <div className="rounded-lg bg-secondary/40 p-4 border border-border/30">
+            <div className="rounded-control bg-secondary/40 p-4 border border-border-subtle">
               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Activity className="h-4 w-4 text-primary" /> Consistency Pace
               </div>
@@ -62,9 +62,9 @@ export function AnalyticsExpandable({
               </p>
             </div>
 
-            <div className="rounded-lg bg-secondary/40 p-4 border border-border/30">
+            <div className="rounded-control bg-secondary/40 p-4 border border-border-subtle">
               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <BarChart2 className="h-4 w-4 text-amber-400" /> Retention Health
+                <BarChart2 className="h-4 w-4 text-np-orange" /> Retention Health
               </div>
               <p className="mt-2 text-xl font-bold text-foreground">
                 Optimal <span className="text-xs font-normal text-muted-foreground">(SM-2 active)</span>

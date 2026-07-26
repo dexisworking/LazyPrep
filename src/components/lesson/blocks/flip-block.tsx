@@ -27,7 +27,7 @@ export function FlipBlock({ data }: { data: FlipBlockData }) {
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15">
           <MousePointerClick className="h-3.5 w-3.5 text-primary" />
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-primary">
           {data.title ?? "Tap to reveal"}
         </span>
       </div>
@@ -54,10 +54,10 @@ export function FlipBlock({ data }: { data: FlipBlockData }) {
                   isFlipped && "[transform:rotateY(180deg)]",
                 )}
               >
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-border/60 bg-card p-4 text-center [backface-visibility:hidden] group-hover:border-primary/40">
+                <div className="absolute inset-0 flex items-center justify-center rounded-card border border-border bg-card p-4 text-center [backface-visibility:hidden] group-hover:border-primary/40">
                   <p className="text-sm font-semibold leading-snug text-foreground">{card.front}</p>
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-primary/40 bg-primary/[0.07] p-4 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                <div className="absolute inset-0 flex items-center justify-center rounded-card border border-primary/40 bg-primary/[0.07] p-4 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
                   <p className="text-sm leading-snug text-foreground">{card.back}</p>
                 </div>
               </div>

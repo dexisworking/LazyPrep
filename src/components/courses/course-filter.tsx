@@ -15,8 +15,19 @@ import {
   Filter,
 } from "lucide-react";
 import type { getCoursesOverview } from "@/lib/data/courses";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Pill } from "@/components/shared/pill";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { SectionHeader } from "@/components/shared/section-header";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
 
 type CourseOverview = Awaited<ReturnType<typeof getCoursesOverview>>[number];
+
+/** Shared native-select styling, including the focus ring both selects lacked. */
+const selectCls =
+  "h-8 rounded-control border border-border-subtle bg-secondary px-3 text-xs font-medium text-foreground transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
 
 function CourseCard({ course }: { course: CourseOverview }) {
   const pct =
@@ -28,10 +39,10 @@ function CourseCard({ course }: { course: CourseOverview }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="group relative flex w-full flex-col gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 active:scale-[0.99]"
+      className="group relative flex w-full flex-col gap-4 rounded-card border border-border-subtle bg-card p-card transition-[border-color,box-shadow,transform] duration-(--dur-fast) ease-standard hover:border-primary/40 hover:shadow-raised active:scale-[0.995]"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
           {course.adaptive ? (
             <Trophy className="h-5 w-5 text-primary" />
           ) : (
@@ -40,18 +51,17 @@ function CourseCard({ course }: { course: CourseOverview }) {
         </div>
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           {course.adaptive ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
-              <Sparkles className="h-3 w-3" />
+            <Pill tone="primary" size="sm" icon={Sparkles} uppercase>
               Mastery path
-            </span>
+            </Pill>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full border border-np-success/20 bg-np-success/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-np-success">
+            <Pill tone="success" size="sm" uppercase>
               Curated
-            </span>
+            </Pill>
           )}
-          <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <Pill tone="muted" size="sm" uppercase>
             {course.category}
-          </span>
+          </Pill>
         </div>
       </div>
 
@@ -64,9 +74,7 @@ function CourseCard({ course }: { course: CourseOverview }) {
 
       <div className="mt-auto space-y-2">
         {!course.adaptive && (
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-          </div>
+          <ProgressBar value={pct} aria-label={`${course.title} progress`} />
         )}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
@@ -125,27 +133,39 @@ export function CourseFilterContainer({
 
   return (
     <div className="space-y-8">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/50 bg-card p-3">
-        <div className="flex flex-1 items-center gap-2 rounded-lg bg-secondary/50 px-3 py-1.5 min-w-[200px]">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search courses..."
+      {/* Controls.
+          `basis-48` + `flex-1` instead of `min-w-[200px]`: the fixed minimum
+          overflowed the wrapping toolbar at 320px. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border-subtle bg-card p-3">
+        <div className="relative flex-1 basis-48">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            type="search"
+            size="sm"
+            aria-label="Search courses"
+            placeholder="Search courses…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground"
+            className="border-transparent bg-secondary/50 pl-9"
           />
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-            <Filter className="h-3.5 w-3.5" /> Filter:
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            <Filter className="h-3.5 w-3.5" aria-hidden /> Filter:
           </div>
+          {/*
+           * Native selects, but with a real focus ring — both previously used
+           * `focus:outline-none` with nothing to replace it.
+           */}
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-border/50 bg-secondary px-3 py-1.5 text-xs font-medium text-foreground focus:outline-none"
+            aria-label="Filter by category"
+            className={selectCls}
           >
             <option value="all">All Categories</option>
             {allCategories.map((cat) => (
@@ -158,7 +178,8 @@ export function CourseFilterContainer({
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as "newest" | "title")}
-            className="rounded-lg border border-border/50 bg-secondary px-3 py-1.5 text-xs font-medium text-foreground focus:outline-none"
+            aria-label="Sort courses"
+            className={selectCls}
           >
             <option value="newest">Newest First</option>
             <option value="title">Alphabetical</option>
@@ -170,80 +191,70 @@ export function CourseFilterContainer({
       <div className="space-y-10">
         {/* My Courses */}
         <section className="space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">My Courses</h1>
-              <p className="text-sm text-muted-foreground">
-                Mastery courses you&apos;ve generated with AI.
-              </p>
-            </div>
-            <Link
-              href="/courses/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
-            >
-              <Plus className="h-4 w-4" />
-              Create with AI
-            </Link>
-          </div>
+          <SectionHeader
+            as="h1"
+            size="lg"
+            title="My Courses"
+            description="Mastery courses you've generated with AI."
+            action={
+              <Button render={<Link href="/courses/new" />}>
+                <Plus />
+                Create with AI
+              </Button>
+            }
+          />
 
           {filteredMine.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/60 bg-card/40 p-10 text-center">
-              <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
-              <p className="font-medium text-foreground">
-                {search || category !== "all" ? "No matching courses" : "Create your first course"}
-              </p>
-              <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                {search || category !== "all"
+            <EmptyState
+              size="lg"
+              icon={Sparkles}
+              title={
+                search || category !== "all"
+                  ? "No matching courses"
+                  : "Create your first course"
+              }
+              description={
+                search || category !== "all"
                   ? "Try adjusting your search terms or filter criteria."
-                  : "Tell LazyPrep any subject and it builds a full mastery path — from the absolute basics up to advanced — tailored as you learn."}
-              </p>
-              <Link
-                href="/courses/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                <Plus className="h-4 w-4" />
-                Create with AI
-              </Link>
-            </div>
+                  : "Tell LazyPrep any subject and it builds a full mastery path — from the absolute basics up to advanced — tailored as you learn."
+              }
+              action={{ label: "Create with AI", href: "/courses/new", icon: Plus }}
+            />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <Stagger className="grid gap-4 sm:grid-cols-2">
               {filteredMine.map((course) => (
-                <div key={course.id} className="flex">
+                <StaggerItem key={course.id} className="flex">
                   <CourseCard course={course} />
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
           )}
         </section>
 
         {/* Catalog */}
         <section className="space-y-4">
-          <div>
-            <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
-              <Library className="h-5 w-5 text-np-success" />
-              Course Catalog
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Curated packs by LazyPrep — more subjects on the way.
-            </p>
-          </div>
+          <SectionHeader
+            as="h2"
+            icon={Library}
+            title="Course Catalog"
+            description="Curated packs by LazyPrep — more subjects on the way."
+          />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCurated.map((course) => (
-              <div key={course.id} className="flex">
+              <StaggerItem key={course.id} className="flex">
                 <CourseCard course={course} />
-              </div>
+              </StaggerItem>
             ))}
 
             {/* Coming soon placeholder */}
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/50 bg-card/30 p-6 text-center">
-              <Clock className="h-6 w-6 text-muted-foreground/60" />
-              <p className="text-sm font-medium text-muted-foreground">More courses coming soon</p>
-              <p className="text-xs text-muted-foreground/70">
-                Can&apos;t wait? Generate any subject above.
-              </p>
-            </div>
-          </div>
+            <EmptyState
+              size="sm"
+              icon={Clock}
+              title="More courses coming soon"
+              description="Can't wait? Generate any subject above."
+            />
+          </Stagger>
         </section>
       </div>
     </div>

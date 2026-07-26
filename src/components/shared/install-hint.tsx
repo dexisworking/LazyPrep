@@ -36,7 +36,7 @@ export function InstallHint() {
   return (
     <button
       onClick={install}
-      className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20 active:scale-[0.97]"
+      className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-primary/20 active:scale-[0.97]"
     >
       <MonitorDown className="h-3.5 w-3.5" />
       Install the app

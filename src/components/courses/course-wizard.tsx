@@ -60,7 +60,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
 
   if (!hasKey) {
     return (
-      <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-8 text-center">
         <KeyRound className="mx-auto mb-3 h-9 w-9 text-np-orange" />
         <h2 className="text-lg font-semibold text-foreground">Connect an AI key first</h2>
         <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
         </p>
         <Link
           href="/settings"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className="mt-4 inline-flex items-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
         >
           <KeyRound className="h-4 w-4" />
           Go to Settings
@@ -120,7 +120,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
 
   if (generating) {
     return (
-      <div className="rounded-2xl border border-border/40 bg-card p-10 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
           <Sparkles className="h-7 w-7 animate-pulse text-primary" />
         </div>
@@ -163,7 +163,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-border/40 bg-card p-6">
+      <div className="rounded-card border border-border-subtle bg-card p-6">
         {/* Step 0: subject */}
         {step === 0 && (
           <div className="space-y-5">
@@ -176,7 +176,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 value={form.subject}
                 onChange={(e) => set("subject", e.target.value)}
                 placeholder="e.g. AWS Solutions Architect (SAA-C03), GATE CS — Operating Systems"
-                className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-11 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -187,10 +187,10 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                     key={c.value}
                     onClick={() => set("category", c.value)}
                     className={cn(
-                      "rounded-lg border px-3 py-2 text-sm transition-all",
+                      "rounded-control border px-3 py-2 text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                       form.category === c.value
                         ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border/60 text-muted-foreground hover:border-primary/40",
+                        : "border-border text-muted-foreground hover:border-primary/40",
                     )}
                   >
                     {c.label}
@@ -206,16 +206,16 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
           <div className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Your level</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 xs:grid-cols-2">
                 {LEVELS.map((l) => (
                   <button
                     key={l.value}
                     onClick={() => set("level", l.value)}
                     className={cn(
-                      "rounded-lg border px-3 py-2.5 text-left transition-all",
+                      "rounded-control border px-3 py-2.5 text-left transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                       form.level === l.value
                         ? "border-primary bg-primary/10"
-                        : "border-border/60 hover:border-primary/40",
+                        : "border-border hover:border-primary/40",
                     )}
                   >
                     <p className="text-sm font-medium text-foreground">{l.label}</p>
@@ -232,7 +232,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 value={form.goal}
                 onChange={(e) => set("goal", e.target.value)}
                 placeholder="e.g. pass the exam in 6 weeks, build practical skills"
-                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
             </div>
           </div>
@@ -269,10 +269,10 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                     key={d.value}
                     onClick={() => set("depth", d.value)}
                     className={cn(
-                      "rounded-lg border px-3 py-2.5 text-left transition-all",
+                      "rounded-control border px-3 py-2.5 text-left transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                       form.depth === d.value
                         ? "border-primary bg-primary/10"
-                        : "border-border/60 hover:border-primary/40",
+                        : "border-border hover:border-primary/40",
                     )}
                   >
                     <p className="text-sm font-medium text-foreground">{d.label}</p>
@@ -295,7 +295,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 value={form.focusTopics}
                 onChange={(e) => set("focusTopics", e.target.value)}
                 placeholder="e.g. VPC networking, IAM, S3 — emphasize these"
-                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -306,10 +306,10 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 value={form.style}
                 onChange={(e) => set("style", e.target.value)}
                 placeholder="e.g. practical with lots of examples, include CLI commands"
-                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
             </div>
-            <div className="rounded-lg border border-border/40 bg-secondary/40 p-3 text-sm text-muted-foreground">
+            <div className="rounded-control border border-border-subtle bg-secondary/40 p-3 text-sm text-muted-foreground">
               Generating <b className="text-foreground">{form.subject || "your course"}</b> ·{" "}
               {form.moduleCount} modules · {form.level} · {form.depth}
             </div>
@@ -317,7 +317,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
         )}
 
         {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div className="mt-4 flex items-center gap-2 rounded-control border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             <AlertCircle className="h-4 w-4" />
             {error}
           </div>
@@ -329,7 +329,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
         <button
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -338,7 +338,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
           <button
             onClick={handleGenerate}
             disabled={!form.subject.trim()}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
           >
             <Sparkles className="h-4 w-4" />
             Generate course
@@ -347,7 +347,7 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
           <button
             onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
             disabled={!canNext}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
           >
             Next
             <ArrowRight className="h-4 w-4" />

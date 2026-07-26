@@ -67,7 +67,7 @@ export function GenerateMockDialog({
     >
       <DialogTrigger
         render={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]" />
+          <button className="inline-flex items-center gap-2 rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]" />
         }
       >
         <Sparkles className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function GenerateMockDialog({
         </DialogHeader>
 
         {!hasAiKey ? (
-          <div className="flex flex-col items-start gap-3 rounded-lg border border-np-orange/30 bg-np-orange/[0.06] p-4">
+          <div className="flex flex-col items-start gap-3 rounded-control border border-np-orange/30 bg-np-orange/[0.06] p-4">
             <p className="flex items-center gap-2 text-sm font-medium text-foreground">
               <KeyRound className="h-4 w-4 text-np-orange" />
               You need an AI key first
@@ -94,7 +94,7 @@ export function GenerateMockDialog({
             </p>
             <Link
               href="/settings"
-              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+              className="inline-flex items-center rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
             >
               Go to Settings
             </Link>
@@ -103,17 +103,17 @@ export function GenerateMockDialog({
           <div className="space-y-4">
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Questions</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {COUNTS.map((c) => (
                   <button
                     key={c}
                     type="button"
                     onClick={() => setCount(c)}
                     className={cn(
-                      "rounded-lg border py-2 text-sm font-semibold transition-all active:scale-[0.97]",
+                      "rounded-control border py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.97]",
                       count === c
                         ? "border-primary bg-primary/15 text-primary"
-                        : "border-border/70 bg-card text-muted-foreground hover:border-primary/40",
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40",
                     )}
                   >
                     {c}
@@ -123,17 +123,17 @@ export function GenerateMockDialog({
             </div>
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Difficulty</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {DIFFICULTIES.map((d) => (
                   <button
                     key={d.value}
                     type="button"
                     onClick={() => setDifficulty(d.value)}
                     className={cn(
-                      "rounded-lg border py-2 text-sm font-semibold transition-all active:scale-[0.97]",
+                      "rounded-control border py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.97]",
                       difficulty === d.value
                         ? "border-np-orange bg-np-orange/15 text-np-orange"
-                        : "border-border/70 bg-card text-muted-foreground hover:border-np-orange/40",
+                        : "border-border bg-card text-muted-foreground hover:border-np-orange/40",
                     )}
                   >
                     {d.label}
@@ -153,7 +153,7 @@ export function GenerateMockDialog({
         <DialogFooter>
           <DialogClose
             render={
-              <button className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
+              <button className="inline-flex items-center justify-center rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
             }
           >
             Cancel
@@ -162,7 +162,7 @@ export function GenerateMockDialog({
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
                 <>

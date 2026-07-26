@@ -48,7 +48,7 @@ export function VerifyNotice({ email }: { email: string }) {
           <button
             onClick={resend}
             disabled={status === "sending"}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
           >
             {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
             Resend verification email

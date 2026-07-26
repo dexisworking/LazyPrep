@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { DURATION, SPRING, tr } from "@/lib/motion";
 import { CheckCircle2, XCircle, ListOrdered, RotateCcw, PartyPopper } from "lucide-react";
 import { cn, shuffle } from "@/lib/utils";
 
@@ -55,12 +56,12 @@ export function SortBlock({ data }: { data: SortBlockData }) {
   const done = placed.length === data.items.length;
 
   return (
-    <div className="np-block my-6 rounded-xl border border-np-orange/25 bg-np-orange/[0.04] p-4 sm:p-5">
+    <div className="np-block my-6 rounded-card border border-np-orange/25 bg-np-orange/[0.04] p-4 sm:p-5">
       <div className="mb-3 flex items-center gap-2">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-np-orange/15">
           <ListOrdered className="h-3.5 w-3.5 text-np-orange" />
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-np-orange">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-np-orange">
           Put in order
         </span>
       </div>
@@ -80,14 +81,14 @@ export function SortBlock({ data }: { data: SortBlockData }) {
               layout={!reduced}
               initial={reduced ? false : { opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              transition={tr(DURATION.fast)}
             >
               <button
                 type="button"
                 onClick={() => unplace(itemIdx)}
                 disabled={verdict !== "unchecked"}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-sm transition-all",
+                  "flex w-full items-center gap-3 rounded-control border px-3.5 py-2.5 text-left text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                   verdict === "unchecked" &&
                     "border-np-orange/40 bg-background hover:border-destructive/50 active:scale-[0.99]",
                   isRight && "border-np-success bg-np-success/10",
@@ -116,7 +117,7 @@ export function SortBlock({ data }: { data: SortBlockData }) {
           );
         })}
         {placed.length < data.items.length && (
-          <li className="rounded-lg border border-dashed border-border/70 px-3.5 py-2.5 text-sm text-muted-foreground">
+          <li className="rounded-control border border-dashed border-border px-3.5 py-2.5 text-sm text-muted-foreground">
             Tap an item below to place it {placed.length === 0 ? "first" : "next"}…
           </li>
         )}
@@ -131,10 +132,10 @@ export function SortBlock({ data }: { data: SortBlockData }) {
               type="button"
               layout={!reduced}
               exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: DURATION.fast }}
               onClick={() => place(itemIdx)}
               disabled={pool === null}
-              className="rounded-lg border border-border/70 bg-card px-3 py-2 text-sm text-foreground shadow-sm transition-all hover:border-np-orange/50 hover:bg-np-orange/5 active:scale-[0.97]"
+              className="rounded-control border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:border-np-orange/50 hover:bg-np-orange/5 active:scale-[0.97]"
             >
               {data.items[itemIdx]}
             </motion.button>
@@ -149,7 +150,7 @@ export function SortBlock({ data }: { data: SortBlockData }) {
             type="button"
             onClick={check}
             disabled={!done}
-            className="inline-flex items-center gap-2 rounded-lg bg-np-orange px-4 py-2 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-control bg-np-orange px-4 py-2 text-sm font-semibold text-background transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
           >
             Check order
           </button>
@@ -157,7 +158,7 @@ export function SortBlock({ data }: { data: SortBlockData }) {
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-control border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
           >
             <RotateCcw className="h-4 w-4" />
             {verdict === "correct" ? "Do it again" : "Try again"}
@@ -167,7 +168,7 @@ export function SortBlock({ data }: { data: SortBlockData }) {
           <motion.span
             initial={reduced ? false : { opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            transition={SPRING.bouncy}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-np-success"
           >
             <PartyPopper className="h-4 w-4" /> Perfect sequence!

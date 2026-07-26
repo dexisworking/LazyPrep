@@ -45,7 +45,7 @@ export default async function ReviewPage({
       </div>
 
       {questions.length === 0 ? (
-        <div className="rounded-2xl border border-border/40 bg-card p-10 text-center">
+        <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-np-success/10">
             <RotateCcw className="h-7 w-7 text-np-success" />
           </div>
@@ -56,7 +56,7 @@ export default async function ReviewPage({
           </p>
           <Link
             href={`/practice/${courseSlug}`}
-            className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+            className="mt-4 inline-flex items-center rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
           >
             Practice new questions
           </Link>

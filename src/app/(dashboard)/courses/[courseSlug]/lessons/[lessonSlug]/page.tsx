@@ -56,7 +56,7 @@ export default async function LessonPage({
       </div>
 
       {/* Header */}
-      <div className="space-y-3 border-b border-border/40 pb-6">
+      <div className="space-y-3 border-b border-border-subtle pb-6">
         <p className="text-xs font-medium uppercase tracking-wide text-primary">
           {moduleTitle} · {chapterTitle}
         </p>
@@ -87,7 +87,7 @@ export default async function LessonPage({
           <LessonContent content={lesson.content} />
 
           {/* Complete action */}
-          <div className="border-t border-border/40 pt-6">
+          <div className="border-t border-border-subtle pt-6">
             <MarkCompleteButton
               lessonId={lesson.id}
               coursePath={coursePath}
@@ -111,11 +111,11 @@ export default async function LessonPage({
       {/* Prev / Next navigation — stacks on mobile, side-by-side from sm up.
           min-w-0 on each card lets the long lesson titles truncate instead of
           forcing the row wider than the phone screen. */}
-      <div className="flex flex-col gap-3 border-t border-border/40 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="flex flex-col gap-3 border-t border-border-subtle pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         {prev ? (
           <Link
             href={lessonHref(prev.slug)}
-            className="group flex w-full min-w-0 items-center gap-3 rounded-lg border border-border/50 bg-card p-3 transition-colors hover:border-primary/40 sm:flex-1"
+            className="group flex w-full min-w-0 items-center gap-3 rounded-control border border-border-subtle bg-card p-3 transition-colors hover:border-primary/40 sm:flex-1"
           >
             <ChevronLeft className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-primary" />
             <span className="min-w-0">
@@ -129,7 +129,7 @@ export default async function LessonPage({
         {next ? (
           <Link
             href={lessonHref(next.slug)}
-            className="group flex w-full min-w-0 items-center justify-end gap-3 rounded-lg border border-border/50 bg-card p-3 text-right transition-colors hover:border-primary/40 sm:flex-1"
+            className="group flex w-full min-w-0 items-center justify-end gap-3 rounded-control border border-border-subtle bg-card p-3 text-right transition-colors hover:border-primary/40 sm:flex-1"
           >
             <span className="min-w-0">
               <span className="block text-xs text-muted-foreground">Next</span>

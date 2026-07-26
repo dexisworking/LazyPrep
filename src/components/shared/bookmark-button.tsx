@@ -42,13 +42,15 @@ export function BookmarkButton({
       onClick={handleToggle}
       disabled={isPending}
       title={bookmarked ? "Remove bookmark" : "Save bookmark"}
+      aria-label={bookmarked ? "Remove bookmark" : "Save bookmark"}
+      aria-pressed={bookmarked}
       className={cn(
-        "inline-flex items-center justify-center rounded-lg p-2 transition-colors hover:bg-white/10 focus:outline-none",
-        bookmarked ? "text-amber-400" : "text-muted-foreground hover:text-foreground",
+        "inline-flex items-center justify-center rounded-control p-2 transition-colors hover:bg-foreground/10 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+        bookmarked ? "text-streak-warm" : "text-muted-foreground hover:text-foreground",
         className,
       )}
     >
-      <Bookmark className={cn("h-5 w-5", bookmarked && "fill-amber-400")} />
+      <Bookmark className={cn("h-5 w-5", bookmarked && "fill-streak-warm")} />
     </button>
   );
 }

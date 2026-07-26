@@ -28,7 +28,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
     return (
       <button
         onClick={() => setConfirming(true)}
-        className="inline-flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+        className="inline-flex items-center gap-2 rounded-control border border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
       >
         <Trash2 className="h-4 w-4" />
         Delete course
@@ -37,7 +37,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+    <div className="space-y-3 rounded-card border border-destructive/40 bg-destructive/5 p-4">
       <p className="flex items-start gap-2 text-sm text-foreground">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
         Delete this course permanently? All its lessons, checkpoints and your progress will be
@@ -48,7 +48,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
         <button
           onClick={handleDelete}
           disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-control bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
         >
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           Delete permanently
@@ -56,7 +56,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
         <button
           onClick={() => setConfirming(false)}
           disabled={isPending}
-          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+          className="rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
         >
           Cancel
         </button>

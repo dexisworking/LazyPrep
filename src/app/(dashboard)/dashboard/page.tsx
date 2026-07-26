@@ -1,16 +1,22 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Zap, Play, Flame, Trophy, Target, BookOpen, TrendingUp, CheckCircle2, CalendarDays, RotateCcw } from "lucide-react";
+import { Zap, Play, Trophy, Target, BookOpen, TrendingUp, CheckCircle2, CalendarDays, RotateCcw, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { getCurrentProfile } from "@/lib/session";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { getCourseTree } from "@/lib/data/courses";
 import { prisma } from "@/lib/prisma";
 import { getLevelProgress, getRank } from "@/lib/xp";
 import { computeDailyTarget, daysUntil, formatCountdown } from "@/lib/study-plan";
-import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/motion";
+import { Stagger, StaggerItem } from "@/components/motion/motion";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { StudyReminder } from "@/components/study-plan/study-reminder";
 import { StreakCard } from "@/components/shared/streak-card";
+import { Pill } from "@/components/shared/pill";
+import { ProgressBar } from "@/components/shared/progress-bar";
+import { SectionHeader } from "@/components/shared/section-header";
+import { StatTile } from "@/components/shared/stat-tile";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -68,9 +74,9 @@ export default async function DashboardPage() {
     cp?.resumeLessonSlug ? `/courses/${cp.slug}/lessons/${cp.resumeLessonSlug}` : null;
 
   const stats = [
-    { label: "Total XP", value: profile.xp, suffix: "", icon: Zap, color: "text-np-xp" },
-    { label: "Course Progress", value: coursePct, suffix: "%", icon: BookOpen, color: "text-primary" },
-    { label: "MCQ Accuracy", value: data.accuracy, suffix: "%", icon: Target, color: "text-np-red" },
+    { label: "Total XP", value: profile.xp, suffix: "", icon: Zap, tone: "xp" as const },
+    { label: "Course Progress", value: coursePct, suffix: "%", icon: BookOpen, tone: "primary" as const },
+    { label: "MCQ Accuracy", value: data.accuracy, suffix: "%", icon: Target, tone: "red" as const },
   ];
 
   return (
@@ -78,29 +84,37 @@ export default async function DashboardPage() {
       {!profile.onboardedAt && <OnboardingTour />}
 
       {/* Welcome hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-6 md:p-8">
-        <div className="absolute right-0 top-0 -z-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Trophy className="h-3.5 w-3.5" />
+      <div className="relative overflow-hidden rounded-card border border-border-subtle bg-card p-6 md:p-8">
+        {/*
+         * Ambient glow. Was `-z-10`, which put it behind the parent's own
+         * bg-card in the same stacking context — it never painted. Sits at the
+         * base layer now with the content lifted above it.
+         */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-primary/15 blur-3xl"
+        />
+        <div className="relative z-10 space-y-4">
+          <Pill tone="primary" icon={Trophy}>
             {rank} · Level {level}
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          </Pill>
+          {/* Steps down on small screens — 30px wrapped to three lines at 360px. */}
+          <h1 className="text-2xl font-bold tracking-tight text-balance text-foreground sm:text-3xl">
             Welcome back, {profile.displayName}
           </h1>
 
-          {/* Level progress */}
-          <div className="max-w-md space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Level {level}</span>
-              <span>
+          <ProgressBar
+            value={progress}
+            size="md"
+            className="max-w-md"
+            aria-label={`Level ${level} progress`}
+            label={<span>Level {level}</span>}
+            hint={
+              <span className="tabular-nums">
                 {currentLevelXp} / {nextLevelXp} XP to Level {level + 1}
               </span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
 
@@ -113,17 +127,17 @@ export default async function DashboardPage() {
         timezone={profile.timezone}
       />
 
-      {/* Stat cards */}
-      <Stagger className="grid grid-cols-3 gap-4">
+      {/* Stat cards — one column at 360px, where three p-4 tiles left ~101px each */}
+      <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map((s) => (
-          <StaggerItem key={s.label} className="rounded-xl border border-border/50 bg-card p-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <s.icon className={`h-4 w-4 ${s.color}`} />
-              <span className="text-xs font-medium">{s.label}</span>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-foreground">
-              <AnimatedNumber value={s.value} suffix={s.suffix} />
-            </p>
+          <StaggerItem key={s.label}>
+            <StatTile
+              label={s.label}
+              value={s.value}
+              suffix={s.suffix}
+              icon={s.icon}
+              tone={s.tone}
+            />
           </StaggerItem>
         ))}
       </Stagger>
@@ -132,10 +146,10 @@ export default async function DashboardPage() {
       {examWidget && (
         <Link
           href={`/courses/${examWidget.slug}`}
-          className="group flex flex-col gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-5 transition-colors hover:border-primary/50 sm:flex-row sm:items-center sm:justify-between"
+          className="group flex flex-col gap-4 rounded-card border border-primary/30 bg-primary/5 p-card transition-colors duration-(--dur-fast) hover:border-primary/50 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
               <CalendarDays className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -155,21 +169,25 @@ export default async function DashboardPage() {
               </p>
             </div>
           </div>
-          <span className="text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
-            Study now →
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+            Study now
+            <ArrowRight className="h-4 w-4 transition-transform duration-(--dur-fast) group-hover:translate-x-0.5" />
           </span>
         </Link>
       )}
 
-      {/* Continue learning */}
+      {/* Continue learning.
+          Flat `bg-card`, not the old `bg-gradient-to-br from-card to-card/60` —
+          a card→card/60 wash was invisible against its neighbours and was the
+          one card on the screen breaking the pattern. */}
       {cp && (
-        <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-card to-card/60 p-6">
+        <div className="rounded-card border border-border-subtle bg-card p-6">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-primary">
+              <span className="text-2xs font-semibold uppercase tracking-wider text-primary">
                 Continue Learning
               </span>
-              <h2 className="text-xl font-semibold text-foreground">{cp.title}</h2>
+              <h2 className="text-xl font-semibold text-balance text-foreground">{cp.title}</h2>
               {cp.resumeLessonTitle ? (
                 <p className="text-sm text-muted-foreground">
                   {coursePct === 100 ? "Review: " : "Up next: "}
@@ -179,22 +197,21 @@ export default async function DashboardPage() {
                 <p className="text-sm text-muted-foreground">No lessons available yet.</p>
               )}
               <div className="flex items-center gap-2 pt-1">
-                <div className="h-1.5 w-40 overflow-hidden rounded-full bg-secondary">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${coursePct}%` }} />
-                </div>
-                <span className="text-xs text-muted-foreground">
+                <ProgressBar
+                  value={coursePct}
+                  className="w-40"
+                  aria-label={`${cp.title} progress`}
+                />
+                <span className="text-xs tabular-nums text-muted-foreground">
                   {cp.completedLessons}/{cp.totalLessons}
                 </span>
               </div>
             </div>
             {resumeHref && (
-              <Link
-                href={resumeHref}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
-              >
-                <Play className="h-4 w-4" />
+              <Button size="lg" render={<Link href={resumeHref} />}>
+                <Play />
                 {cp.completedLessons > 0 ? "Resume" : "Start"}
-              </Link>
+              </Button>
             )}
           </div>
         </div>
@@ -202,50 +219,60 @@ export default async function DashboardPage() {
 
       {/* Today + quick actions */}
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-border/50 bg-card p-5">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <TrendingUp className="h-4 w-4 text-np-success" />
-              Today
-            </h3>
-            <StudyReminder goalMet={goalMet} />
-          </div>
+        <div className="rounded-card border border-border-subtle bg-card p-card">
+          <SectionHeader
+            as="h2"
+            size="sm"
+            title="Today"
+            icon={TrendingUp}
+            action={<StudyReminder goalMet={goalMet} />}
+            className="mb-4"
+          />
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="text-xl font-bold text-foreground">{data.todaySession?.lessonsCompleted ?? 0}</p>
-              <p className="text-xs text-muted-foreground">Lessons</p>
-            </div>
-            <div>
-              <p className="text-xl font-bold text-foreground">{data.todaySession?.questionsAnswered ?? 0}</p>
-              <p className="text-xs text-muted-foreground">Questions</p>
-            </div>
-            <div>
-              <p className="text-xl font-bold text-np-xp">+{data.todaySession?.xpEarned ?? 0}</p>
-              <p className="text-xs text-muted-foreground">XP today</p>
-            </div>
+            {[
+              { label: "Lessons", value: data.todaySession?.lessonsCompleted ?? 0, tone: "" },
+              { label: "Questions", value: data.todaySession?.questionsAnswered ?? 0, tone: "" },
+              {
+                label: "XP today",
+                value: data.todaySession?.xpEarned ?? 0,
+                tone: "text-np-xp",
+                prefix: "+",
+              },
+            ].map((t) => (
+              <div key={t.label}>
+                <p className={cn("text-xl font-bold tabular-nums text-foreground", t.tone)}>
+                  {t.prefix}
+                  {t.value}
+                </p>
+                <p className="text-xs text-muted-foreground">{t.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="rounded-xl border border-border/50 bg-card p-5">
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <CheckCircle2 className="h-4 w-4 text-primary" />
-            Jump back in
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              href="/courses"
-              className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-secondary/50"
-            >
-              <BookOpen className="h-4 w-4 text-accent" />
-              Courses
-            </Link>
-            <Link
-              href="/practice"
-              className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-secondary/50"
-            >
-              <Target className="h-4 w-4 text-np-red" />
-              Practice
-            </Link>
+        <div className="rounded-card border border-border-subtle bg-card p-card">
+          <SectionHeader
+            as="h2"
+            size="sm"
+            title="Jump back in"
+            icon={CheckCircle2}
+            className="mb-4"
+          />
+          {/* Stacks at 360px rather than squeezing two labelled targets side by side. */}
+          <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
+            {[
+              { href: "/courses", label: "Courses", icon: BookOpen, tone: "text-accent" },
+              { href: "/practice", label: "Practice", icon: Target, tone: "text-np-red" },
+            ].map((a) => (
+              <Link
+                key={a.href}
+                href={a.href}
+                className="flex items-center gap-2 rounded-control border border-border-subtle bg-secondary/40 px-3 py-2.5 text-sm font-medium text-foreground transition-colors duration-(--dur-fast) hover:border-primary/40 hover:bg-secondary"
+              >
+                <a.icon className={cn("h-4 w-4", a.tone)} />
+                {a.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

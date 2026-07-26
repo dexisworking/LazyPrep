@@ -19,13 +19,13 @@ export function DexForgeCredit({ compact = false }: { compact?: boolean }) {
       <span
         className={
           compact
-            ? "text-[9px] font-bold uppercase tracking-widest text-muted-foreground"
-            : "text-[10px] font-bold uppercase tracking-widest text-muted-foreground md:text-xs"
+            ? "text-3xs font-bold uppercase tracking-widest text-muted-foreground"
+            : "text-3xs font-bold uppercase tracking-widest text-muted-foreground md:text-xs"
         }
       >
         Crafted at DexForge
       </span>
-      <span className={compact ? "text-[10px] font-bold text-red-500" : "ml-1 font-bold text-red-500"}>
+      <span className={compact ? "text-2xs font-bold text-np-red" : "ml-1 font-bold text-np-red"}>
         {"</>"}
       </span>
     </a>

@@ -26,10 +26,10 @@ export function LessonRatingWidget({
   };
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border/40 bg-card/60 p-4">
+    <div className="flex items-center justify-between rounded-card border border-border-subtle bg-card/60 p-4">
       <div className="space-y-0.5">
         <p className="text-xs font-semibold text-foreground">Was this lesson helpful?</p>
-        <p className="text-[11px] text-muted-foreground">Your feedback improves AI content quality.</p>
+        <p className="text-2xs text-muted-foreground">Your feedback improves AI content quality.</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export function LessonRatingWidget({
           disabled={isPending}
           onClick={() => handleRate(5)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border border-border/50 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary",
+            "inline-flex items-center gap-1.5 rounded-control border border-border-subtle px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary",
             rating === 5 && "border-np-success/40 bg-np-success/10 text-np-success",
           )}
         >
@@ -56,7 +56,7 @@ export function LessonRatingWidget({
           disabled={isPending}
           onClick={() => handleRate(1)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border border-border/50 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary",
+            "inline-flex items-center gap-1.5 rounded-control border border-border-subtle px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary",
             rating === 1 && "border-destructive/40 bg-destructive/10 text-destructive",
           )}
         >

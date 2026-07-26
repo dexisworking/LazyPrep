@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { DURATION, SHAKE, tr } from "@/lib/motion";
 import { CheckCircle2, XCircle, HelpCircle, RotateCcw, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,17 +34,15 @@ export function QuizBlock({ data }: { data: QuizBlockData }) {
   return (
     <motion.div
       key={shakeKey}
-      animate={
-        shakeKey > 0 && !reduced ? { x: [0, -7, 7, -5, 5, 0] } : { x: 0 }
-      }
-      transition={{ duration: 0.35 }}
-      className="np-block my-6 rounded-xl border border-primary/25 bg-primary/[0.04] p-4 sm:p-5"
+      animate={shakeKey > 0 && !reduced ? { x: SHAKE.x } : { x: 0 }}
+      transition={SHAKE.transition}
+      className="np-block my-6 rounded-card border border-primary/25 bg-primary/[0.04] p-4 sm:p-5"
     >
       <div className="mb-3 flex items-center gap-2">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15">
           <HelpCircle className="h-3.5 w-3.5 text-primary" />
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-primary">
           Quick check
         </span>
       </div>
@@ -62,12 +61,12 @@ export function QuizBlock({ data }: { data: QuizBlockData }) {
               disabled={answered}
               onClick={() => handlePick(i)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-sm transition-all",
+                "flex w-full items-center gap-3 rounded-control border px-3.5 py-2.5 text-left text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform]",
                 !answered &&
-                  "border-border/60 bg-background hover:border-primary/50 hover:bg-primary/5 active:scale-[0.99]",
+                  "border-border bg-background hover:border-primary/50 hover:bg-primary/5 active:scale-[0.99]",
                 isAnswer && "border-np-success bg-np-success/10",
                 isWrongPick && "border-destructive bg-destructive/10",
-                answered && !isAnswer && !isWrongPick && "border-border/40 opacity-55",
+                answered && !isAnswer && !isWrongPick && "border-border-subtle opacity-55",
               )}
             >
               <span
@@ -97,9 +96,9 @@ export function QuizBlock({ data }: { data: QuizBlockData }) {
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          transition={tr()}
           className={cn(
-            "mt-4 rounded-lg border p-3.5 text-sm",
+            "mt-4 rounded-control border p-3.5 text-sm",
             correct
               ? "border-np-success/30 bg-np-success/5"
               : "border-destructive/30 bg-destructive/5",
@@ -118,7 +117,7 @@ export function QuizBlock({ data }: { data: QuizBlockData }) {
             <button
               type="button"
               onClick={() => setPicked(null)}
-              className="inline-flex items-center gap-1 rounded-md border border-border/60 px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <RotateCcw className="h-3 w-3" />
               Retry

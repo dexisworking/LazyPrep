@@ -90,7 +90,7 @@ export function SiteFooter() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
 
   return (
-    <div className="relative mt-10 w-full overflow-hidden border-t border-border/50">
+    <div className="relative mt-10 w-full overflow-hidden border-t border-border-subtle">
       <footer className="relative flex w-full flex-col justify-between bg-background text-foreground">
         {/* Ambient glow + grid background (replaces the DexForge WebGL shader) */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -108,7 +108,7 @@ export function SiteFooter() {
         </div>
 
         {/* 1. Diagonal marquee */}
-        <div className="relative z-20 -rotate-1 mb-8 mt-12 w-full scale-105 overflow-hidden border-y border-border/50 bg-background/60 py-4 shadow-2xl backdrop-blur-md">
+        <div className="relative z-20 -rotate-1 mb-8 mt-12 w-full scale-105 overflow-hidden border-y border-border-subtle bg-background/60 py-4 shadow-2xl backdrop-blur-md">
           <div className="flex w-max animate-footer-scroll-marquee text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground md:text-sm">
             <MarqueeItem />
             <MarqueeItem />
@@ -116,7 +116,7 @@ export function SiteFooter() {
         </div>
 
         {/* 2. Center headline + CTA */}
-        <div className="relative z-10 mx-auto mb-20 mt-16 flex w-full max-w-5xl flex-1 flex-col items-center justify-center border-b border-border/50 px-6 pb-20">
+        <div className="relative z-10 mx-auto mb-20 mt-16 flex w-full max-w-5xl flex-1 flex-col items-center justify-center border-b border-border-subtle px-6 pb-20">
           <motion.h2
             {...reveal()}
             className="mb-12 text-center text-5xl font-black uppercase tracking-tighter text-foreground sm:text-7xl md:text-8xl"
@@ -130,7 +130,7 @@ export function SiteFooter() {
           <motion.div {...reveal(0.15)} className="flex w-full flex-col items-center gap-6">
             <Link
               href="/sign-up"
-              className="group inline-flex items-center justify-center rounded-full bg-foreground px-10 py-5 text-lg font-bold text-background transition-all hover:bg-foreground/90 active:scale-[0.98]"
+              className="group inline-flex items-center justify-center rounded-full bg-foreground px-10 py-5 text-lg font-bold text-background transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-foreground/90 active:scale-[0.98]"
             >
               Start Preparing — Free
               <ArrowUpRight className="ml-2 h-5 w-5 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" />
@@ -161,7 +161,7 @@ export function SiteFooter() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="footer-glass-pill flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+                    className="footer-glass-pill flex h-11 w-11 items-center justify-center rounded-control text-muted-foreground hover:text-foreground"
                     aria-label={label}
                   >
                     <Icon className="h-4 w-4" />
@@ -179,7 +179,7 @@ export function SiteFooter() {
                 <img
                   src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=dexisworking&button_colour=FFDD00&font_colour=000000&font_family=Inter&outline_colour=000000&coffee_colour=ffffff"
                   alt="Buy me a coffee"
-                  className="h-12 w-auto rounded-lg"
+                  className="h-12 w-auto rounded-control"
                 />
               </a>
             </div>
@@ -278,8 +278,8 @@ export function SiteFooter() {
           </motion.div>
 
           {/* Bottom bar / credits */}
-          <div className="flex flex-col items-center justify-between gap-6 border-t border-border/50 pb-8 pt-8 md:flex-row">
-            <div className="order-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground md:order-1 md:text-xs">
+          <div className="flex flex-col items-center justify-between gap-6 border-t border-border-subtle pb-8 pt-8 md:flex-row">
+            <div className="order-2 text-3xs font-semibold uppercase tracking-widest text-muted-foreground md:order-1 md:text-xs">
               © {new Date().getFullYear()} DexForge. All rights reserved.
             </div>
 

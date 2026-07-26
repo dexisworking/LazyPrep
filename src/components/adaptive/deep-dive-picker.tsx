@@ -52,10 +52,10 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
 
   if (phase === "no-key") {
     return (
-      <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-8 text-center">
         <KeyRound className="mx-auto mb-2 h-7 w-7 text-np-orange" />
         <p className="text-sm font-medium text-foreground">Add your AI key to build a deep-dive</p>
-        <Link href="/settings" className="mt-3 inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
+        <Link href="/settings" className="mt-3 inline-flex rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
           Go to Settings
         </Link>
       </div>
@@ -64,11 +64,11 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
 
   if (phase === "error") {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+      <div className="rounded-card border border-destructive/30 bg-destructive/5 p-8 text-center">
         <AlertCircle className="mx-auto mb-2 h-7 w-7 text-destructive" />
         <p className="text-sm font-medium text-foreground">Couldn&apos;t load topics</p>
         <p className="mt-1 text-xs text-muted-foreground">{message}</p>
-        <button onClick={loadTopics} className="mt-3 inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
+        <button onClick={loadTopics} className="mt-3 inline-flex rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
           Try again
         </button>
       </div>
@@ -77,7 +77,7 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
 
   if (phase === "loading") {
     return (
-      <div className="rounded-xl border border-border/50 bg-card p-10 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
         <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
           <Sparkles className="h-5 w-5 animate-pulse text-primary" />
         </div>
@@ -91,7 +91,7 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
 
   if (phase === "spawning") {
     return (
-      <div className="rounded-2xl border border-border/40 bg-card p-10 text-center">
+      <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Sparkles className="h-6 w-6 animate-pulse text-primary" />
         </div>
@@ -112,10 +112,10 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
             key={topic}
             onClick={() => setSelected(topic)}
             className={cn(
-              "rounded-xl border p-4 text-left text-sm font-medium transition-all",
+              "rounded-card border p-4 text-left text-sm font-medium transition-[background-color,border-color,color,box-shadow,opacity,transform]",
               selected === topic
                 ? "border-primary bg-primary/10 text-foreground"
-                : "border-border/60 bg-card text-foreground hover:border-primary/40",
+                : "border-border bg-card text-foreground hover:border-primary/40",
             )}
           >
             {topic}
@@ -132,7 +132,7 @@ export function DeepDivePicker({ courseId }: { courseId: string }) {
         <button
           onClick={create}
           disabled={!selected}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50"
         >
           Create deep-dive course
           <ArrowRight className="h-4 w-4" />

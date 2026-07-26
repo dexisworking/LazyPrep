@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { DURATION, tr } from "@/lib/motion";
 import {
   AlarmClock,
   ArrowLeft,
@@ -116,14 +117,14 @@ export function MockTestRunner({
               setError(null);
               setPhase("intro");
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
           >
             <RotateCcw className="h-4 w-4" />
             Retake (no XP)
           </button>
           <Link
             href={backHref}
-            className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            className="inline-flex items-center justify-center rounded-control border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
           >
             Back to mock tests
           </Link>
@@ -138,8 +139,8 @@ export function MockTestRunner({
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="mx-auto max-w-lg space-y-6 rounded-2xl border border-border/40 bg-card p-8 text-center"
+        transition={tr()}
+        className="mx-auto max-w-lg space-y-6 rounded-card border border-border-subtle bg-card p-8 text-center"
       >
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <AlarmClock className="h-8 w-8 text-primary" />
@@ -154,7 +155,7 @@ export function MockTestRunner({
         </div>
         <button
           onClick={() => setPhase("running")}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98]"
         >
           <PlayCircle className="h-5 w-5" />
           Start test
@@ -169,7 +170,7 @@ export function MockTestRunner({
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       {/* Sticky header: timer + progress */}
-      <div className="sticky top-14 z-20 -mx-1 rounded-xl border border-border/50 bg-background/90 px-4 py-3 backdrop-blur sm:top-16">
+      <div className="sticky top-14 z-20 -mx-1 rounded-card border border-border-subtle bg-background/90 px-4 py-3 backdrop-blur sm:top-16">
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">{answeredCount}</span>/
@@ -189,7 +190,7 @@ export function MockTestRunner({
         </div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="h-full rounded-full bg-primary transition-[background-color,border-color,color,box-shadow,opacity,transform]"
             style={{ width: `${(answeredCount / questions.length) * 100}%` }}
           />
         </div>
@@ -205,11 +206,11 @@ export function MockTestRunner({
               key={q.id}
               onClick={() => setIndex(i)}
               className={cn(
-                "relative h-9 w-9 rounded-lg border text-xs font-semibold transition-all active:scale-95",
+                "relative h-9 w-9 rounded-control border text-xs font-semibold transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-95",
                 i === index && "ring-2 ring-primary ring-offset-2 ring-offset-background",
                 answered
                   ? "border-primary/50 bg-primary/15 text-primary"
-                  : "border-border/60 bg-card text-muted-foreground hover:border-primary/40",
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40",
               )}
               aria-label={`Question ${i + 1}${answered ? ", answered" : ""}${isFlagged ? ", flagged" : ""}`}
             >
@@ -229,15 +230,15 @@ export function MockTestRunner({
           initial={reduced ? false : { opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, x: -20 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          className="space-y-5 rounded-2xl border border-border/40 bg-card p-5 sm:p-6"
+          transition={tr(DURATION.fast)}
+          className="space-y-5 rounded-card border border-border-subtle bg-card p-5 sm:p-6"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
                 {question.topic}
               </span>
-              <span className="rounded-full border border-border/50 bg-secondary px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="rounded-full border border-border-subtle bg-secondary px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-muted-foreground">
                 {question.difficulty}
               </span>
             </div>
@@ -251,10 +252,10 @@ export function MockTestRunner({
                 })
               }
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all active:scale-95",
+                "inline-flex items-center gap-1.5 rounded-control border px-2.5 py-1.5 text-xs font-medium transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-95",
                 flagged.has(index)
                   ? "border-np-orange/50 bg-np-orange/15 text-np-orange"
-                  : "border-border/60 text-muted-foreground hover:border-np-orange/40 hover:text-np-orange",
+                  : "border-border text-muted-foreground hover:border-np-orange/40 hover:text-np-orange",
               )}
             >
               <Flag className="h-3.5 w-3.5" />
@@ -281,10 +282,10 @@ export function MockTestRunner({
                     })
                   }
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm transition-all active:scale-[0.995]",
+                    "flex w-full items-center gap-3 rounded-control border px-4 py-3 text-left text-sm transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.995]",
                     selected
                       ? "border-primary bg-primary/10"
-                      : "border-border/60 bg-background hover:border-primary/40 hover:bg-secondary/50",
+                      : "border-border bg-background hover:border-primary/40 hover:bg-secondary/50",
                   )}
                 >
                   <span
@@ -310,7 +311,7 @@ export function MockTestRunner({
         <button
           onClick={() => setIndex((i) => Math.max(0, i - 1))}
           disabled={index === 0}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-control border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="hidden sm:inline">Previous</span>
@@ -326,14 +327,14 @@ export function MockTestRunner({
             </span>
             <button
               onClick={() => setConfirming(false)}
-              className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+              className="rounded-control border border-border bg-card px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
             >
               Keep going
             </button>
             <button
               onClick={() => void doSubmit(answers)}
               disabled={phase === "submitting"}
-              className="inline-flex items-center gap-2 rounded-lg bg-np-success px-4 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-control bg-np-success px-4 py-2.5 text-sm font-semibold text-background transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
             >
               {phase === "submitting" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -347,7 +348,7 @@ export function MockTestRunner({
           <button
             onClick={() => setConfirming(true)}
             disabled={phase === "submitting"}
-            className="inline-flex items-center gap-2 rounded-lg border border-np-success/40 bg-np-success/10 px-4 py-2.5 text-sm font-semibold text-np-success transition-all hover:bg-np-success/20 active:scale-[0.98] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-control border border-np-success/40 bg-np-success/10 px-4 py-2.5 text-sm font-semibold text-np-success transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-np-success/20 active:scale-[0.98] disabled:opacity-60"
           >
             {phase === "submitting" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -361,7 +362,7 @@ export function MockTestRunner({
         <button
           onClick={() => setIndex((i) => Math.min(questions.length - 1, i + 1))}
           disabled={index === questions.length - 1}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-control border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-40"
         >
           <span className="hidden sm:inline">Next</span>
           <ArrowRight className="h-4 w-4" />

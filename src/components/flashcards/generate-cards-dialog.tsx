@@ -65,7 +65,7 @@ export function GenerateCardsDialog({
     <Dialog open={open} onOpenChange={reset}>
       <DialogTrigger
         render={
-          <button className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-all hover:bg-primary/20 active:scale-[0.98]" />
+          <button className="inline-flex items-center gap-2 rounded-control border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:bg-primary/20 active:scale-[0.98]" />
         }
       >
         <Sparkles className="h-4 w-4" />
@@ -81,7 +81,7 @@ export function GenerateCardsDialog({
         </DialogHeader>
 
         {!hasAiKey ? (
-          <div className="flex flex-col items-start gap-3 rounded-lg border border-np-orange/30 bg-np-orange/[0.06] p-4">
+          <div className="flex flex-col items-start gap-3 rounded-control border border-np-orange/30 bg-np-orange/[0.06] p-4">
             <p className="flex items-center gap-2 text-sm font-medium text-foreground">
               <KeyRound className="h-4 w-4 text-np-orange" />
               You need an AI key first
@@ -92,13 +92,13 @@ export function GenerateCardsDialog({
             </p>
             <Link
               href="/settings"
-              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+              className="inline-flex items-center rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90"
             >
               Go to Settings
             </Link>
           </div>
         ) : added !== null ? (
-          <div className="flex flex-col items-center gap-2 rounded-lg border border-np-success/30 bg-np-success/[0.06] p-6 text-center">
+          <div className="flex flex-col items-center gap-2 rounded-control border border-np-success/30 bg-np-success/[0.06] p-6 text-center">
             <CheckCircle2 className="h-8 w-8 text-np-success" />
             <p className="font-semibold text-foreground">{added} new cards added!</p>
             <p className="text-sm text-muted-foreground">
@@ -109,17 +109,17 @@ export function GenerateCardsDialog({
           <div className="space-y-4">
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">How many cards?</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {COUNTS.map((c) => (
                   <button
                     key={c}
                     type="button"
                     onClick={() => setCount(c)}
                     className={cn(
-                      "rounded-lg border py-2 text-sm font-semibold transition-all active:scale-[0.97]",
+                      "rounded-control border py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,opacity,transform] active:scale-[0.97]",
                       count === c
                         ? "border-primary bg-primary/15 text-primary"
-                        : "border-border/70 bg-card text-muted-foreground hover:border-primary/40",
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40",
                     )}
                   >
                     {c}
@@ -145,7 +145,7 @@ export function GenerateCardsDialog({
         <DialogFooter>
           <DialogClose
             render={
-              <button className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
+              <button className="inline-flex items-center justify-center rounded-control border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary" />
             }
           >
             {added !== null ? "Done" : "Cancel"}
@@ -154,7 +154,7 @@ export function GenerateCardsDialog({
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
                 <>

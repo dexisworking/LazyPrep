@@ -70,7 +70,7 @@ export function ForgotPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div className="rounded-control border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         )}
@@ -88,7 +88,7 @@ export function ForgotPasswordForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="flex h-10 w-full rounded-lg border border-input bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+              className="flex h-10 w-full rounded-control border border-input bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
             />
           </div>
         </div>
@@ -96,7 +96,7 @@ export function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-center gap-2 rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-[background-color,border-color,color,box-shadow,opacity,transform] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           Send reset link

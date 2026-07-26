@@ -32,9 +32,9 @@ export function NotificationSettings() {
   };
 
   return (
-    <section className="space-y-4 rounded-xl border border-border/50 bg-card p-5">
+    <section className="space-y-4 rounded-card border border-border-subtle bg-card p-5">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border/50 bg-secondary/50">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control border border-border-subtle bg-secondary/50">
           <Bell className="h-4 w-4 text-primary" />
         </div>
         <div>
@@ -71,7 +71,7 @@ export function NotificationSettings() {
           />
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-border/40">
+        <div className="flex items-center justify-between pt-2 border-t border-border-subtle">
           <div>
             <p className="font-medium text-foreground">Browser Push Notifications</p>
             <p className="text-xs text-muted-foreground">Enable web push alerts on this device.</p>
@@ -79,7 +79,7 @@ export function NotificationSettings() {
           <button
             type="button"
             onClick={handlePushToggle}
-            className="rounded-lg border border-border/50 bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+            className="rounded-control border border-border-subtle bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
           >
             {pushEnabled ? "Enabled" : "Enable Push"}
           </button>

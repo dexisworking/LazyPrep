@@ -9,13 +9,13 @@ export default function FlashcardsLoading() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-border/40 bg-card p-5">
+          <div key={i} className="rounded-card border border-border-subtle bg-card p-5">
             <Skeleton className="h-6 w-40" />
             <div className="mt-4 flex gap-3">
               <Skeleton className="h-6 w-16 rounded-full" />
               <Skeleton className="h-6 w-16 rounded-full" />
             </div>
-            <Skeleton className="mt-5 h-10 w-full rounded-lg" />
+            <Skeleton className="mt-5 h-10 w-full rounded-control" />
           </div>
         ))}
       </div>
