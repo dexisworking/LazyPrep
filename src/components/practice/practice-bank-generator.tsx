@@ -15,6 +15,36 @@ export function PracticeBankGenerator({ courseId }: { courseId: string }) {
       run={() => ensurePracticeBank(courseId)}
       icon={Sparkles}
       tone="primary"
+      loadingVariant="console"
+      loadingSequences={[
+        {
+          status: "Reading the course",
+          lines: [
+            "Loading modules and lessons…",
+            "Identifying testable objectives…",
+            "Mapping topics to question types…",
+            "Balancing coverage across modules…",
+          ],
+        },
+        {
+          status: "Writing questions",
+          lines: [
+            "Drafting question stems…",
+            "Building plausible distractors…",
+            "Checking exactly one answer is correct…",
+            "Writing explanations for each option…",
+          ],
+        },
+        {
+          status: "Calibrating difficulty",
+          lines: [
+            "Scoring each question…",
+            "Spreading easy, medium and hard…",
+            "Tagging questions by topic…",
+            "Almost ready…",
+          ],
+        },
+      ]}
       labels={{
         loading: "Building your practice questions with AI…",
         loadingHint: "This runs once for this course and takes about 10–30 seconds.",

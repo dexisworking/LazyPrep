@@ -8,6 +8,8 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AiKeyGate } from "@/components/shared/ai-key-gate";
+import { AITextLoading } from "@/components/ui/ai-text-loading";
+import { AILoadingState, type LoadingSequence } from "@/components/ui/ai-loading-state";
 
 /** What a generation action resolves to. Mirrors the server actions' shape. */
 export type GeneratorResult = { ok: boolean; error?: string };
@@ -48,6 +50,19 @@ export type GeneratorPanelProps = {
   tone?: keyof typeof tones;
   size?: keyof typeof sizes;
   className?: string;
+  /**
+   * How the wait is dramatised.
+   *
+   * `shimmer` is the original bar. `text` cycles a shimmering status line and
+   * suits a single-shot generation (one lesson, one course). `console` narrates
+   * multi-phase work and is what the flashcard / practice-bank builds use —
+   * those genuinely do several passes and a static line undersells them.
+   */
+  loadingVariant?: "shimmer" | "text" | "console";
+  /** Status lines for `loadingVariant="text"`. Falls back to `labels.loading`. */
+  loadingTexts?: string[];
+  /** Phases for `loadingVariant="console"`. Required by that variant. */
+  loadingSequences?: LoadingSequence[];
 };
 
 /**
@@ -70,6 +85,9 @@ export function GeneratorPanel({
   tone = "primary",
   size = "md",
   className,
+  loadingVariant = "text",
+  loadingTexts,
+  loadingSequences,
 }: GeneratorPanelProps) {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "no-key">(
@@ -195,6 +213,10 @@ export function GeneratorPanel({
     );
   }
 
+  // `text` and `console` both render their own headline; only the bare shimmer
+  // needs the static one, otherwise the same sentence appears twice.
+  const showHeadline = loadingVariant === "shimmer";
+
   return (
     <div
       className={cn(
@@ -214,14 +236,32 @@ export function GeneratorPanel({
       >
         <Icon className={cn(s.icon, t.icon, "animate-streak-breathe")} aria-hidden />
       </div>
-      <p className="font-medium text-foreground">{labels.loading}</p>
-      {labels.loadingHint && (
-        <p className="mt-1 text-sm text-muted-foreground">{labels.loadingHint}</p>
+
+      {showHeadline && <p className="font-medium text-foreground">{labels.loading}</p>}
+
+      {loadingVariant === "text" && (
+        <AITextLoading
+          texts={loadingTexts ?? [labels.loading]}
+          className="mt-3 text-base"
+        />
       )}
-      {/* Indeterminate shimmer — the wait is 10–30s and a spinner alone reads as stalled. */}
-      <div className="mx-auto mt-5 h-1 w-40 overflow-hidden rounded-full bg-secondary">
-        <div className="h-full w-1/3 rounded-full bg-primary animate-generator-sweep" />
-      </div>
+
+      {loadingVariant === "console" && loadingSequences && (
+        <div className="mt-1 flex justify-center text-left">
+          <AILoadingState sequences={loadingSequences} />
+        </div>
+      )}
+
+      {labels.loadingHint && (
+        <p className="mt-3 text-sm text-muted-foreground">{labels.loadingHint}</p>
+      )}
+
+      {loadingVariant === "shimmer" && (
+        // Indeterminate sweep — the wait is 10–30s and a spinner alone reads as stalled.
+        <div className="mx-auto mt-5 h-1 w-40 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full w-1/3 rounded-full bg-primary animate-generator-sweep" />
+        </div>
+      )}
     </div>
   );
 }

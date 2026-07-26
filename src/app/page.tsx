@@ -1,68 +1,57 @@
 import Link from "next/link";
-import Image from "next/image";
-import { BookOpen, Brain, Target, BarChart3, Flame, ArrowRight, Sparkles, Smartphone, Globe, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Flame, ArrowRight, Smartphone, Globe, Play } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { SiteFooter } from "@/components/shared/site-footer";
 import { InstallHint } from "@/components/shared/install-hint";
-import { SlideUp, Stagger, StaggerItem } from "@/components/motion/motion";
+import { SlideUp } from "@/components/motion/motion";
+import { CourseDemoWidget } from "@/components/landing/course-demo-widget";
+import { FeatureBento } from "@/components/landing/feature-bento";
+import { ElegantShapes } from "@/components/ui/elegant-shapes";
+import { CardStack, type StackCard } from "@/components/ui/card-stack";
 
-/**
- * `span` drives the bento rhythm on lg+ : 4/2, 2/4, 3/3. The two features that
- * carry the most weight (AI generation, spaced repetition) get the wide slots.
- */
-const FEATURES = [
+/** The three product shots, fanned out in the download section. */
+const MOCKUP_CARDS: StackCard[] = [
   {
-    icon: Sparkles,
-    title: "AI course generation",
-    description:
-      "Bring your own AI key and generate a full course — modules, lessons and more — for any subject you need to learn.",
-    color: "text-primary",
-    bg: "bg-primary/10",
-    span: "lg:col-span-4",
+    id: "dashboard",
+    title: "Dashboard",
+    subtitle: "Your daily HUD",
+    description: "Streak, XP, level and today's quests — the first thing you see each morning.",
+    image: "/mockups/hero.webp",
+    alt: "LazyPrep dashboard showing course progress, streak and daily XP",
+    specs: [
+      { label: "Streak", value: "42d" },
+      { label: "Level", value: "17" },
+      { label: "XP today", value: "84" },
+      { label: "Quests", value: "3" },
+    ],
   },
   {
-    icon: BookOpen,
-    title: "Rich lessons",
-    description: "Tables, code and diagrams. Resume exactly where you left off.",
-    color: "text-accent",
-    bg: "bg-accent/10",
-    span: "lg:col-span-2",
+    id: "practice",
+    title: "Practice",
+    subtitle: "MCQs that stick",
+    description: "Every miss lands in your Wrong-Answer Notebook until you've truly got it.",
+    image: "/mockups/practice.webp",
+    alt: "LazyPrep practice questions on Android",
+    specs: [
+      { label: "Accuracy", value: "78%" },
+      { label: "Answered", value: "1.2k" },
+      { label: "Notebook", value: "42" },
+      { label: "Mocks", value: "6" },
+    ],
   },
   {
-    icon: Target,
-    title: "MCQ practice",
-    description: "Every miss lands in your Wrong-Answer Notebook until you master it.",
-    color: "text-np-red",
-    bg: "bg-np-red/10",
-    span: "lg:col-span-2",
-  },
-  {
-    icon: Brain,
-    title: "Spaced repetition",
-    description:
-      "SM-2 flashcards resurface each card exactly when you're about to forget it — so it sticks with far less effort.",
-    color: "text-np-success",
-    bg: "bg-np-success/10",
-    span: "lg:col-span-4",
-  },
-  {
-    icon: BarChart3,
-    title: "Progress & heatmap",
-    description:
-      "Accuracy, streaks and a study heatmap. Always know how ready you are for the real thing.",
-    color: "text-primary",
-    bg: "bg-primary/10",
-    span: "lg:col-span-3",
-  },
-  {
-    icon: Flame,
-    title: "Streaks that stick",
-    description:
-      "XP, levels and daily streaks turn consistent studying into a habit you actually keep.",
-    color: "text-streak-hot",
-    bg: "bg-streak-hot/10",
-    span: "lg:col-span-3",
+    id: "flashcards",
+    title: "Flashcards",
+    subtitle: "Spaced repetition",
+    description: "SM-2 scheduling resurfaces each card right before you'd forget it.",
+    image: "/mockups/flashcards.webp",
+    alt: "LazyPrep spaced-repetition flashcards on Android",
+    specs: [
+      { label: "Due today", value: "24" },
+      { label: "Mature", value: "310" },
+      { label: "Retention", value: "91%" },
+      { label: "Decks", value: "5" },
+    ],
   },
 ];
 
@@ -99,6 +88,12 @@ export default function HomePage() {
         rather than the pair of large blurred colour blobs this used to have.
       */}
       <section className="relative overflow-hidden px-4 pt-28 pb-16 sm:pt-32 lg:pb-24">
+        {/*
+          Two background layers, in order: drifting colour slabs, then the
+          technical grid over them. Both are masked/low-alpha so the hero copy
+          keeps its contrast — the shapes never exceed ~12%.
+        */}
+        <ElegantShapes className="[mask-image:radial-gradient(ellipse_85%_75%_at_50%_20%,black,transparent)]" />
         <div
           aria-hidden
           className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]"
@@ -168,24 +163,17 @@ export default function HomePage() {
           </SlideUp>
 
           {/*
-            Product shot rather than decoration. Hidden below lg — at phone
-            widths the copy and CTA are what matter, and a shrunk device mockup
-            of a phone shown on a phone adds nothing.
+            A working demo, not a screenshot. This used to be a static phone
+            mockup hidden below lg — a picture of the dashboard doesn't
+            demonstrate the one thing the headline promises, and there's no
+            reason to withhold an interactive widget from phone visitors.
           */}
-          <SlideUp delay={0.08} className="relative hidden justify-self-end lg:block">
+          <SlideUp delay={0.08} className="relative w-full justify-self-end lg:max-w-[440px]">
             <div
               aria-hidden
-              className="absolute -inset-x-8 -inset-y-6 rounded-[3rem] bg-primary/[0.04]"
+              className="absolute -inset-x-6 -inset-y-5 rounded-[3rem] bg-primary/[0.04]"
             />
-            <Image
-              src="/mockups/hero.webp"
-              alt="The LazyPrep dashboard showing course progress, streak and daily XP"
-              width={480}
-              height={860}
-              priority
-              sizes="380px"
-              className="relative w-[380px] rounded-[1.75rem] border border-border-subtle shadow-overlay"
-            />
+            <CourseDemoWidget className="relative" />
           </SlideUp>
         </div>
       </section>
@@ -202,29 +190,10 @@ export default function HomePage() {
         </SlideUp>
 
         {/*
-          A 6-track grid with varying spans gives a zig-zag rhythm (4/2, 2/4,
-          3/3) instead of a uniform row. Collapses to one column under sm.
+          A 6-track grid with varying spans gives a zig-zag rhythm (3/3, 4/2,
+          2/4) instead of a uniform row. Collapses to one column under sm.
         */}
-        <Stagger inView className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-          {FEATURES.map((feature) => (
-            <StaggerItem key={feature.title} className={feature.span}>
-              <article className="group flex h-full flex-col rounded-card border border-border-subtle bg-card/50 p-6 transition-[background-color,border-color,box-shadow] duration-(--dur-fast) hover:border-primary/30 hover:bg-card hover:shadow-raised">
-                <div
-                  className={cn(
-                    "mb-4 flex h-10 w-10 items-center justify-center rounded-control",
-                    feature.bg,
-                  )}
-                >
-                  <feature.icon className={cn("h-5 w-5", feature.color)} />
-                </div>
-                <h3 className="mb-2 font-semibold text-foreground">{feature.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {feature.description}
-                </p>
-              </article>
-            </StaggerItem>
-          ))}
-        </Stagger>
+        <FeatureBento />
       </section>
 
       {/* Mobile App / Download — desktop only (hidden below lg) */}
@@ -293,32 +262,14 @@ export default function HomePage() {
               </div>
             </SlideUp>
 
-            {/* Device mockups — overlapping trio, center raised */}
-            <SlideUp inView className="relative flex h-[540px] items-center justify-center">
-              <Image
-                src="/mockups/practice.webp"
-                alt="LazyPrep practice questions on Android"
-                width={480}
-                height={860}
-                sizes="300px"
-                className="absolute left-[8%] top-1/2 w-[42%] -translate-y-1/2 -rotate-6 rounded-[1.75rem] border border-border-subtle shadow-overlay"
-              />
-              <Image
-                src="/mockups/flashcards.webp"
-                alt="LazyPrep spaced-repetition flashcards on Android"
-                width={480}
-                height={860}
-                sizes="300px"
-                className="absolute right-[8%] top-1/2 w-[42%] -translate-y-1/2 rotate-6 rounded-[1.75rem] border border-border-subtle shadow-overlay"
-              />
-              <Image
-                src="/mockups/hero.webp"
-                alt="LazyPrep dashboard on Android"
-                width={480}
-                height={860}
-                sizes="300px"
-                className="relative z-10 w-[46%] rounded-[1.75rem] border border-border-subtle shadow-overlay"
-              />
+            {/*
+              Device mockups as a fanning deck. The old version was three
+              absolutely-positioned images at fixed rotations — this carries the
+              same three screens but lets a visitor pull them apart and read the
+              stat strip on each.
+            */}
+            <SlideUp inView className="relative">
+              <CardStack cards={MOCKUP_CARDS} />
             </SlideUp>
           </div>
         </div>

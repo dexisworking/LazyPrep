@@ -15,6 +15,7 @@ import { getStreakMultiplier } from "@/lib/xp";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { InlineAlert } from "@/components/shared/inline-alert";
 import { FlameVector, GemVector } from "@/components/game/vectors";
+import { HudItem, HudReveal } from "@/components/game/hud-reveal";
 
 interface StreakDialogProps {
   open: boolean;
@@ -65,7 +66,8 @@ export function StreakDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 rounded-3xl border-2 border-game-flame/40 p-0 sm:max-w-md">
-        <div className="flex flex-col items-center gap-3 px-6 pb-5 pt-8 text-center">
+        <HudReveal>
+        <HudItem className="flex flex-col items-center gap-3 px-6 pb-5 pt-8 text-center">
           <FlameVector status={status} size={92} />
           <div>
             <DialogTitle className="text-5xl font-extrabold tabular-nums tracking-tight text-foreground">
@@ -75,21 +77,25 @@ export function StreakDialog({
               day{currentStreak === 1 ? "" : "s"} · {statusLabel}
             </DialogDescription>
           </div>
-        </div>
+        </HudItem>
 
         <div className="space-y-4 border-t-2 border-border-subtle p-5">
           {studied ? (
-            <InlineAlert tone="success" icon={Check}>
-              You&apos;ve studied today — your streak is safe.
-            </InlineAlert>
+            <HudItem>
+              <InlineAlert tone="success" icon={Check}>
+                You&apos;ve studied today — your streak is safe.
+              </InlineAlert>
+            </HudItem>
           ) : atRisk ? (
-            <InlineAlert tone="warning">
-              Study today to keep your streak alive.
-            </InlineAlert>
+            <HudItem>
+              <InlineAlert tone="warning">
+                Study today to keep your streak alive.
+              </InlineAlert>
+            </HudItem>
           ) : null}
 
           {/* Multiplier ladder */}
-          <div className="space-y-2">
+          <HudItem className="space-y-2">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="flex items-center gap-1.5 text-foreground">
                 <Zap className="h-4 w-4 text-game-xp" />
@@ -121,9 +127,9 @@ export function StreakDialog({
                 </span>
               ))}
             </div>
-          </div>
+          </HudItem>
 
-          <div className="grid grid-cols-2 gap-3">
+          <HudItem className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl border-2 border-border-subtle bg-secondary/40 p-3 text-center">
               <div className="flex items-center justify-center gap-1 text-muted-foreground">
                 <TrendingUp className="h-3.5 w-3.5" />
@@ -144,8 +150,9 @@ export function StreakDialog({
                 {streakFreezes}
               </p>
             </div>
-          </div>
+          </HudItem>
         </div>
+        </HudReveal>
       </DialogContent>
     </Dialog>
   );

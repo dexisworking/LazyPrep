@@ -264,6 +264,27 @@
     }
   }
 
+  /* Rings rising and shrinking behind an un-flipped flashcard — the "there's
+     something on the other side" affordance. Staggered per-ring by delay. */
+  --animate-card-rings: card-rings 3s linear infinite;
+  @keyframes card-rings {
+    0% {
+      transform: scale(2);
+      opacity: 0;
+      box-shadow: 0 0 50px color-mix(in oklch, var(--primary) 45%, transparent);
+    }
+    50% {
+      transform: translateY(-5px) scale(1);
+      opacity: 0.9;
+      box-shadow: 0 8px 20px color-mix(in oklch, var(--primary) 45%, transparent);
+    }
+    100% {
+      transform: translateY(5px) scale(0.1);
+      opacity: 0;
+      box-shadow: 0 10px 20px transparent;
+    }
+  }
+
   /* Slow halo breath behind a lit streak or a level-up. */
   --animate-halo: halo 3s ease-in-out infinite;
   @keyframes halo {

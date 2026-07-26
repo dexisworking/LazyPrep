@@ -15,6 +15,36 @@ export function FlashcardDeckGenerator({ courseId }: { courseId: string }) {
       run={() => ensureFlashcardDeck(courseId)}
       icon={Sparkles}
       tone="success"
+      loadingVariant="console"
+      loadingSequences={[
+        {
+          status: "Reading the course",
+          lines: [
+            "Loading modules and lessons…",
+            "Extracting key terms and definitions…",
+            "Ranking concepts by exam weight…",
+            "Grouping related ideas…",
+          ],
+        },
+        {
+          status: "Writing cards",
+          lines: [
+            "Drafting question / answer pairs…",
+            "Keeping each card to one idea…",
+            "Removing near-duplicates…",
+            "Tagging cards by topic…",
+          ],
+        },
+        {
+          status: "Scheduling reviews",
+          lines: [
+            "Seeding SM-2 intervals…",
+            "Setting first due dates…",
+            "Building the study queue…",
+            "Almost ready…",
+          ],
+        },
+      ]}
       labels={{
         loading: "Building your flashcard deck with AI…",
         loadingHint: "This runs once for this course and takes about 10–30 seconds.",

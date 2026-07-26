@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { ProgressRing } from "@/components/game/progress-ring";
 import { RANK_TIERS, RankArt, getRankTier } from "@/components/game/rank-art";
 import { XpOrb } from "@/components/game/vectors";
+import { HudItem, HudReveal } from "@/components/game/hud-reveal";
 
 interface LevelDialogProps {
   open: boolean;
@@ -45,7 +46,8 @@ export function LevelDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 rounded-3xl border-2 border-game-xp/40 p-0 sm:max-w-md">
-        <div className="flex flex-col items-center gap-3 px-6 pb-5 pt-8 text-center">
+        <HudReveal>
+        <HudItem className="flex flex-col items-center gap-3 px-6 pb-5 pt-8 text-center">
           <RankArt level={level} size={104} />
           <div>
             <DialogTitle className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -55,10 +57,10 @@ export function LevelDialog({
               Level {level}
             </DialogDescription>
           </div>
-        </div>
+        </HudItem>
 
         <div className="space-y-5 border-t-2 border-border-subtle p-5">
-          <div className="flex items-center gap-5">
+          <HudItem className="flex items-center gap-5">
             <ProgressRing
               value={progress}
               size={92}
@@ -88,10 +90,10 @@ export function LevelDialog({
                 </p>
               )}
             </div>
-          </div>
+          </HudItem>
 
           {/* Rank ladder */}
-          <div className="space-y-2">
+          <HudItem className="space-y-2">
             <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
               <Zap className="h-3.5 w-3.5 text-game-xp" />
               Rank ladder
@@ -120,8 +122,9 @@ export function LevelDialog({
                 );
               })}
             </ul>
-          </div>
+          </HudItem>
         </div>
+        </HudReveal>
       </DialogContent>
     </Dialog>
   );

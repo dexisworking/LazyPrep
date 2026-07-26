@@ -15,6 +15,13 @@ export function LessonGenerator({ lessonId }: { lessonId: string }) {
       run={() => generateLessonContent(lessonId)}
       icon={Sparkles}
       tone="primary"
+      loadingTexts={[
+        "Reading the syllabus…",
+        "Outlining this lesson…",
+        "Writing the explanation…",
+        "Adding diagrams and examples…",
+        "Almost there…",
+      ]}
       labels={{
         loading: "Writing this lesson with your AI…",
         loadingHint:

@@ -12,7 +12,7 @@ import {
   type PanInfo,
 } from "framer-motion";
 import { DURATION, SPRING, tr } from "@/lib/motion";
-import { RotateCcw, Sparkles, Zap, MousePointerClick, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ArrowRight, ChevronsLeft, ChevronsRight, Repeat2, RotateCcw, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { reviewCard } from "@/lib/actions/flashcards";
 import {
@@ -208,24 +208,54 @@ export function FlashcardDeck({
               className="group block w-full [perspective:1200px]"
               aria-label="Flip card"
             >
+              {/*
+                Card surfaces adapted from the kokonutui "Card Flip" pattern:
+                gradient faces, a rising ring stack behind the prompt, and a
+                Repeat2 flip affordance. The *interaction* stays ours — the
+                reference flips on hover, which is unreachable on touch and
+                would fight the drag-to-grade gesture, so this still flips on
+                tap/click.
+              */}
               <div
                 className={cn(
-                  "relative min-h-[16rem] w-full transition-transform duration-500 [transform-style:preserve-3d]",
+                  "relative min-h-[16rem] w-full transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] [transform-style:preserve-3d] motion-reduce:transition-none",
                   flipped && "[transform:rotateY(180deg)]",
                 )}
               >
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-card border border-border bg-card p-8 text-center [backface-visibility:hidden]">
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
-                    {card.topic}
-                  </span>
-                  <p className="text-xl font-semibold text-foreground">{card.front}</p>
-                  <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MousePointerClick className="h-3.5 w-3.5" />
-                    Tap to flip
-                  </span>
+                {/* Front */}
+                <div className="absolute inset-0 overflow-hidden rounded-card border border-border bg-gradient-to-b from-secondary/60 to-card [backface-visibility:hidden]">
+                  {/* Rising rings — pure decoration, and the only thing on this
+                      face that isn't the question. */}
+                  <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    {Array.from({ length: 6 }, (_, ringIndex) => (
+                      <span
+                        key={ringIndex}
+                        className="absolute h-14 w-14 rounded-full opacity-0 motion-safe:animate-card-rings"
+                        style={{ animationDelay: `${ringIndex * 0.5}s` }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="relative flex h-full min-h-[16rem] flex-col items-center justify-center gap-4 p-8 text-center">
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-primary">
+                      {card.topic}
+                    </span>
+                    <p className="text-xl font-semibold tracking-tight text-foreground">
+                      {card.front}
+                    </p>
+                    <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Repeat2 className="h-4 w-4 text-primary" />
+                      Tap to flip
+                    </span>
+                  </div>
                 </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-card border border-primary/40 bg-primary/5 p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <span className="text-3xs font-medium uppercase tracking-wide text-primary">Answer</span>
+
+                {/* Back */}
+                <div className="absolute inset-0 flex min-h-[16rem] flex-col items-center justify-center gap-3 rounded-card border border-primary/40 bg-gradient-to-b from-primary/10 to-card p-8 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <span className="inline-flex items-center gap-1.5 text-3xs font-medium uppercase tracking-wide text-primary">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                    Answer
+                  </span>
                   <p className="text-lg font-medium leading-relaxed text-foreground">{card.back}</p>
                 </div>
               </div>

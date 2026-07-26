@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, BookOpen, Brain, Flame, Sparkles, Target, X } from "lucide-react";
-import { DURATION, SPRING, tr } from "@/lib/motion";
+import { DURATION, SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { completeOnboarding } from "@/lib/actions/profile";
+import { DynamicText } from "@/components/ui/dynamic-text";
 
 /** One scrim value for both the spotlight cutout and the no-target fallback. */
 const SCRIM = "oklch(0 0 0 / 0.72)";
@@ -193,6 +194,10 @@ export function OnboardingTour() {
           >
             <X className="h-4 w-4" />
           </button>
+
+          {/* The welcome step opens with a rapid multilingual greeting — the
+              tour's only "hello", and the one step with no target to point at. */}
+          {i === 0 && <DynamicText className="mb-1" />}
 
           <div className="flex h-9 w-9 items-center justify-center rounded-control border border-primary/20 bg-primary/10">
             <Icon className="h-4 w-4 text-primary" />

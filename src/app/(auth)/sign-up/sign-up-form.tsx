@@ -8,6 +8,7 @@ import { Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { GoogleButton } from "@/components/auth/google-button";
 import { VerifyNotice } from "@/components/auth/verify-notice";
+import { PasswordStrengthMeter } from "@/components/ui/password-strength-meter";
 
 export function SignUpForm({
   googleEnabled,
@@ -160,6 +161,10 @@ export function SignUpForm({
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
+
+          {/* Only once there's something to judge — an empty checklist on a
+              pristine form reads as four errors. */}
+          {password.length > 0 && <PasswordStrengthMeter password={password} className="pt-1" />}
         </div>
 
         <div className="space-y-2">

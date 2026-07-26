@@ -10,6 +10,7 @@ import { RankArt } from "@/components/game/rank-art";
 import { FlameVector } from "@/components/game/vectors";
 import { LevelDialog } from "@/components/game/level-dialog";
 import { StreakDialog } from "@/components/game/streak-dialog";
+import { HudChip } from "@/components/game/hud-reveal";
 import { ThemeToggle } from "./theme-toggle";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
@@ -17,9 +18,13 @@ interface NavbarProps {
   profile: ProfileSummary;
 }
 
-/** Shared chip shell for the two HUD counters. */
+/**
+ * Shared chip shell for the two HUD counters. Press/hover motion comes from
+ * `HudChip`'s spring rather than a CSS `active:scale-95`, so the chip settles
+ * with the same physics as the dialog it opens.
+ */
 const chipCls =
-  "flex h-9 items-center gap-1.5 rounded-full border-2 px-2.5 font-bold transition-[background-color,border-color,transform] duration-(--dur-fast) active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:px-3";
+  "flex h-9 items-center gap-1.5 rounded-full border-2 px-2.5 font-bold transition-[background-color,border-color] duration-(--dur-fast) focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:px-3";
 
 export function Navbar({ profile }: NavbarProps) {
   const [streakOpen, setStreakOpen] = useState(false);
@@ -48,8 +53,7 @@ export function Navbar({ profile }: NavbarProps) {
 
       <div className="flex items-center gap-2">
         {/* Level chip — opens the rank dialog. */}
-        <button
-          type="button"
+        <HudChip
           onClick={() => setLevelOpen(true)}
           aria-haspopup="dialog"
           aria-label={`Level ${level}. View rank details.`}
@@ -58,11 +62,10 @@ export function Navbar({ profile }: NavbarProps) {
           <RankArt level={level} size={22} animated={false} />
           <span className="text-sm tabular-nums text-foreground">{level}</span>
           <span className="hidden text-xs text-muted-foreground sm:inline">Lvl</span>
-        </button>
+        </HudChip>
 
         {/* Streak chip — opens the streak dialog. */}
-        <button
-          type="button"
+        <HudChip
           data-tour="streak"
           onClick={() => setStreakOpen(true)}
           aria-haspopup="dialog"
@@ -72,7 +75,7 @@ export function Navbar({ profile }: NavbarProps) {
           <FlameVector status={streakStatus} size={22} />
           <span className="text-sm tabular-nums text-foreground">{profile.currentStreak}</span>
           <span className="hidden text-xs text-muted-foreground sm:inline">day streak</span>
-        </button>
+        </HudChip>
 
         <ThemeToggle />
       </div>

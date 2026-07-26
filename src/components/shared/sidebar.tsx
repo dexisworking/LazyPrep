@@ -2,40 +2,63 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+
 import { cn } from "@/lib/utils";
-import { signOut } from "@/lib/auth-client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { StreakFlame } from "@/components/shared/streak-flame";
-import { getRank } from "@/lib/xp";
-import { getStreakStatus } from "@/lib/streak";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { navRoutes, isRouteActive } from "@/lib/nav";
 import { DexForgeCredit } from "@/components/shared/dexforge-credit";
+import { ProfileMenu } from "@/components/shared/profile-menu";
 import type { ProfileSummary } from "@/lib/data/dashboard";
 
-export function Sidebar({ profile }: { profile: ProfileSummary }) {
+export function Sidebar({
+  profile,
+  collapsed = false,
+  onToggle,
+}: {
+  profile: ProfileSummary;
+  collapsed?: boolean;
+  onToggle?: () => void;
+}) {
   const pathname = usePathname();
-
-  const displayName = profile.displayName;
-  const userLevel = profile.level;
-  const userRank = getRank(userLevel);
-  const streakStatus = getStreakStatus(profile.currentStreak);
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   return (
     <div className="flex h-full flex-col border-r border-border-subtle bg-sidebar text-sidebar-foreground">
-      {/* App Logo — aligned to the nav list below, not inset past it. */}
-      <div className="flex h-16 items-center gap-2 border-b border-border-subtle px-4">
-        <LogoMark className="h-7 w-7" />
-        <Wordmark className="text-lg" />
+      {/* Brand + collapse toggle. In the compact rail the wordmark drops and the
+          toggle takes the freed row so the header stays a single 4rem block. */}
+      <div
+        className={cn(
+          "flex h-16 items-center border-b border-border-subtle",
+          collapsed ? "flex-col justify-center gap-1 px-2 py-1" : "gap-2 px-4",
+        )}
+      >
+        <Link href="/dashboard" className="flex items-center gap-2" aria-label="LazyPrep home">
+          <LogoMark className="h-7 w-7" />
+          {!collapsed && <Wordmark className="text-lg" />}
+        </Link>
+
+        {onToggle && (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={cn(
+              "flex items-center justify-center rounded-control text-muted-foreground transition-colors duration-(--dur-fast) hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+              collapsed ? "h-6 w-8" : "ml-auto h-8 w-8",
+            )}
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </button>
+        )}
       </div>
 
-      <nav className="flex-1 space-y-1 p-3" aria-label="Main">
+      <nav className={cn("flex-1 space-y-1", collapsed ? "p-2" : "p-3")} aria-label="Main">
         {navRoutes.map((route) => {
           const isActive = isRouteActive(pathname, route.href);
           return (
@@ -44,8 +67,12 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
               href={route.href}
               data-tour={`nav-${route.href.slice(1)}`}
               aria-current={isActive ? "page" : undefined}
+              // `title` is the collapsed-state label — the visible text is gone,
+              // so without it the rail is seven anonymous glyphs.
+              title={collapsed ? route.label : undefined}
               className={cn(
-                "group relative flex items-center gap-3 rounded-control px-3 py-2.5 text-sm font-medium transition-colors duration-(--dur-fast)",
+                "group relative flex items-center rounded-control text-sm font-medium transition-colors duration-(--dur-fast)",
+                collapsed ? "h-10 justify-center" : "gap-3 px-3 py-2.5",
                 isActive
                   ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
                   : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
@@ -65,45 +92,28 @@ export function Sidebar({ profile }: { profile: ProfileSummary }) {
               <route.icon
                 className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "")}
               />
-              {route.label}
+              {!collapsed && route.label}
+              {collapsed && <span className="sr-only">{route.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom Profile Section */}
-      <div className="space-y-3 border-t border-border-subtle p-3">
-        <div className="flex items-center gap-3 rounded-card border border-border-subtle bg-card/40 p-3">
-          <Avatar className="h-9 w-9 border border-border">
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs uppercase">
-              {displayName.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 overflow-hidden">
-            <h4 className="text-sm font-medium leading-none truncate text-foreground">
-              {displayName}
-            </h4>
-            <p className="mt-1 text-xs text-muted-foreground truncate">
-              {userRank} (Lvl {userLevel})
-            </p>
-            <p className="mt-0.5 flex items-center gap-1 text-xs">
-              <StreakFlame status={streakStatus} className="h-3 w-3" />
-              <span className="font-semibold text-foreground">{profile.currentStreak}</span>
-              <span className="text-muted-foreground">day streak</span>
-            </p>
-          </div>
-        </div>
-
-        <Button
-          variant="destructive"
-          className="w-full justify-start"
-          onClick={handleSignOut}
-        >
-          <LogOut />
-          Sign Out
-        </Button>
-
-        <DexForgeCredit compact />
+      {/*
+        Account lives in the bottom-left corner in both states — as a full
+        identity card when expanded, as a bare avatar in the rail. Sign-out moved
+        into the menu, which is where the reference puts it and where a
+        destructive action belongs: it was previously a permanently visible
+        full-width destructive button one mis-click from ending your session.
+      */}
+      <div
+        className={cn(
+          "border-t border-border-subtle",
+          collapsed ? "space-y-2 p-2" : "space-y-3 p-3",
+        )}
+      >
+        <ProfileMenu profile={profile} compact={collapsed} />
+        {!collapsed && <DexForgeCredit compact />}
       </div>
     </div>
   );

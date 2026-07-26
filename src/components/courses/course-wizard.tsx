@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
-  Loader2,
   ArrowRight,
   ArrowLeft,
   KeyRound,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import { AITextLoading } from "@/components/ui/ai-text-loading";
 import { generateCourse } from "@/lib/actions/generate";
 import type { Questionnaire, CourseLevel, CourseDepth } from "@/lib/ai/types";
 
@@ -120,15 +120,32 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
 
   if (generating) {
     return (
-      <div className="rounded-card border border-border-subtle bg-card p-10 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-          <Sparkles className="h-7 w-7 animate-pulse text-primary" />
+      <div
+        className="rounded-card border border-border-subtle bg-card p-10 text-center"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-halo"
+          />
+          <Sparkles className="relative h-7 w-7 text-primary motion-safe:animate-streak-breathe" />
         </div>
-        <h2 className="flex items-center justify-center gap-2 text-lg font-semibold text-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Designing your course…
-        </h2>
-        <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+        <AITextLoading
+          texts={[
+            `Reading up on ${form.subject || "your subject"}…`,
+            "Mapping the syllabus…",
+            "Designing modules…",
+            "Naming the lessons…",
+            "Almost there…",
+          ]}
+          className="text-xl"
+        />
+        <div className="mx-auto mt-5 h-1 w-40 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full w-1/3 rounded-full bg-primary motion-safe:animate-generator-sweep" />
+        </div>
+        <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground">
           Building the module and lesson structure for <b>{form.subject}</b>. This takes about
           10–30 seconds. Each lesson is written on demand with interactive diagrams, quizzes, and
           flip-cards — and practice questions and flashcards are generated as you study.
