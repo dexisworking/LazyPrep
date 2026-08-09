@@ -139,6 +139,7 @@ model Profile {
   studyPlans       StudyPlan[]
   feedback         Feedback[]
   lessonRatings    LessonRating[]
+  notepads         Notepad[]
 }
 
 // ═══════════════════════════════════════════
@@ -195,6 +196,7 @@ model Course {
   flashcards  Flashcard[]
   mockTests   MockTest[]
   studyPlans  StudyPlan[]
+  notepads    Notepad[]
 
   @@index([ownerId])
   @@index([parentId])
@@ -576,4 +578,65 @@ model LessonRating {
 
   @@unique([profileId, lessonId])
   @@index([lessonId])
+}
+
+// ═══════════════════════════════════════════
+// COURSE NOTEPAD (per-user, per-course scratchpad)
+// Entries are classified by module for organized viewing.
+// ═══════════════════════════════════════════
+
+model Notepad {
+  id        String   @id @default(cuid())
+  profileId String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  course  Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  entries NotepadEntry[]
+
+  @@unique([profileId, courseId])
+  @@index([profileId])
+}
+
+model NotepadEntry {
+  id          String   @id @default(cuid())
+  notepadId   String
+  content     String   // The text content (highlighted or typed)
+  sourceType  String   @default("manual") // "highlight" | "manual" | "drag"
+  moduleId    String?  // Which module this entry belongs to (for tab classification)
+  moduleTitle String?  // Denormalized for display
+  lessonId    String?  // Which lesson it came from (null = manually typed)
+  lessonTitle String?  // Denormalized for display even if lesson is deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notepad Notepad @relation(fields: [notepadId], references: [id], onDelete: Cascade)
+
+  @@index([notepadId, moduleId])
+  @@index([notepadId, createdAt])
+}
+
+// ═══════════════════════════════════════════
+// COURSE RESOURCES (temporary upload tracking)
+// Original files stored in R2, deleted after AI processing.
+// Extracted text persists in Course.aiContext.referenceTexts.
+// ═══════════════════════════════════════════
+
+model CourseResource {
+  id            String   @id @default(cuid())
+  courseId      String?  // null during questionnaire (pre-creation), linked after
+  profileId     String
+  fileName      String
+  fileType      String   // "pdf" | "image"
+  fileSize      Int      // bytes
+  r2Key         String   // R2 object key for deletion
+  extractedText String?  // populated after processing
+  status        String   @default("pending") // "pending" | "processed" | "failed" | "deleted"
+  createdAt     DateTime @default(now())
+
+  @@index([profileId, createdAt])
+  @@index([courseId])
+  @@index([status, createdAt])
 }

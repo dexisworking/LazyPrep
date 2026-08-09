@@ -91,6 +91,7 @@ export type LessonContext = {
   chapterTitle: string;
   lessonTitle: string;
   phaseLevel?: PhaseLevel; // adaptive courses: drives depth by phase
+  referenceContext?: string; // user-uploaded resource text for AI grounding
 };
 
 /** Generate a single lesson's body as GitHub-flavored Markdown. */
@@ -134,10 +135,17 @@ ${depthGuide}
 Focus only on this lesson's topic; assume earlier lessons covered prerequisites.
 Weave in ${blockTarget} interactive blocks — including at least one diagram, one flip block, and a closing quiz — as described in the system prompt.`;
 
+  // If the user uploaded reference materials, inject them as grounding context.
+  const refSection = ctx.referenceContext?.trim()
+    ? `\n\nAdditional reference material provided by the learner:\n"""\n${ctx.referenceContext.slice(0, 8000)}\n"""\nUse this reference material to ground your lesson content where relevant. Prioritize accuracy from these sources over general knowledge.`
+    : "";
+
+  const systemWithRef = system + refSection;
+
   const md = await chatComplete(
     config,
     [
-      { role: "system", content: system },
+      { role: "system", content: systemWithRef },
       { role: "user", content: user },
     ],
     { temperature: 0.7, maxTokens },
@@ -493,4 +501,68 @@ Output a JSON array of EXACTLY 6 concise topic strings, e.g. ["Topic A", "Topic 
     : [];
   if (valid.length === 0) throw new AiError("The model returned no topics.");
   return valid.slice(0, 8);
+}
+
+// ─── In-Depth Deep-Dive Section ───
+
+/**
+ * Generate a focused deep-dive section for a selected piece of text.
+ * Returns Markdown matching the lesson format, suitable for appending.
+ */
+export async function generateInDepthMarkdown(
+  config: AiConfig,
+  ctx: {
+    courseTitle: string;
+    lessonTitle: string;
+    lessonContent: string;
+    selectedText: string;
+    phaseLevel?: PhaseLevel;
+  },
+): Promise<string> {
+  const depthPhrase = ctx.phaseLevel
+    ? PHASE_DEPTH[ctx.phaseLevel]
+    : "Be thorough and detailed (~400–800 words) with examples.";
+
+  const system =
+    "You are an expert instructor writing a deep-dive section that expands on a specific " +
+    "concept the learner highlighted. Output GitHub-flavored Markdown. Do NOT repeat content " +
+    "that already appears in the lesson — go deeper, cover nuances, edge cases, and provide " +
+    "additional examples the main lesson didn't. Do NOT start with a heading (the app adds one).\n" +
+    INTERACTIVE_BLOCK_GUIDE;
+
+  const lessonExcerpt = ctx.lessonContent.slice(0, 4000);
+
+  const user = `The learner is studying "${ctx.courseTitle}" and is on the lesson "${ctx.lessonTitle}".
+
+They selected this text and want to learn it in depth:
+"""
+${ctx.selectedText.slice(0, 1000)}
+"""
+
+Existing lesson context:
+"""
+${lessonExcerpt}
+"""
+
+${depthPhrase}
+Generate a thorough deep-dive explanation of the selected concept. Include:
+- Detailed explanation with concrete examples
+- Why it matters in the broader context of ${ctx.courseTitle}
+- Common misconceptions or pitfalls
+- At least one interactive block (diagram, quiz, or flip cards)
+
+Start directly with the content — no heading needed.`;
+
+  const md = await chatComplete(
+    config,
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.7, maxTokens: 2400 },
+  );
+
+  const trimmed = md.trim();
+  const fenced = trimmed.match(/^```(?:markdown|md)?\s*([\s\S]*?)```$/i);
+  return (fenced ? fenced[1] : trimmed).trim();
 }

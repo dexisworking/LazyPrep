@@ -7,6 +7,7 @@ import { recordLessonView } from "@/lib/actions/progress";
 import { getLessonRating } from "@/lib/actions/lesson-rating";
 import { isBookmarked } from "@/lib/actions/bookmarks";
 import { LessonContent } from "@/components/lesson/lesson-content";
+import { LessonInteractiveWrapper } from "@/components/lesson/lesson-interactive-wrapper";
 import { LessonGenerator } from "@/components/lesson/lesson-generator";
 import { MarkCompleteButton } from "@/components/lesson/mark-complete-button";
 import { LessonRatingWidget } from "@/components/lesson/lesson-rating";
@@ -28,7 +29,7 @@ export default async function LessonPage({
   const view = await getLessonView(courseSlug, lessonSlug, profile?.id ?? null);
   if (!view || !canAccessCourse(view.course, profile?.id ?? null)) notFound();
 
-  const { course, lesson, completed, moduleTitle, chapterTitle, position, total, prev, next } = view;
+  const { course, lesson, completed, moduleId, moduleTitle, chapterTitle, position, total, prev, next, modules } = view;
 
   // Record that the lesson was opened (for "continue where you left off").
   if (profile) await recordLessonView(lesson.id);
@@ -84,7 +85,19 @@ export default async function LessonPage({
         <LessonGenerator lessonId={lesson.id} />
       ) : (
         <>
-          <LessonContent content={lesson.content} />
+          {profile ? (
+            <LessonInteractiveWrapper
+              content={lesson.content}
+              courseId={course.id}
+              lessonId={lesson.id}
+              lessonTitle={lesson.title}
+              moduleId={moduleId}
+              moduleTitle={moduleTitle}
+              modules={modules}
+            />
+          ) : (
+            <LessonContent content={lesson.content} />
+          )}
 
           {/* Complete action */}
           <div className="border-t border-border-subtle pt-6">
@@ -141,11 +154,6 @@ export default async function LessonPage({
           <span className="hidden sm:block sm:flex-1" />
         )}
       </div>
-
-      {/* In-context AI tutor (grounded in this lesson) — only once content exists */}
-      {profile && !needsGeneration && (
-        <TutorPanel courseId={course.id} lessonId={lesson.id} />
-      )}
     </div>
   );
 }

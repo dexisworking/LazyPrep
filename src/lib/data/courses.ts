@@ -78,6 +78,7 @@ export type OrderedLesson = {
   slug: string;
   title: string;
   estimatedMinutes: number;
+  moduleId: string;
   moduleTitle: string;
   chapterTitle: string;
   completed: boolean;
@@ -131,6 +132,7 @@ export async function getCourseTree(slug: string, profileId: string | null) {
         const completed = completedSet.has(l.id);
         orderedLessons.push({
           ...l,
+          moduleId: m.id,
           moduleTitle: m.title,
           chapterTitle: c.title,
           completed,
@@ -180,11 +182,13 @@ export async function getLessonView(
     course: tree.course,
     lesson,
     completed: meta.completed,
+    moduleId: meta.moduleId,
     moduleTitle: meta.moduleTitle,
     chapterTitle: meta.chapterTitle,
     position: idx + 1,
     total: tree.orderedLessons.length,
     prev: idx > 0 ? tree.orderedLessons[idx - 1] : null,
     next: idx < tree.orderedLessons.length - 1 ? tree.orderedLessons[idx + 1] : null,
+    modules: tree.modules.map((m) => ({ id: m.id, title: m.title })),
   };
 }

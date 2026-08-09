@@ -31,6 +31,8 @@ export function TutorPanel({
   lessonId,
   questionId,
   seedPrompt,
+  pendingPrompt,
+  onPromptConsumed,
   trigger = "floating",
   label = "Ask the tutor",
 }: {
@@ -38,6 +40,8 @@ export function TutorPanel({
   lessonId?: string;
   questionId?: string;
   seedPrompt?: string;
+  pendingPrompt?: string | null;
+  onPromptConsumed?: () => void;
   trigger?: "floating" | "inline";
   label?: string;
 }) {
@@ -78,6 +82,16 @@ export function TutorPanel({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Handle externally injected pending prompts (e.g. from text selection Ask Tutor)
+  useEffect(() => {
+    if (pendingPrompt) {
+      setOpen(true);
+      void send(pendingPrompt);
+      onPromptConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPrompt]);
 
   // Keep the thread scrolled to the latest message.
   useEffect(() => {

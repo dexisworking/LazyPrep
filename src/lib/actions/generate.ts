@@ -98,6 +98,12 @@ async function writePhaseContent(moduleId: string, blueprint: PhaseBlueprint) {
 
 // ─── actions ───
 
+import {
+  processResources,
+  getResourceContext,
+  cleanupResources,
+} from "@/lib/actions/resources";
+
 type CreateResult = { ok: true; slug: string } | { ok: false; error: string };
 
 /** Shared adaptive-course creation (used by generateCourse and spawnDeepDive). */
@@ -107,6 +113,16 @@ async function createAdaptiveCourse(
   q: Questionnaire,
   parentId?: string,
 ): Promise<CreateResult> {
+  // Process any pending uploaded reference files (PDFs/images)
+  await processResources(profileId);
+  const referenceContext = await getResourceContext(profileId);
+
+  // Store reference text inside the course aiContext object
+  const aiContextWithRefs = {
+    ...(q as Record<string, unknown>),
+    ...(referenceContext ? { referenceTexts: referenceContext } : {}),
+  };
+
   // Generate the Foundation phase structure first.
   let foundation: PhaseBlueprint;
   try {
@@ -134,7 +150,7 @@ async function createAdaptiveCourse(
         adaptive: true,
         ownerId: profileId,
         parentId: parentId ?? null,
-        aiContext: q as unknown as Prisma.InputJsonValue,
+        aiContext: aiContextWithRefs as unknown as Prisma.InputJsonValue,
         modules: {
           create: PHASE_ORDER.map((level, i) => ({
             title: PHASE_TITLE[level],
@@ -152,6 +168,9 @@ async function createAdaptiveCourse(
   } catch {
     return { ok: false, error: "Failed to save the course." };
   }
+
+  // Delete original files from R2 (extracted text remains persisted in aiContext)
+  await cleanupResources(profileId, course.id);
 
   const foundationModule = course.modules.find((m) => m.phaseLevel === "foundation");
   if (foundationModule) {
@@ -354,6 +373,8 @@ export async function generateLessonContent(lessonId: string) {
 
   const q =
     (course.aiContext as unknown as Questionnaire | null) ?? fallbackQuestionnaire(course);
+  const referenceContext =
+    (course.aiContext as Record<string, unknown> | null)?.referenceTexts as string | undefined;
 
   let md: string;
   try {
@@ -364,6 +385,7 @@ export async function generateLessonContent(lessonId: string) {
       chapterTitle: lesson.chapter.title,
       lessonTitle: lesson.title,
       phaseLevel: (lessonModule.phaseLevel as PhaseLevel | null) ?? undefined,
+      referenceContext,
     });
   } catch (e) {
     return { ok: false as const, error: formatAiError(e) };

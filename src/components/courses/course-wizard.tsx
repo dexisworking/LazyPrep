@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import { AITextLoading } from "@/components/ui/ai-text-loading";
 import { generateCourse } from "@/lib/actions/generate";
+import { ResourceUploader } from "@/components/courses/resource-uploader";
 import type { Questionnaire, CourseLevel, CourseDepth } from "@/lib/ai/types";
 
 const CATEGORIES = [
@@ -326,6 +327,8 @@ export function CourseWizard({ hasKey }: { hasKey: boolean }) {
                 className="h-10 w-full rounded-control border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               />
             </div>
+            <ResourceUploader />
+
             <div className="rounded-control border border-border-subtle bg-secondary/40 p-3 text-sm text-muted-foreground">
               Generating <b className="text-foreground">{form.subject || "your course"}</b> ·{" "}
               {form.moduleCount} modules · {form.level} · {form.depth}

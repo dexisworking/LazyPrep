@@ -46,8 +46,15 @@ export function LessonContent({ content }: { content: string }) {
   // HTML by default, so injected <script>/<img onerror> etc. never execute.
   // Do NOT add `rehype-raw` (or otherwise enable raw HTML) here — it would make
   // untrusted model output an XSS vector.
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed) {
+      e.dataTransfer.setData("text/plain", sel.toString().trim());
+    }
+  };
+
   return (
-    <div className="md-content">
+    <div className="md-content" onDragStart={handleDragStart}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { plainText: [...INTERACTIVE_LANGS] }]]}
