@@ -13,6 +13,12 @@ import {
 // the R2 endpoint. All env vars are validated at module load — if any are
 // missing the server fails fast instead of silently passing null keys.
 
+function requiredEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing required env var: ${name}`);
+  return v;
+}
+
 let r2Instance: S3Client | null = null;
 
 function getR2Client(): S3Client {
