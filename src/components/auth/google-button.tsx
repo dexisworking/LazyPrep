@@ -32,12 +32,15 @@ export function GoogleButton({
     setLoading(true);
     onError("");
     try {
-      await signIn.social({
+      const res = await signIn.social({
         provider: "google",
         callbackURL: callbackUrl,
         errorCallbackURL: errorCallbackUrl,
       });
-      // On success the browser is redirected to Google, so no further code runs.
+      if (res?.error) {
+        onError(res.error.message || "Google sign-in failed. Please try again.");
+        setLoading(false);
+      }
     } catch {
       onError("Google sign-in failed. Please try again.");
       setLoading(false);

@@ -39,7 +39,7 @@ export const auth = betterAuth({
   // NOTE: requires the `rateLimit` table (prisma migrate) to exist before deploy.
   rateLimit: {
     enabled: true,
-    storage: "database",
+    storage: process.env.NODE_ENV === "production" ? "database" : "memory",
     window: 60,
     max: 30,
     customRules: {
